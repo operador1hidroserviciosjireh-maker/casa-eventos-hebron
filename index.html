@@ -4,17 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hebron Casa Retiro</title>
-  <!-- Usaremos una fuente elegante de Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+
     body {
-      font-family: 'Poppins', sans-serif; /* Fuente para texto normal */
-      background-color: #ffffff; /* Fondo blanco para la página */
-      color: #5d4037; /* Color de texto marrón oscuro */
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f4f4f9;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -23,162 +18,150 @@
     }
 
     .card {
-      background: #fffefb; /* Color crema muy sutil para la tarjeta, más cálido */
+      background: #ffffff;
       max-width: 400px;
       width: 100%;
-      border-radius: 20px;
-      border: 1px solid #d7ccc8; /* Borde sutil marrón claro */
-      box-shadow: 0 10px 30px rgba(93, 64, 55, 0.08); /* Sombra suave */
-      overflow: hidden;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      padding: 30px 20px;
       text-align: center;
-      padding: 30px 25px;
     }
 
     .logo-container {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 20px;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 15px;
       border-radius: 50%;
-      border: 2px solid #a1887f; /* Borde marrón para el logo */
-      padding: 3px;
-      background: #fff;
+      overflow: hidden;
+      background: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .logo-container img {
       width: 100%;
       height: 100%;
-      border-radius: 50%;
       object-fit: cover;
     }
 
     h1 {
-      font-family: 'Playfair Display', serif; /* Fuente elegante para el título */
-      font-size: 26px;
-      color: #3e2723; /* Marrón más oscuro */
-      margin-bottom: 5px;
-      font-weight: 600;
+      font-size: 22px;
+      color: #111827;
+      margin-bottom: 4px;
+      font-weight: 700;
     }
 
     .subtitle {
-      font-size: 15px;
-      color: #8d6e63; /* Marrón medio */
-      font-weight: 500;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-size: 14px;
+      color: #4b5563;
+      margin-bottom: 6px;
     }
 
     .location {
       font-size: 13px;
-      color: #a1887f; /* Marrón claro */
-      margin-bottom: 25px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
+      color: #6b7280;
+      margin-bottom: 20px;
     }
 
     .btn {
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 8px;
       width: 100%;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 30px; /* Bordes muy redondeados */
+      padding: 14px;
+      margin-bottom: 12px;
+      border-radius: 10px;
       text-decoration: none;
       font-weight: 600;
-      font-size: 16px;
-      transition: all 0.2s ease;
-      border: 1px solid transparent; /* Borde transparente por defecto */
+      font-size: 15px;
+      color: #ffffff;
+      transition: opacity 0.2s ease;
     }
 
-    /* Estilo para el botón principal de Kyte */
-    .btn-kyte {
-      background-color: #d7ccc8; /* Color de fondo rústico, inspirado en terracota */
-      color: #3e2723;
-      border-color: #a1887f;
+    .btn:hover {
+      opacity: 0.9;
     }
 
-    .btn-kyte:hover {
-      background-color: #a1887f;
-      color: #fff;
+    .btn-catalog { background-color: #22c55e; }
+    .btn-phone { background-color: #16a34a; }
+    .btn-tiktok { background-color: #000000; }
+    .btn-facebook { background-color: #1877f2; }
+    .btn-instagram { background-color: #e1306c; }
+
+    /* Galería de imágenes */
+    .gallery-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin: 20px 0 10px;
+      text-align: left;
     }
 
-    /* Estilo para los botones secundarios con bordes */
-    .btn-outline {
-      background-color: transparent;
-      color: #5d4037;
-      border-color: #d7ccc8;
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 15px;
     }
 
-    .btn-outline:hover {
-      background-color: #fffefb;
-      border-color: #a1887f;
-      color: #3e2723;
-    }
-
-    /* Estilo específico para resaltar el botón de Kyte */
-    .btn-catalog {
-        background-color: #81c784; /* Verde más suave y natural */
-        color: #fff;
-    }
-
-    .btn-catalog:hover {
-        background-color: #66bb6a;
-    }
-
-    .icon {
-      margin-right: 10px;
-      font-size: 20px;
+    .gallery img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 8px;
     }
 
     footer {
-      margin-top: 25px;
+      margin-top: 15px;
       font-size: 12px;
-      color: #a1887f;
-      font-weight: 400;
+      color: #9ca3af;
     }
   </style>
-  <!-- Usaremos iconos de Font Awesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
   <div class="card">
     <div class="logo-container">
-      <!-- Reemplaza src por la ruta de tu logo -->
-      <img src="logo.png" alt="Hebron Logo">
+      <img src="logo.jpg" alt="Hebron Logo">
     </div>
 
     <h1>Hebron Casa Retiro</h1>
     <p class="subtitle">Casa de Retiros y Eventos</p>
-    <p class="location"><i class="fas fa-map-marker-alt"></i> Km. 30.5, Carretera a El Salvador, Guatemala</p>
+    <p class="location">Km. 30.5, Carretera a El Salvador, Guatemala</p>
 
-    <!-- Botón Catálogo Kyte destacado -->
     <a href="https://hebron-casa-de-eventos.kyte.site" class="btn btn-catalog" target="_blank">
-      <i class="fas fa-shopping-cart icon"></i> Ver Catálogo y Pedidos
+      Ver Catálogo y Pedidos
     </a>
 
-    <!-- Botones secundarios estilo esquema -->
-    <a href="tel:+50250390762" class="btn btn-outline">
-      <i class="fas fa-phone icon"></i> Llamar Directo (50390762)
+    <a href="tel:+50250390762" class="btn btn-phone">
+      Llamar Directo (50390762)
     </a>
 
-    <a href="https://www.tiktok.com/@hebron8429" class="btn btn-outline" target="_blank">
-      <i class="fab fa-tiktok icon"></i> TikTok
+    <a href="https://www.tiktok.com/@hebron8429" class="btn btn-tiktok" target="_blank">
+      TikTok
     </a>
 
-    <a href="https://www.facebook.com/hebroncasaretiro" class="btn btn-outline" target="_blank">
-      <i class="fab fa-facebook-f icon"></i> Facebook
+    <a href="https://www.facebook.com/hebroncasaretiro" class="btn btn-facebook" target="_blank">
+      Facebook
     </a>
 
-    <a href="https://www.instagram.com/tu-usuario" class="btn btn-outline" target="_blank">
-      <i class="fab fa-instagram icon"></i> Instagram
+    <a href="https://www.instagram.com/tu-usuario" class="btn btn-instagram" target="_blank">
+      Instagram
     </a>
+
+    <!-- Sección de Galería de Imágenes -->
+    <p class="gallery-title">Nuestras Instalaciones</p>
+    <div class="gallery">
+      <img src="foto1.jpg" alt="Instalaciones 1">
+      <img src="foto2.jpg" alt="Instalaciones 2">
+      <img src="foto3.jpg" alt="Instalaciones 3">
+      <img src="foto4.jpg" alt="Instalaciones 4">
+    </div>
 
     <footer>
-      © Hebron Casa Retiro y Eventos - La mejor para ti
+      © Hebron Casa Retiro y Eventos
     </footer>
   </div>
 
