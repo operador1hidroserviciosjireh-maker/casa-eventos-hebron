@@ -3,125 +3,182 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hebron Casa Retiro y Eventos</title>
+  <title>Hebron Casa Retiro</title>
+  <!-- Usaremos una fuente elegante de Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f7f9fc;
-      color: #333;
+      font-family: 'Poppins', sans-serif; /* Fuente para texto normal */
+      background-color: #ffffff; /* Fondo blanco para la página */
+      color: #5d4037; /* Color de texto marrón oscuro */
       display: flex;
       justify-content: center;
+      align-items: center;
+      min-height: 100vh;
       padding: 20px 15px;
     }
+
     .card {
-      background: #ffffff;
-      max-width: 420px;
+      background: #fffefb; /* Color crema muy sutil para la tarjeta, más cálido */
+      max-width: 400px;
       width: 100%;
-      border-radius: 16px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-radius: 20px;
+      border: 1px solid #d7ccc8; /* Borde sutil marrón claro */
+      box-shadow: 0 10px 30px rgba(93, 64, 55, 0.08); /* Sombra suave */
       overflow: hidden;
       text-align: center;
-      padding: 25px 20px;
+      padding: 30px 25px;
     }
+
     .logo-container {
-      width: 110px;
-      height: 110px;
-      margin: 0 auto 15px;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
       border-radius: 50%;
-      border: 2px solid #e0e0e0;
-      padding: 5px;
+      border: 2px solid #a1887f; /* Borde marrón para el logo */
+      padding: 3px;
       background: #fff;
     }
+
     .logo-container img {
       width: 100%;
       height: 100%;
       border-radius: 50%;
       object-fit: cover;
     }
+
     h1 {
-      font-size: 22px;
-      color: #1a1a1a;
+      font-family: 'Playfair Display', serif; /* Fuente elegante para el título */
+      font-size: 26px;
+      color: #3e2723; /* Marrón más oscuro */
       margin-bottom: 5px;
+      font-weight: 600;
     }
+
     .subtitle {
-      font-size: 14px;
-      color: #666;
+      font-size: 15px;
+      color: #8d6e63; /* Marrón medio */
       font-weight: 500;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
+
     .location {
       font-size: 13px;
-      color: #888;
-      margin-bottom: 20px;
+      color: #a1887f; /* Marrón claro */
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
     }
+
     .btn {
       display: flex;
       align-items: center;
       justify-content: center;
       width: 100%;
-      padding: 14px;
-      margin-bottom: 12px;
-      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 30px; /* Bordes muy redondeados */
       text-decoration: none;
       font-weight: 600;
-      font-size: 15px;
-      color: #ffffff;
-      transition: opacity 0.2s ease;
+      font-size: 16px;
+      transition: all 0.2s ease;
+      border: 1px solid transparent; /* Borde transparente por defecto */
     }
-    .btn:active { opacity: 0.85; }
-    
-    /* Colores corporativos */
-    .btn-kyte { background-color: #00c853; }
-    .btn-call { background-color: #25d366; }
-    .btn-tiktok { background-color: #000000; }
-    .btn-facebook { background-color: #1877f2; }
-    .btn-instagram { background-color: #e1306c; }
+
+    /* Estilo para el botón principal de Kyte */
+    .btn-kyte {
+      background-color: #d7ccc8; /* Color de fondo rústico, inspirado en terracota */
+      color: #3e2723;
+      border-color: #a1887f;
+    }
+
+    .btn-kyte:hover {
+      background-color: #a1887f;
+      color: #fff;
+    }
+
+    /* Estilo para los botones secundarios con bordes */
+    .btn-outline {
+      background-color: transparent;
+      color: #5d4037;
+      border-color: #d7ccc8;
+    }
+
+    .btn-outline:hover {
+      background-color: #fffefb;
+      border-color: #a1887f;
+      color: #3e2723;
+    }
+
+    /* Estilo específico para resaltar el botón de Kyte */
+    .btn-catalog {
+        background-color: #81c784; /* Verde más suave y natural */
+        color: #fff;
+    }
+
+    .btn-catalog:hover {
+        background-color: #66bb6a;
+    }
+
+    .icon {
+      margin-right: 10px;
+      font-size: 20px;
+    }
 
     footer {
-      margin-top: 20px;
+      margin-top: 25px;
       font-size: 12px;
-      color: #aaa;
+      color: #a1887f;
+      font-weight: 400;
     }
   </style>
+  <!-- Usaremos iconos de Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
   <div class="card">
     <div class="logo-container">
-      <!-- Reemplaza src por la ruta o URL de tu logo -->
-      <img src="https://via.placeholder.com/150" alt="Hebron Logo">
+      <!-- Reemplaza src por la ruta de tu logo -->
+      <img src="logo.png" alt="Hebron Logo">
     </div>
 
     <h1>Hebron Casa Retiro</h1>
     <p class="subtitle">Casa de Retiros y Eventos</p>
-    <p class="location">📍 Km. 30.5, Carretera a El Salvador, Guatemala</p>
+    <p class="location"><i class="fas fa-map-marker-alt"></i> Km. 30.5, Carretera a El Salvador, Guatemala</p>
 
-    <!-- Botón Catálogo Kyte -->
-    <a href="https://hebron-casa-de-eventos.kyte.site" class="btn btn-kyte" target="_blank">
-      🛒 Ver Catálogo y Pedidos
+    <!-- Botón Catálogo Kyte destacado -->
+    <a href="https://hebron-casa-de-eventos.kyte.site" class="btn btn-catalog" target="_blank">
+      <i class="fas fa-shopping-cart icon"></i> Ver Catálogo y Pedidos
     </a>
 
-    <!-- Botón Llamar Directo -->
-    <a href="tel:+50250390762" class="btn btn-call">
-      📞 Llamar Directo (50390762)
+    <!-- Botones secundarios estilo esquema -->
+    <a href="tel:+50250390762" class="btn btn-outline">
+      <i class="fas fa-phone icon"></i> Llamar Directo (50390762)
     </a>
 
-    <!-- Redes Sociales -->
-    <a href="https://www.tiktok.com/@tu-usuario" class="btn btn-tiktok" target="_blank">
-      🎵 TikTok
+    <a href="https://www.tiktok.com/@hebron8429" class="btn btn-outline" target="_blank">
+      <i class="fab fa-tiktok icon"></i> TikTok
     </a>
 
-    <a href="https://www.facebook.com/hebroncasaretiro" class="btn btn-facebook" target="_blank">
-      📘 Facebook
+    <a href="https://www.facebook.com/hebroncasaretiro" class="btn btn-outline" target="_blank">
+      <i class="fab fa-facebook-f icon"></i> Facebook
     </a>
 
-    <a href="https://www.instagram.com/tu-usuario" class="btn btn-instagram" target="_blank">
-      📸 Instagram
+    <a href="https://www.instagram.com/tu-usuario" class="btn btn-outline" target="_blank">
+      <i class="fab fa-instagram icon"></i> Instagram
     </a>
 
     <footer>
-      © Hebron Casa Retiro y Eventos
+      © Hebron Casa Retiro y Eventos - La mejor para ti
     </footer>
   </div>
 
