@@ -5,28 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hebron Casa Retiro y Eventos</title>
   <style>
-    /* Estilos Generales y Resets */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: #f8faf9;
-      color: #2c3e50;
+      color: #334155;
       line-height: 1.6;
     }
 
-    /* Navegación Header */
+    /* Encabezado */
     header {
       background-color: #ffffff;
       box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       position: sticky;
       top: 0;
       z-index: 1000;
-      padding: 15px 0;
+      padding: 12px 0;
     }
 
     .nav-container {
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 0 20px;
       display: flex;
@@ -39,26 +38,25 @@
       align-items: center;
       gap: 12px;
       text-decoration: none;
-      color: #1a365d;
+      color: #0f172a;
     }
 
     .brand-logo img {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       object-fit: cover;
     }
 
     .brand-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
-      color: #1e293b;
+      color: #0f172a;
     }
 
     .nav-links {
       display: flex;
-      gap: 20px;
-      align-items: center;
+      gap: 18px;
     }
 
     .nav-links a {
@@ -73,28 +71,28 @@
       color: #16a34a;
     }
 
-    /* Hero Section / Banner Principal */
+    /* Hero / Portada */
     .hero {
       background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
-      padding: 60px 20px;
+      padding: 50px 20px;
       text-align: center;
       border-bottom: 1px solid #e2e8f0;
     }
 
     .hero-container {
-      max-width: 900px;
+      max-width: 800px;
       margin: 0 auto;
     }
 
     .hero h1 {
-      font-size: 38px;
+      font-size: 32px;
       color: #0f172a;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       font-weight: 800;
     }
 
     .hero p {
-      font-size: 18px;
+      font-size: 16px;
       color: #475569;
       margin-bottom: 25px;
     }
@@ -102,153 +100,129 @@
     .btn-group {
       display: flex;
       justify-content: center;
-      gap: 15px;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .btn-main {
-      padding: 12px 24px;
+      padding: 10px 20px;
       border-radius: 8px;
       font-weight: 600;
       text-decoration: none;
       color: white;
-      transition: transform 0.2s, opacity 0.2s;
-      font-size: 15px;
+      font-size: 14px;
+      transition: opacity 0.2s;
     }
 
-    .btn-main:hover {
-      transform: translateY(-2px);
-      opacity: 0.95;
-    }
+    .btn-main:hover { opacity: 0.9; }
 
-    .btn-call { background-color: #16a34a; }
     .btn-catalog { background-color: #22c55e; }
+    .btn-call { background-color: #16a34a; }
+    .btn-tiktok { background-color: #000000; }
     .btn-fb { background-color: #1877f2; }
     .btn-ig { background-color: #e1306c; }
-    .btn-tiktok { background-color: #000000; }
 
     /* Secciones de Contenido */
     .section {
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 60px 20px;
+      padding: 40px 20px;
       border-bottom: 1px solid #e2e8f0;
     }
 
     .section-title {
-      font-size: 28px;
-      color: #1e293b;
-      margin-bottom: 10px;
-      text-align: center;
+      font-size: 24px;
+      color: #0f172a;
+      margin-bottom: 8px;
       font-weight: 700;
     }
 
-    .section-subtitle {
-      text-align: center;
+    .section-desc {
       color: #64748b;
-      margin-bottom: 40px;
-      font-size: 16px;
+      margin-bottom: 20px;
+      font-size: 15px;
     }
 
-    /* Grid de Servicios / Categorías */
-    .service-grid {
+    /* Grid de tarjetas de servicios */
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
     }
 
-    .service-card {
+    .card {
       background: #ffffff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      border: 1px solid #f1f5f9;
-      transition: transform 0.2s;
-    }
-
-    .service-card:hover {
-      transform: translateY(-4px);
-    }
-
-    .service-card img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .service-content {
+      border-radius: 10px;
       padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid #f1f5f9;
     }
 
-    .service-content h3 {
-      font-size: 20px;
-      color: #0f172a;
-      margin-bottom: 10px;
+    .card h3 {
+      font-size: 18px;
+      color: #1e293b;
+      margin-bottom: 8px;
     }
 
-    .service-content p {
+    .card p {
       font-size: 14px;
       color: #475569;
     }
 
-    /* Galería Específica */
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .photo-grid img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 8px;
-    }
-
-    /* Badges de Mobiliario y Decoración */
-    .decor-tags {
+    /* Badges de inventario */
+    .tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 15px;
+      gap: 8px;
+      margin-top: 12px;
     }
 
     .tag {
       background-color: #f0fdf4;
-      color: #166534;
+      color: #15803d;
       border: 1px solid #bbf7d0;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 12px;
       font-weight: 600;
     }
 
-    /* Footer */
+    /* Galería */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 15px;
+    }
+
+    .photo-grid img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    /* Pie de página */
     footer {
       background-color: #0f172a;
       color: #94a3b8;
-      padding: 40px 20px;
+      padding: 30px 20px;
       text-align: center;
-      font-size: 14px;
+      font-size: 13px;
     }
 
-    footer p {
-      margin-bottom: 8px;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 28px; }
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 24px; }
       .nav-container { flex-direction: column; gap: 10px; }
       .btn-group { flex-direction: column; }
       .btn-main { width: 100%; text-align: center; }
+      .nav-links { flex-wrap: wrap; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Navegación Superior -->
+  <!-- Barra de navegación superior -->
   <header>
     <div class="nav-container">
       <a href="#" class="brand-logo">
@@ -259,125 +233,90 @@
         </div>
       </a>
       <div class="nav-links">
-        <a href="#quince">15 Años</a>
-        <a href="#bodas">Bodas</a>
         <a href="#retiros">Retiros</a>
-        <a href="#catering">Catering & Decoración</a>
+        <a href="#eventos">Eventos</a>
+        <a href="#alquiler">Mobiliario</a>
+        <a href="#galeria">Galería</a>
       </div>
     </div>
   </header>
 
-  <!-- Banner Hero Principal -->
+  <!-- Portada Principal -->
   <section class="hero">
     <div class="hero-container">
-      <h1>Creando Momentos Inolvidables en la Naturaleza</h1>
-      <p>El escenario perfecto para tus eventos especiales, retiros espirituales y celebraciones familiares en Guatemala.</p>
+      <h1>Hebron Casa Retiro y Eventos</h1>
+      <p>Instalaciones para retiros espirituales, convivios y eventos especiales. Renta de lugar, mobiliario y servicio de banquetes.</p>
       
       <div class="btn-group">
-        <a href="tel:+50250390762" class="btn-main btn-call">Llamar Directo (50390762)</a>
-        <a href="https://hebron-casa-de-eventos.kyte.site" target="_blank" class="btn-main btn-catalog">Ver Catálogo</a>
+        <a href="https://hebron-casa-de-eventos.kyte.site" target="_blank" class="btn-main btn-catalog">Ver Catálogo y Pedidos</a>
+        <a href="tel:+50250390762" class="btn-main btn-call">Llamar (50390762)</a>
+        <a href="https://www.tiktok.com/@hebron8429" target="_blank" class="btn-main btn-tiktok">TikTok</a>
         <a href="https://www.facebook.com/profile.php?id=61578139898229&locale=es_LA" target="_blank" class="btn-main btn-fb">Facebook</a>
         <a href="https://www.instagram.com/hebroncasa/" target="_blank" class="btn-main btn-ig">Instagram</a>
-        <a href="https://www.tiktok.com/@hebron8429" target="_blank" class="btn-main btn-tiktok">TikTok</a>
       </div>
     </div>
   </section>
 
-  <!-- Sección 15 Años -->
-  <section id="quince" class="section">
-    <h2 class="section-title">Fiestas de 15 Años</h2>
-    <p class="section-subtitle">Diseñamos una noche mágica con elegancia, naturaleza y la mejor ambientación para la quinceañera.</p>
-    
-    <div class="service-card" style="margin-bottom: 20px;">
-      <div class="service-content">
-        <p>Contamos con espacios al aire libre e interiores ideales para montar tronos de 15 años, columpios ornamentados tipo banca con arreglos florales, iluminación cálida y pistas de baile integradas.</p>
-        <div class="decor-tags">
-          <span class="tag">Tronos de Quinceañera</span>
-          <span class="tag">Columpios Florales</span>
-          <span class="tag">Sillas Tiffany & Crossback</span>
-          <span class="tag">Toldos Elegantes</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="photo-grid">
-      <img src="foto1.jpg" alt="15 Años Ambientación 1">
-      <img src="foto2.jpg" alt="15 Años Ambientación 2">
-      <img src="foto3.jpg" alt="15 Años Decoración">
-      <img src="foto4.jpg" alt="15 Años Instalaciones">
-    </div>
-  </section>
-
-  <!-- Sección Bodas -->
-  <section id="bodas" class="section">
-    <h2 class="section-title">Bodas Inolvidables</h2>
-    <p class="section-subtitle">El entorno romántico y natural ideal para dar el "Sí, acepto".</p>
-    
-    <div class="service-card" style="margin-bottom: 20px;">
-      <div class="service-content">
-        <p>Ofrecemos áreas ceremoniales al aire libre, altares decorados, estructuras de pérgolas con telas finas y sarán de sombra decorativo para garantizar la máxima comodidad de tus invitados.</p>
-        <div class="decor-tags">
-          <span class="tag">Altares Florales</span>
-          <span class="tag">Tronos de Novios</span>
-          <span class="tag">Iluminación Romántica</span>
-          <span class="tag">Mobiliario de Lujo</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="photo-grid">
-      <img src="foto1.jpg" alt="Boda Ceremonia">
-      <img src="foto2.jpg" alt="Boda Recepción">
-      <img src="foto3.jpg" alt="Boda Montaje">
-      <img src="foto4.jpg" alt="Boda Detalles">
-    </div>
-  </section>
-
-  <!-- Sección Retiros Espirituales y Corporativos -->
+  <!-- Retiros -->
   <section id="retiros" class="section">
-    <h2 class="section-title">Retiros y Convivencias</h2>
-    <p class="section-subtitle">Un oasis de paz y tranquilidad alejado del ruido de la ciudad.</p>
-    
-    <div class="service-card" style="margin-bottom: 20px;">
-      <div class="service-content">
-        <p>Instalaciones equipadas para retiros espirituales, talleres empresariales, campamentos y convivios familiares. Amplias áreas verdes, aire puro y tranquilidad absoluta en Carretera a El Salvador.</p>
-      </div>
-    </div>
-
-    <div class="photo-grid">
-      <img src="foto1.jpg" alt="Retiros Áreas Verdes">
-      <img src="foto2.jpg" alt="Retiros Salones">
-      <img src="foto3.jpg" alt="Retiros Convivencia">
-      <img src="foto4.jpg" alt="Retiros Paisaje">
+    <h2 class="section-title">Casa de Retiros</h2>
+    <p class="section-desc">Un ambiente tranquilo y natural rodeado de vegetación, ideal para actividades espirituales, capacitaciones y grupos.</p>
+    <div class="card">
+      <p>Espacios amplios y cómodos diseñados para el descanso, la meditación y el convivio de iglesias, ministerios, empresas o colegios.</p>
     </div>
   </section>
 
-  <!-- Sección Catering, Mobiliario y Decoración -->
-  <section id="catering" class="section">
-    <h2 class="section-title">Catering, Mobiliario & Estructuras</h2>
-    <p class="section-subtitle">Todo lo que necesitas para equipar tu evento sin preocuparte por nada.</p>
+  <!-- Eventos Sociales -->
+  <section id="eventos" class="section">
+    <h2 class="section-title">Bodas, 15 Años y Convivios</h2>
+    <p class="section-desc">Alquilamos nuestras instalaciones para celebraciones especiales en un espacio privado al aire libre e interiores.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>15 Años y Bodas</h3>
+        <p>Espacios al aire libre para montajes de ceremonias, recepciones y banquetes familiares.</p>
+      </div>
+      <div class="card">
+        <h3>Servicio de Banquetes</h3>
+        <p>Opciones de menú y catering preparados para tus invitados durante la celebración.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Renta de Mobiliario (Fiel a tu catálogo Kyte) -->
+  <section id="alquiler" class="section">
+    <h2 class="section-title">Renta de Equipo y Mobiliario</h2>
+    <p class="section-desc">Todo lo necesario para el montaje de tu evento:</p>
     
-    <div class="service-grid">
-      <div class="service-card">
-        <div class="service-content">
-          <h3>Servicio de Catering</h3>
-          <p>Menús adaptados a tu celebración: banquetes formales, platillos tradicionales, buffet y opciones de repostería fina.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Mobiliario</h3>
+        <p>Sillas plásticas, sillas vestidas, mesas redondas, mesas fijas y tablones para banquetes.</p>
+        <div class="tags">
+          <span class="tag">Sillas</span>
+          <span class="tag">Mesas</span>
+          <span class="tag">Mantelería</span>
         </div>
       </div>
+      <div class="card">
+        <h3>Toldos y Cobertura</h3>
+        <p>Toldos para protección del sol o lluvia en eventos al aire libre.</p>
+        <div class="tags">
+          <span class="tag">Toldos</span>
+          <span class="tag">Sombra</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      <div class="service-card">
-        <div class="service-content">
-          <h3>Mobiliario y Sillas</h3>
-          <p>Variedad de estilos de sillas (Tiffany, Avant Garde, Plásticas vestidas) y mesas redondas o imperiales con mantelería de alta calidad.</p>
-        </div>
-      </div>
-
-      <div class="service-card">
-        <div class="service-content">
-          <h3>Toldos & Cobertura</h3>
-          <p>Estructuras de toldos gigantes, sarán protector contra el sol y montajes especiales para asegurar la comodidad de los asistentes.</p>
-        </div>
-      </div>
+  <!-- Galería de Fotos -->
+  <section id="galeria" class="section">
+    <h2 class="section-title">Nuestras Instalaciones</h2>
+    <p class="section-desc">Conoce los espacios que tenemos disponibles para ti.</p>
+    <div class="photo-grid">
+      <img src="foto1.jpg" alt="Instalaciones Hebron 1">
+      <img src="foto2.jpg" alt="Instalaciones Hebron 2">
+      <img src="foto3.jpg" alt="Instalaciones Hebron 3">
+      <img src="foto4.jpg" alt="Instalaciones Hebron 4">
     </div>
   </section>
 
@@ -385,7 +324,7 @@
   <footer>
     <p><strong>Hebron Casa Retiro y Eventos</strong></p>
     <p>Km. 30.5, Carretera a El Salvador, Guatemala</p>
-    <p>© 2026 Todos los derechos reservados</p>
+    <p>© Hebron Casa Retiro</p>
   </footer>
 
 </body>
