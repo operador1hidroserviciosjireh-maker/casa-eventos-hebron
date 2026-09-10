@@ -22,7 +22,7 @@
       position: sticky;
       top: 0;
       z-index: 1000;
-      padding: 14px 0;
+      padding: 12px 0;
     }
 
     .nav-container {
@@ -43,16 +43,18 @@
     }
 
     .brand-logo img {
-      width: 100px;
-      height: 100px;
+      width: 75px;
+      height: 75px;
       border-radius: 50%;
       object-fit: cover;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
     .brand-title {
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 800;
       color: #0f172a;
+      line-height: 1.2;
     }
 
     .nav-links {
@@ -150,24 +152,29 @@
       font-size: 16px;
     }
 
-    /* Tarjetas y Bloques de Servicio */
-    .service-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-    }
-
+    /* Tarjetas de Sección con Imagen Destacada */
     .service-card {
       background: #ffffff;
       border-radius: 12px;
-      padding: 25px;
+      overflow: hidden;
       box-shadow: 0 4px 15px rgba(0,0,0,0.04);
       border: 1px solid #f1f5f9;
+      margin-bottom: 25px;
       transition: transform 0.2s;
     }
 
     .service-card:hover {
       transform: translateY(-3px);
+    }
+
+    .service-card-img {
+      width: 100%;
+      height: 320px;
+      object-fit: cover;
+    }
+
+    .service-card-body {
+      padding: 25px;
     }
 
     .service-card h3 {
@@ -181,6 +188,13 @@
       font-size: 15px;
       color: #475569;
       line-height: 1.6;
+    }
+
+    /* Grilla para Mobiliario y Catering */
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
     }
 
     /* Etiquetas de Inventario */
@@ -232,10 +246,12 @@
     /* Responsive */
     @media (max-width: 768px) {
       .hero h1 { font-size: 28px; }
-      .nav-container { flex-direction: column; gap: 10px; }
+      .nav-container { flex-direction: column; gap: 12px; text-align: center; }
+      .brand-logo { flex-direction: column; gap: 8px; }
       .btn-group { flex-direction: column; }
       .btn-main { width: 100%; text-align: center; }
       .nav-links { flex-wrap: wrap; justify-content: center; }
+      .service-card-img { height: 220px; }
     }
   </style>
 </head>
@@ -268,8 +284,8 @@
       <p>El lugar ideal en Guatemala para tus actividades espirituales, celebraciones familiares, bodas, 15 años, convivencia y renta de mobiliario.</p>
       
       <div class="btn-group">
-        <a href="https://hebron-casa-de-eventos.kyte.site" target="_blank" class="btn-main btn-catalog">Ver Catálogo</a>
-        <a href="tel:+50250390762" class="btn-main btn-call">Llamar Directo (+502-5039-0762)</a>
+        <a href="https://hebron-casa-de-eventos.kyte.site" target="_blank" class="btn-main btn-catalog">Ver Catálogo y Pedidos</a>
+        <a href="tel:+50250390762" class="btn-main btn-call">Llamar Directo (50390762)</a>
         <a href="https://www.tiktok.com/@hebron8429" target="_blank" class="btn-main btn-tiktok">TikTok</a>
         <a href="https://www.facebook.com/profile.php?id=61578139898229&locale=es_LA" target="_blank" class="btn-main btn-fb">Facebook</a>
         <a href="https://www.instagram.com/hebroncasa/" target="_blank" class="btn-main btn-ig">Instagram</a>
@@ -280,15 +296,18 @@
   <!-- Fiestas de 15 Años -->
   <section id="quince" class="section">
     <h2 class="section-title">Fiestas de 15 Años</h2>
-    <p class="section-subtitle">Celebración mágica con elegancia, naturaleza y la mejor ambientación.</p>
+    <p class="section-subtitle">Celebra una noche mágica con elegancia, naturaleza y la mejor ambientación.</p>
     
-    <div class="service-card" style="margin-bottom: 25px;">
-      <p>Contamos con amplios espacios para realizar el montaje de tu recepción, mesa principal y área de invitados. Ofrecemos el servicio completo con renta de mobiliario, toldos y banquetes.</p>
-      <div class="decor-tags">
-        <span class="tag">Mobiliario Elegante</span>
-        <span class="tag">Toldos de Cobertura</span>
-        <span class="tag">Montajes Especiales</span>
-        <span class="tag">Servicio de Banquetes</span>
+    <div class="service-card">
+      <img src="quince.jpg" alt="Fiesta de 15 Años en Hebron" class="service-card-img">
+      <div class="service-card-body">
+        <p>Contamos con amplios espacios para realizar el montaje de tu recepción, mesa principal, área de invitados y pista de baile. Ofrecemos el servicio completo con renta de mobiliario, toldos y banquetes.</p>
+        <div class="decor-tags">
+          <span class="tag">Mobiliario Elegante</span>
+          <span class="tag">Toldos de Cobertura</span>
+          <span class="tag">Montajes Especiales</span>
+          <span class="tag">Servicio de Banquetes</span>
+        </div>
       </div>
     </div>
   </section>
@@ -298,13 +317,16 @@
     <h2 class="section-title">Bodas Especiales</h2>
     <p class="section-subtitle">Un entorno rodeado de naturaleza y serenidad para tu gran día.</p>
     
-    <div class="service-card" style="margin-bottom: 25px;">
-      <p>Áreas acondicionadas para ceremonias al aire libre y recepciones. Nos encargamos del montaje de mesas, sillas con mantelería y estructuras protectoras para mayor comodidad de tus invitados.</p>
-      <div class="decor-tags">
-        <span class="tag">Áreas Verdes</span>
-        <span class="tag">Mesas e Imperiales</span>
-        <span class="tag">Mantelería</span>
-        <span class="tag">Atención Personalizada</span>
+    <div class="service-card">
+      <img src="bodas.jpg" alt="Bodas en Casa Hebron" class="service-card-img">
+      <div class="service-card-body">
+        <p>Áreas acondicionadas para ceremonias al aire libre y recepciones. Nos encargamos del montaje de mesas, sillas con mantelería y estructuras protectoras para mayor comodidad de tus invitados.</p>
+        <div class="decor-tags">
+          <span class="tag">Áreas Verdes</span>
+          <span class="tag">Mesas e Imperiales</span>
+          <span class="tag">Mantelería</span>
+          <span class="tag">Atención Personalizada</span>
+        </div>
       </div>
     </div>
   </section>
@@ -315,7 +337,10 @@
     <p class="section-subtitle">Un espacio privado, tranquilo y rodeado de naturaleza en Carretera a El Salvador.</p>
     
     <div class="service-card">
-      <p>Nuestras instalaciones están listas para recibir a iglesias, ministerios, empresas y centros educativos. Un ambiente pacífico ideal para actividades de enseñanza, meditación, convivencia y descanso.</p>
+      <img src="retiros.jpg" alt="Retiros Espirituales en Hebron" class="service-card-img">
+      <div class="service-card-body">
+        <p>Nuestras instalaciones están listas para recibir a iglesias, ministerios, empresas y centros educativos. Un ambiente pacífico ideal para actividades de enseñanza, meditación, convivencia y descanso.</p>
+      </div>
     </div>
   </section>
 
@@ -324,32 +349,42 @@
     <h2 class="section-title">Mobiliario, Equipo y Catering</h2>
     <p class="section-subtitle">Todo lo que necesitas para equipar tu evento al mejor precio.</p>
     
+    <div class="service-card" style="margin-bottom: 25px;">
+      <img src="mobiliario.jpg" alt="Mobiliario y Catering Hebron" class="service-card-img">
+    </div>
+
     <div class="service-grid">
       <div class="service-card">
-        <h3>Mobiliario y Mantelería</h3>
-        <p>Alquiler de sillas plásticas, sillas vestidas, mesas redondas, cuadradas y tablones banqueteros organizados a la medida de tu evento.</p>
-        <div class="decor-tags">
-          <span class="tag">Sillas</span>
-          <span class="tag">Mesas</span>
-          <span class="tag">Manteles</span>
+        <div class="service-card-body">
+          <h3>Mobiliario y Mantelería</h3>
+          <p>Alquiler de sillas plásticas, sillas vestidas, mesas redondas, cuadradas y tablones banqueteros organizados a la medida de tu evento.</p>
+          <div class="decor-tags">
+            <span class="tag">Sillas</span>
+            <span class="tag">Mesas</span>
+            <span class="tag">Manteles</span>
+          </div>
         </div>
       </div>
 
       <div class="service-card">
-        <h3>Toldos y Protección</h3>
-        <p>Toldos resistentes para eventos al aire libre, garantizando sombra y protección contra el clima para tus invitados.</p>
-        <div class="decor-tags">
-          <span class="tag">Toldos</span>
-          <span class="tag">Sombra</span>
+        <div class="service-card-body">
+          <h3>Toldos y Protección</h3>
+          <p>Toldos resistentes para eventos al aire libre, garantizando sombra y protección contra el clima para tus invitados.</p>
+          <div class="decor-tags">
+            <span class="tag">Toldos</span>
+            <span class="tag">Sombra</span>
+          </div>
         </div>
       </div>
 
       <div class="service-card">
-        <h3>Catering y Comida</h3>
-        <p>Servicio de preparación de banquetes y platillos variados para atender a tus convidados durante retiros, convivios y fiestas.</p>
-        <div class="decor-tags">
-          <span class="tag">Banquetes</span>
-          <span class="tag">Alimentos</span>
+        <div class="service-card-body">
+          <h3>Catering y Comida</h3>
+          <p>Servicio de preparación de banquetes y platillos variados para atender a tus convidados durante retiros, convivios y fiestas.</p>
+          <div class="decor-tags">
+            <span class="tag">Banquetes</span>
+            <span class="tag">Alimentos</span>
+          </div>
         </div>
       </div>
     </div>
