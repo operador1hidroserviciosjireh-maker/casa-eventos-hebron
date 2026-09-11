@@ -103,14 +103,17 @@
       margin-bottom: 25px;
     }
 
+    /* Estilos de Botones */
     .btn-group {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
       gap: 12px;
-      flex-wrap: wrap;
     }
 
     .btn-main {
+      width: 100%;
+      max-width: 350px;
       padding: 12px 22px;
       border-radius: 8px;
       font-weight: 600;
@@ -118,6 +121,9 @@
       color: white;
       transition: transform 0.2s, opacity 0.2s;
       font-size: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-main:hover {
@@ -127,7 +133,40 @@
 
     .btn-catalog { background-color: #22c55e; }
     .btn-call { background-color: #16a34a; }
-    .btn-map { background-color: #0284c7; } /* Estilo para el botón de Ubicación */
+    .btn-map { background-color: #0284c7; }
+
+    /* Fila de redes sociales (3 botones cuadrados en una sola fila) */
+    .social-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .btn-social {
+      width: 50px;
+      height: 50px;
+      padding: 0;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s, opacity 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-social:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+
+    .btn-social svg {
+      width: 24px;
+      height: 24px;
+      fill: #ffffff;
+    }
+
     .btn-tiktok { background-color: #000000; }
     .btn-fb { background-color: #1877f2; }
     .btn-ig { background-color: #e1306c; }
@@ -155,7 +194,7 @@
       font-size: 16px;
     }
 
-    /* Tarjetas de Sección con Imagen Destacada */
+    /* Tarjetas de Sección */
     .service-card {
       background: #ffffff;
       border-radius: 12px;
@@ -282,11 +321,19 @@
       .hero h1 { font-size: 28px; }
       .nav-container { flex-direction: column; gap: 12px; text-align: center; }
       .brand-logo { flex-direction: column; gap: 8px; }
-      .btn-group { flex-direction: column; }
-      .btn-main { width: 100%; text-align: center; }
       .nav-links { flex-wrap: wrap; justify-content: center; }
       .service-card-img { height: 220px; }
       .map-container { height: 300px; }
+
+      .social-row {
+        flex-direction: row;
+        justify-content: center;
+      }
+      
+      .btn-social {
+        width: 55px;
+        height: 55px;
+      }
     }
   </style>
 </head>
@@ -323,9 +370,19 @@
         <a href="https://hebron-casa-de-eventos.kyte.site" target="_blank" class="btn-main btn-catalog">Ver Catálogo, Pedidos</a>
         <a href="tel:+50250390762" class="btn-main btn-call">Llamar (50390762)</a>
         <a href="https://maps.app.goo.gl/KCqY1b2M8WNz7qZc8" target="_blank" class="btn-main btn-map">📍 Cómo Llegar</a>
-        <a href="https://www.tiktok.com/@hebron8429" target="_blank" class="btn-main btn-tiktok">TikTok</a>
-        <a href="https://www.facebook.com/profile.php?id=61578139898229&locale=es_LA" target="_blank" class="btn-main btn-fb">Facebook</a>
-        <a href="https://www.instagram.com/hebroncasa/" target="_blank" class="btn-main btn-ig">Instagram</a>
+        
+        <!-- Fila horizontal de redes sociales con botones cuadrados e iconos -->
+        <div class="social-row">
+          <a href="https://www.tiktok.com/@hebron8429" target="_blank" class="btn-social btn-tiktok" aria-label="TikTok">
+            <svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 1 1-5.2-1.74 2.89 2.89 0 0 1 2.31-1.22c.26 0 .5.04.73.1V9.32a6.32 6.32 0 0 0-.73-.04A6.34 6.34 0 0 0 3.14 15.6 6.34 6.34 0 0 0 9.48 22a6.34 6.34 0 0 0 6.34-6.34V9.03a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.46z"/></svg>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61578139898229&locale=es_LA" target="_blank" class="btn-social btn-fb" aria-label="Facebook">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </a>
+          <a href="https://www.instagram.com/hebroncasa/" target="_blank" class="btn-social btn-ig" aria-label="Instagram">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -447,7 +504,7 @@
     
     <div class="location-info">
       <p>📍 <strong>Dirección:</strong> Km. 30.5 Carretera a El Salvador, Guatemala</p>
-      <a href="https://maps.app.goo.gl/KCqY1b2M8WNz7qZc8" target="_blank" class="btn-main btn-map" style="display: inline-block;">
+      <a href="https://maps.app.goo.gl/KCqY1b2M8WNz7qZc8" target="_blank" class="btn-main btn-map" style="display: inline-flex; width: auto;">
         Abrir en Google Maps / Waze
       </a>
     </div>
