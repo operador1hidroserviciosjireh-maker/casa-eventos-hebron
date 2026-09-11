@@ -127,6 +127,7 @@
 
     .btn-catalog { background-color: #22c55e; }
     .btn-call { background-color: #16a34a; }
+    .btn-map { background-color: #0284c7; } /* Estilo para el botón de Ubicación */
     .btn-tiktok { background-color: #000000; }
     .btn-fb { background-color: #1877f2; }
     .btn-ig { background-color: #e1306c; }
@@ -170,13 +171,13 @@
     }
 
     .service-card-img {
-  width: 100%;
-  max-height: 450px;
-  height: auto;
-  object-fit: contain;
-  background-color: #f1f5f9;
-  display: block;
-}
+      width: 100%;
+      max-height: 450px;
+      height: auto;
+      object-fit: contain;
+      background-color: #f1f5f9;
+      display: block;
+    }
 
     .service-card-body {
       padding: 25px;
@@ -235,6 +236,34 @@
       border-radius: 8px;
     }
 
+    /* Sección de Ubicación y Mapa */
+    .map-container {
+      width: 100%;
+      height: 400px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+      margin-top: 20px;
+    }
+
+    .map-container iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .location-info {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .location-info p {
+      font-size: 16px;
+      color: #475569;
+      margin-bottom: 15px;
+    }
+
     /* Footer */
     footer {
       background-color: #0f172a;
@@ -257,6 +286,7 @@
       .btn-main { width: 100%; text-align: center; }
       .nav-links { flex-wrap: wrap; justify-content: center; }
       .service-card-img { height: 220px; }
+      .map-container { height: 300px; }
     }
   </style>
 </head>
@@ -278,6 +308,7 @@
         <a href="#retiros">Retiros & Convivios</a>
         <a href="#alquiler">Mobiliario & Catering</a>
         <a href="#galeria">Instalaciones</a>
+        <a href="#ubicacion">Ubicación</a>
       </div>
     </div>
   </header>
@@ -290,7 +321,8 @@
       
       <div class="btn-group">
         <a href="https://hebron-casa-de-eventos.kyte.site" target="_blank" class="btn-main btn-catalog">Ver Catálogo, Pedidos</a>
-        <a href="tel:+50250390762" class="btn-main btn-call">Llamar(50390762)</a>
+        <a href="tel:+50250390762" class="btn-main btn-call">Llamar (50390762)</a>
+        <a href="https://maps.app.goo.gl/KCqY1b2M8WNz7qZc8" target="_blank" class="btn-main btn-map">📍 Cómo Llegar</a>
         <a href="https://www.tiktok.com/@hebron8429" target="_blank" class="btn-main btn-tiktok">TikTok</a>
         <a href="https://www.facebook.com/profile.php?id=61578139898229&locale=es_LA" target="_blank" class="btn-main btn-fb">Facebook</a>
         <a href="https://www.instagram.com/hebroncasa/" target="_blank" class="btn-main btn-ig">Instagram</a>
@@ -405,6 +437,29 @@
       <img src="foto2.jpg" alt="Instalaciones Hebron 2">
       <img src="foto3.jpg" alt="Instalaciones Hebron 3">
       <img src="foto4.jpg" alt="Instalaciones Hebron 4">
+    </div>
+  </section>
+
+  <!-- Sección de Ubicación -->
+  <section id="ubicacion" class="section">
+    <h2 class="section-title">Nuestra Ubicación</h2>
+    <p class="section-subtitle">Encuéntranos en Carretera a El Salvador, un lugar accesible y tranquilo.</p>
+    
+    <div class="location-info">
+      <p>📍 <strong>Dirección:</strong> Km. 30.5 Carretera a El Salvador, Guatemala</p>
+      <a href="https://maps.app.goo.gl/KCqY1b2M8WNz7qZc8" target="_blank" class="btn-main btn-map" style="display: inline-block;">
+        Abrir en Google Maps / Waze
+      </a>
+    </div>
+
+    <!-- Mapa Embebido de Google -->
+    <div class="map-container">
+      <iframe 
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15449.123!2d-90.41!3d14.50!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTTCsDMwJzAwLjAiTiA5MMKwMjQnMDAuMCJX!5e0!3m2!1ses!2sgt!4v1700000000000!5m2!1ses!2sgt" 
+        allowfullscreen="" 
+        loading="lazy" 
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
     </div>
   </section>
 
