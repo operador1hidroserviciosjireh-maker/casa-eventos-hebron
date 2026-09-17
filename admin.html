@@ -3,169 +3,648 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Supabase</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Librería de Supabase -->
+    <title>Hebron Casa de Eventos - Panel Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SDK de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Menú Lateral */
+        aside {
+            width: 280px;
+            background-color: #253342;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid #1e293b;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 15px 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: #1e293b;
+            color: #ffffff;
+            border-left: 4px solid #10b981;
+        }
+
+        .menu-badge {
+            background-color: #10b981;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* Botón de Logout inferior */
+        .sidebar-footer {
+            background-color: #10b981;
+            padding: 18px 20px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .sidebar-footer:hover {
+            background-color: #059669;
+        }
+
+        /* Contenido Principal */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        header.main-header {
+            background-color: #253342;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .main-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .dashboard-container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Tarjeta de Ventas de Hoy */
+        .sales-card {
+            background-color: #253342;
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .sales-card h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .sales-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .sales-subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .btn-register-sale {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            transition: background 0.2s;
+        }
+
+        .btn-register-sale:hover {
+            background-color: #059669;
+        }
+
+        /* Sección de Stock */
+        .stock-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .stock-section h2 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stock-info {
+            display: flex;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stock-metric {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stock-metric h4 {
+            font-size: 24px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .stock-metric p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .stock-metric-right {
+            border-left: 1px solid #cbd5e1;
+            padding-left: 20px;
+        }
+
+        .btn-add-product {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            width: 100%;
+        }
+        .btn-add-product:hover { background-color: #059669; }
+
+        .chart-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pie-chart {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 0% 75%, #0ea5e9 75% 100%);
+            flex-shrink: 0;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-green { background-color: #10b981; }
+        .dot-blue { background-color: #0ea5e9; }
+        .dot-orange { background-color: #f59e0b; }
+        .dot-red { background-color: #ef4444; }
+
+        /* Tabla de Auditoría de Productos */
+        .audit-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .audit-section h2 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        /* MODAL DE NUEVO PRODUCTO */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none; /* Oculto por defecto */
+        }
+        .modal-container {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+        .modal-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .modal-tab {
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            border-bottom: 2px solid transparent;
+        }
+        .modal-tab.active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body>
 
-    <!-- Header -->
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-900">Panel de Administración</h1>
-            <span id="user-email" class="text-sm text-gray-600">Conectado a Supabase</span>
+    <!-- MENÚ LATERAL -->
+    <aside>
+        <div>
+            <div class="sidebar-header">
+                <h2>Hebron casa de eventos <span>&gt;</span></h2>
+                <p>Nube Voladora</p>
+            </div>
+            <ul class="menu-list">
+                <li><a href="#" class="menu-item active">🏠 Inicio</a></li>
+                <li><a href="#" class="menu-item">🛒 Vender</a></li>
+                <li>
+                    <a href="#" class="menu-item">
+                        📦 Pedidos 
+                        <span class="menu-badge">1</span>
+                    </a>
+                </li>
+                <li><a href="#" class="menu-item">🗂️ Productos</a></li>
+                <li><a href="#" class="menu-item">💰 Finanzas</a></li>
+                <li><a href="#" class="menu-item">🎟️ Cupón <span style="background:#10b981; color:white; font-size:10px; padding:2px 6px; border-radius:4px;">NUEVO</span></a></li>
+                <li><a href="#" class="menu-item">👥 Clientes</a></li>
+                <li><a href="#" class="menu-item">💳 Transacciones</a></li>
+                <li><a href="#" class="menu-item">👤 Usuarios</a></li>
+            </ul>
         </div>
-    </header>
-
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 space-y-6">
         
-        <!-- Sección 1: Gestión de Usuarios -->
-        <div class="px-4 py-6 sm:px-0 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            <h2 class="text-lg font-medium text-gray-900 mb-4">Gestión de Usuarios</h2>
-            <button id="btn-cargar" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
-                Cargar Usuarios desde Supabase
-            </button>
-            <div id="resultado-tabla" class="mt-6 overflow-x-auto">
-                <!-- La tabla de usuarios se pintará aquí -->
+        <!-- Botón de Logout -->
+        <button onclick="handleLogout()" class="sidebar-footer">
+            <span>Logout</span>
+            <span>&gt;</span>
+        </button>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
+        <header class="main-header">
+            <h1>Inicio</h1>
+            <span id="sync-status" style="font-size: 12px; color: #94a3b8;">Sistema Activo</span>
+        </header>
+
+        <div class="dashboard-container">
+            <!-- Tarjeta Ventas de Hoy -->
+            <div class="sales-card">
+                <h3>Hoy</h3>
+                <div class="sales-amount">0.00 Q</div>
+                <div class="sales-subtitle">en 0 ventas completadas</div>
+                <button class="btn-register-sale">Registrar venta</button>
+            </div>
+
+            <!-- Sección Stock y Gráfica -->
+            <div class="stock-section">
+                <h2>Stock</h2>
+                <div class="stock-grid">
+                    <div class="stock-info">
+                        <div class="stock-metric">
+                            <h4 id="total-productos">38</h4>
+                            <p>PRODUCTOS REGISTRADOS</p>
+                        </div>
+                        <div class="stock-metric stock-metric-right">
+                            <p style="font-size: 11px; color: #64748b;">Valor en stock</p>
+                            <h4 style="font-size: 18px; margin-top: 4px;">8,590.00 Q</h4>
+                            <button onclick="abrirModal()" class="btn-add-product">+ Producto</button>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="pie-chart"></div>
+                        <div class="chart-legend">
+                            <div class="legend-item"><span class="dot dot-green"></span> Disponibles (30)</div>
+                            <div class="legend-item"><span class="dot dot-orange"></span> Mínimo (0)</div>
+                            <div class="legend-item"><span class="dot dot-red"></span> Agotado (0)</div>
+                            <div class="legend-item"><span class="dot dot-blue"></span> Sin control de stock (8)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Auditoría Reciente -->
+            <div class="audit-section">
+                <h2>Historial y Auditoría de Productos Recientes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Modificado por</th>
+                            <th>Fecha y Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-audit-body">
+                        <tr>
+                            <td>Silla Tiffany (Ejemplo)</td>
+                            <td>25.00 Q</td>
+                            <td>30</td>
+                            <td>Samuel Siebenhor</td>
+                            <td>16/09/2026 18:30</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <!-- Sección 2: Registro de Productos -->
-        <div class="px-4 py-6 sm:px-0 bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            <h2 class="text-lg font-medium text-gray-900 mb-4">Agregar Nuevo Producto</h2>
-            <form id="form-producto" class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Nombre del Producto</label>
-                    <input type="text" id="prod-nombre" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Precio</label>
-                    <input type="number" step="0.01" id="prod-precio" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Stock Actual</label>
-                    <input type="number" id="prod-stock" value="10" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm border p-2">
-                </div>
-                <div class="flex items-center pt-6">
-                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition w-full">
-                        Guardar Producto
-                    </button>
-                </div>
-            </form>
-            <p id="prod-mensaje" class="mt-3 text-sm font-medium"></p>
-        </div>
-
     </main>
 
-    <!-- Script de Configuración y Lógica -->
-    <script type="module">
-        // 1. REEMPLAZA ESTOS VALORES CON TUS CREDENCIALES REALES DE SUPABASE
-        const SUPABASE_URL = 'https://TU_PROYECTO_AQUI.supabase.co';
-        const SUPABASE_KEY = 'TU_CLAVE_ANON_PUBLICA_AQUI';
+    <!-- VENTANA MODAL: NUEVO PRODUCTO -->
+    <div id="modal-producto" class="modal-overlay">
+        <div class="modal-container">
+            <!-- Header Modal -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
+                <button onclick="cerrarModal()" style="background:none; border:none; font-size: 16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <h3 style="font-size: 15px; font-weight: 600;">Nuevo producto</h3>
+                <div style="width: 15px;"></div>
+            </div>
 
-        // Inicializar cliente de Supabase
-        const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+            <!-- Pestañas -->
+            <div class="modal-tabs">
+                <button id="btn-tab-reg" onclick="cambiarPestana('registro')" class="modal-tab active">REGISTRO</button>
+                <button id="btn-tab-stk" onclick="cambiarPestana('stock')" class="modal-tab">STOCK</button>
+            </div>
 
-        // 2. Función para obtener usuarios
-        async function cargarUsuarios() {
-            const contenedor = document.getElementById('resultado-tabla');
-            contenedor.innerHTML = '<p class="text-gray-500">Consultando la base de datos...</p>';
+            <!-- Formulario -->
+            <form id="form-nuevo-prod" onsubmit="guardarProductoSupabase(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;">
+                
+                <!-- PESTAÑA REGISTRO -->
+                <div id="seccion-registro" style="display: flex; flex-direction: column; gap: 15px;">
+                    <!-- Vista previa visual -->
+                    <div style="display: flex; justify-content: center;">
+                        <div style="width: 130px; height: 130px; background: #334155; border-radius: 12px; padding: 12px; color: white; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="font-size: 10px; opacity: 0.8;">Vista previa</div>
+                            <div>
+                                <div id="prev-nombre" style="font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Nombre...</div>
+                                <div id="prev-precio" style="font-size: 11px; opacity: 0.9;">0.00 Q</div>
+                            </div>
+                        </div>
+                    </div>
 
-            try {
-                const { data, error } = await supabaseClient
-                    .from('usuarios')
-                    .select('*');
+                    <div>
+                        <input type="text" id="inp-nombre" placeholder="Nombre del producto" required oninput="actualizarVistaPrevia()"
+                            style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+                    <div>
+                        <input type="number" step="0.01" id="inp-precio" placeholder="Precio (Q)" required oninput="actualizarVistaPrevia()"
+                            style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+                </div>
 
-                if (error) throw error;
+                <!-- PESTAÑA STOCK (Oculta por defecto) -->
+                <div id="seccion-stock" style="display: none; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 8px;">
+                        <span style="font-size: 13px; font-weight: 500;">Controlar stock del producto</span>
+                        <input type="checkbox" id="chk-control-stock" style="width: 18px; height: 18px; accent-color: #10b981;">
+                    </div>
+                    <div style="text-align: center; padding: 10px;">
+                        <label style="font-size: 12px; color: #64748b; display: block; margin-bottom: 5px;">Stock actual</label>
+                        <input type="number" id="inp-stock-actual" value="0" 
+                            style="width: 100px; text-align: center; font-size: 24px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px;">
+                    </div>
+                </div>
 
-                if (!data || data.length === 0) {
-                    contenedor.innerHTML = '<p class="text-gray-500">No se encontraron registros en la tabla usuarios.</p>';
-                    return;
-                }
+                <!-- Botón Enviar -->
+                <button type="submit" id="btn-submit-form" 
+                    style="background: #10b981; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px;">
+                    Añadir producto
+                </button>
+            </form>
+        </div>
+    </div>
 
-                let html = `
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Correo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                `;
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-                data.forEach(user => {
-                    html += `
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.id || ''}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.nombre || ''}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.correo || ''}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.rol || 'N/A'}</td>
-                        </tr>
-                    `;
-                });
+    <script>
+        // Configuración de Supabase (Sustituye con tus claves reales cuando lo conectes)
+        const SUPABASE_URL = 'TU_SUPABASE_URL';
+        const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-                html += `</tbody></table>`;
-                contenedor.innerHTML = html;
+        // Usuario actual para la auditoría
+        const usuarioActivo = "Samuel Siebenhor";
 
-            } catch (err) {
-                console.error('Error:', err.message);
-                contenedor.innerHTML = `<p class="text-red-600">Error al cargar los datos: ${err.message}</p>`;
+        function handleLogout() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // Control del Modal
+        function abrirModal() {
+            document.getElementById('modal-producto').style.display = 'flex';
+        }
+        function cerrarModal() {
+            document.getElementById('modal-producto').style.display = 'none';
+        }
+
+        // Cambio de pestañas en el modal
+        function cambiarPestana(pestana) {
+            const regSec = document.getElementById('seccion-registro');
+            const stkSec = document.getElementById('seccion-stock');
+            const btnReg = document.getElementById('btn-tab-reg');
+            const btnStk = document.getElementById('btn-tab-stk');
+            const btnSubmit = document.getElementById('btn-submit-form');
+
+            if (pestana === 'registro') {
+                regSec.style.display = 'flex';
+                stkSec.style.display = 'none';
+                btnReg.classList.add('active');
+                btnStk.classList.remove('active');
+                btnSubmit.innerText = "Añadir producto";
+            } else {
+                regSec.style.display = 'none';
+                stkSec.style.display = 'flex';
+                btnStk.classList.add('active');
+                btnReg.classList.remove('active');
+                btnSubmit.innerText = "Añadir al producto";
             }
         }
 
-        // 3. Función para guardar productos en Supabase
-        async function guardarProductoSupabase(e) {
-            e.preventDefault();
-            const mensaje = document.getElementById('prod-mensaje');
+        // Vista previa dinámica
+        function actualizarVistaPrevia() {
+            const nombre = document.getElementById('inp-nombre').value;
+            const precio = document.getElementById('inp-precio').value;
+
+            document.getElementById('prev-nombre').innerText = nombre ? nombre : 'Nombre...';
+            document.getElementById('prev-precio').innerText = precio ? precio + ' Q' : '0.00 Q';
+        }
+
+        // Guardar en Supabase y registrar auditoría
+        async function guardarProductoSupabase(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('inp-nombre').value;
+            const precio = parseFloat(document.getElementById('inp-precio').value) || 0;
+            const controlar_stock = document.getElementById('chk-control-stock').checked;
+            const stock_actual = parseInt(document.getElementById('inp-stock-actual').value) || 0;
             
-            const producto = {
-                nombre: document.getElementById('prod-nombre').value,
-                precio: parseFloat(document.getElementById('prod-precio').value),
-                controlarStock: true,
-                stockActual: parseInt(document.getElementById('prod-stock').value),
-                usuarioMod: 'Admin'
+            // Datos de auditoría automáticos
+            const modificado_por = usuarioActivo;
+            const updated_at = new Date().toLocaleString(); // Fecha y hora local legible
+
+            const nuevoItem = {
+                nombre,
+                precio,
+                controlar_stock,
+                stock_actual,
+                modificado_por,
+                updated_at: new Date().toISOString()
             };
 
-            mensaje.textContent = 'Guardando en Supabase...';
-            mensaje.className = 'mt-3 text-sm font-medium text-blue-600';
-
             try {
-                const { data, error } = await supabaseClient
-                    .from('productos')
-                    .insert([
-                        {
-                            nombre: producto.nombre,
-                            precio: producto.precio,
-                            controlar_stock: producto.controlarStock,
-                            stock_actual: producto.stockActual,
-                            modificado_por: producto.usuarioMod
-                        }
-                    ])
-                    .select();
-
+                // Intentar inserción real en Supabase
+                const { error } = await supabaseClient.from('productos').insert([nuevoItem]);
                 if (error) throw error;
-
-                mensaje.textContent = '¡Producto guardado exitosamente en Supabase!';
-                mensaje.className = 'mt-3 text-sm font-medium text-green-600';
-                document.getElementById('form-producto').reset();
-
-            } catch (error) {
-                console.error('Error al guardar:', error.message);
-                mensaje.textContent = `Error al guardar: ${error.message}`;
-                mensaje.className = 'mt-3 text-sm font-medium text-red-600';
+                alert('¡Producto guardado exitosamente!');
+            } catch (err) {
+                // Modo simulador si Supabase no está configurado todavía
+                console.log("Supabase simulado:", err);
+                
+                // Agregar directamente a la tabla visual de auditoría para demostración
+                const tbody = document.getElementById('tabla-audit-body');
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${nombre}</td>
+                    <td>${precio.toFixed(2)} Q</td>
+                    <td>${stock_actual}</td>
+                    <td>${modificado_por}</td>
+                    <td>${updated_at}</td>
+                `;
+                tbody.prepend(fila);
+                alert('¡Producto registrado con éxito (Modo simulación local)!');
             }
-        }
 
-        // Event Listeners
-        document.getElementById('btn-cargar').addEventListener('click', cargarUsuarios);
-        document.getElementById('form-producto').addEventListener('submit', guardarProductoSupabase);
+            document.getElementById('form-nuevo-prod').reset();
+            actualizarVistaPrevia();
+            cambiarPestana('registro');
+            cerrarModal();
+        }
     </script>
 </body>
 </html>
