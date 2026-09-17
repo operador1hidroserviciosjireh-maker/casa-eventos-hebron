@@ -36,6 +36,12 @@
       align-items: center;
     }
 
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
     .brand-logo {
       display: flex;
       align-items: center;
@@ -57,6 +63,23 @@
       font-weight: 800;
       color: #0f172a;
       line-height: 1.2;
+    }
+
+    /* Botón Acceder (Dashboard) al lado del logo */
+    .btn-dashboard-nav {
+      background-color: #0f172a;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-dashboard-nav:hover {
+      background-color: #334155;
     }
 
     .nav-links {
@@ -132,6 +155,8 @@
     }
 
     .btn-catalog { background-color: #22c55e; }
+    /* Estilo para el botón de catálogo alternativo (pruebas) */
+    .btn-catalog-alt { background-color: #64748b; }
     .btn-call { background-color: #16a34a; }
     .btn-map { background-color: #0284c7; }
 
@@ -320,6 +345,7 @@
     @media (max-width: 768px) {
       .hero h1 { font-size: 28px; }
       .nav-container { flex-direction: column; gap: 12px; text-align: center; }
+      .nav-left { flex-direction: column; gap: 10px; }
       .brand-logo { flex-direction: column; gap: 8px; }
       .nav-links { flex-wrap: wrap; justify-content: center; }
       .service-card-img { height: 220px; }
@@ -342,13 +368,18 @@
   <!-- Navegación Superior -->
   <header>
     <div class="nav-container">
-      <a href="#" class="brand-logo">
-        <img src="logo.jpg" alt="Casa de Retiros y Eventos Hebron Logo">
-        <div>
-          <div class="brand-title">Casa de Retiros y Eventos Hebron</div>
-          <small style="color: #64748b;">Km. 30.5 Carretera a Santa Elena Barillas Villa Canales, Guatemala</small>
-        </div>
-      </a>
+      <div class="nav-left">
+        <a href="#" class="brand-logo">
+          <img src="logo.jpg" alt="Casa de Retiros y Eventos Hebron Logo">
+          <div>
+            <div class="brand-title">Casa de Retiros y Eventos Hebron</div>
+            <small style="color: #64748b;">Km. 30.5 Carretera a Santa Elena Barillas Villa Canales, Guatemala</small>
+          </div>
+        </a>
+        <!-- Botón Acceder al Dashboard al lado derecho del logo -->
+        <a href="AQUÍ_ENLACE_DEL_DASHBOARD" target="_blank" class="btn-dashboard-nav">Acceder</a>
+      </div>
+
       <div class="nav-links">
         <a href="#quince">15 Años</a>
         <a href="#bodas">Bodas</a>
@@ -367,7 +398,12 @@
       <p>El lugar ideal en Guatemala para tus actividades espirituales, celebraciones familiares, bodas, 15 años, convivencia y renta de mobiliario.</p>
       
       <div class="btn-group">
+        <!-- Botón Catálogo Alternativo para Pruebas (Lado izquierdo) -->
+        <a href="AQUÍ_ENLACE_CATALOGO_ALTERNATIVO" target="_blank" class="btn-main btn-catalog-alt">🧪 Catálogo Alternativo (Pruebas)</a>
+        
+        <!-- Botón Catálogo Oficial Principal -->
         <a href="https://hebron-casa-de-eventos.kyte.site" target="_blank" class="btn-main btn-catalog">Ver Catálogo, Pedidos</a>
+        
         <a href="tel:+50250390762" class="btn-main btn-call">Llamar (50390762)</a>
         <a href="https://maps.app.goo.gl/KCqY1b2M8WNz7qZc8" target="_blank" class="btn-main btn-map">📍 Cómo Llegar</a>
         
