@@ -449,9 +449,9 @@
             <p>Hebron Casa de Eventos - Panel Admin</p>
             <form onsubmit="verificarAdmin(event)">
                 <input type="email" id="login-email" placeholder="Correo electrónico" required class="auth-input">
-                <input type="password" id="login-pass" placeholder="Contraseña de administrador" required class="auth-input">
+                <input type="password" id="login-pass" placeholder="Contraseña" required class="auth-input">
                 <button type="submit" class="auth-btn">Ingresar al Panel</button>
-                <div id="auth-error">Credenciales incorrectas o sin permisos.</div>
+                <div id="auth-error">Credenciales incorrectas o acceso denegado.</div>
             </form>
         </div>
     </div>
@@ -626,14 +626,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
-        // Configuración de Supabase (Sustituye con tus claves reales)
+        // Configuración de Supabase (Sustituye con tus credenciales reales si aún no lo están)
         const SUPABASE_URL = 'TU_SUPABASE_URL';
         const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let usuarioActivo = "Samuel Siebenhor";
 
-        // Comprobar si ya había una sesión activa guardada en este navegador
+        // Comprobar si ya hay una sesión activa guardada
         window.addEventListener('DOMContentLoaded', () => {
             const adminLogueado = sessionStorage.getItem('admin_hebron');
             if (adminLogueado) {
@@ -642,17 +642,17 @@
             }
         });
 
-        // Función para validar usuario administrador contra Supabase (Tabla 'usuarios')
+        // Función de autenticación validando directamente contra la tabla 'usuarios' de Supabase
         async function verificarAdmin(event) {
             event.preventDefault();
-            const emailInput = document.getElementById('login-email').value;
+            const emailInput = document.getElementById('login-email').value.trim();
             const passInput = document.getElementById('login-pass').value;
             const errorDiv = document.getElementById('auth-error');
 
             errorDiv.style.display = 'none';
 
             try {
-                // Buscamos en la tabla 'usuarios' si existe el correo y el rol es admin (o validamos contraseña)
+                // Consultamos el usuario en la tabla 'usuarios' de Supabase
                 const { data, error } = await supabaseClient
                     .from('usuarios')
                     .select('*')
@@ -663,28 +663,23 @@
                     throw new Error("Usuario no encontrado");
                 }
 
-                // Validación simple de contraseña o rol si aplica (puedes ajustar esta lógica según tu esquema de base de datos)
+                // Verificamos que la contraseña coincida exactamente con la de la base de datos
+                if (data.password !== passInput) {
+                    throw new Error("Contraseña incorrecta");
+                }
+
+                // Verificamos que tenga rol de admin
                 if (data.rol && data.rol.toLowerCase() !== 'admin') {
                     throw new Error("No tienes permisos de administrador");
                 }
 
-                // Si todo es correcto, guardamos sesión y quitamos el bloqueo
-                usuarioActivo = data.nombre || emailInput;
+                // Si todo es correcto, guardamos la sesión y ocultamos el login
+                usuarioActivo = data.nombre || "Samuel Siebenhor";
                 sessionStorage.setItem('admin_hebron', usuarioActivo);
                 document.getElementById('auth-overlay').style.display = 'none';
 
             } catch (err) {
-                console.log("Error de autenticación o modo simulación:", err.message);
-                
-                // --- MODO DE EMERGENCIA / SIMULACIÓN LOCAL ---
-                // Si quieres probar rápido sin configurar la tabla aún, puedes definir un usuario de respaldo local:
-                if (emailInput === "admin@hebron.com" && passInput === "12345") {
-                    usuarioActivo = "Samuel Siebenhor";
-                    sessionStorage.setItem('admin_hebron', usuarioActivo);
-                    document.getElementById('auth-overlay').style.display = 'none';
-                    return;
-                }
-
+                console.error("Error de acceso:", err.message);
                 errorDiv.style.display = 'block';
                 errorDiv.innerText = "Credenciales incorrectas o acceso denegado.";
             }
@@ -693,7 +688,7 @@
         function handleLogout() {
             sessionStorage.removeItem('admin_hebron');
             localStorage.clear();
-            window.location.reload(); // Recarga y muestra el login de nuevo
+            window.location.reload();
         }
 
         // Control del Modal
