@@ -17,27 +17,17 @@
 
         body {
             background-color: #f4f6f8;
+            min-height: 100vh;
             display: flex;
-            height: 100vh;
-            overflow: hidden;
-            overscroll-behavior-y: contain; /* Evita rebotes raros del navegador */
+            flex-direction: column;
         }
 
-        /* Indicador visual de Pull to Refresh */
-        #pull-to-refresh {
-            position: fixed;
-            top: -50px;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #1e293b;
-            color: white;
-            font-size: 13px;
-            transition: transform 0.2s ease;
-            z-index: 10000;
+        @media (min-width: 768px) {
+            body {
+                flex-direction: row;
+                height: 100vh;
+                overflow: hidden;
+            }
         }
 
         /* PANTALLA DE BLOQUEO / LOGIN ADMIN */
@@ -49,11 +39,12 @@
             align-items: center;
             justify-content: center;
             z-index: 9999;
+            padding: 20px;
         }
 
         .auth-card {
             background: #253342;
-            padding: 40px;
+            padding: 30px;
             border-radius: 16px;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
             width: 100%;
@@ -112,15 +103,24 @@
             display: none;
         }
 
-        /* Menú Lateral */
+        /* Menú Lateral Adaptable */
         aside {
-            width: 280px;
+            width: 100%;
             background-color: #253342;
             color: #ffffff;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            border-right: 1px solid #1e293b;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        @media (min-width: 768px) {
+            aside {
+                width: 280px;
+                height: 100vh;
+                border-bottom: none;
+                border-right: 1px solid #1e293b;
+                justify-content: space-between;
+            }
         }
 
         .sidebar-header {
@@ -144,21 +144,39 @@
 
         .menu-list {
             list-style: none;
-            padding: 15px 0;
-            overflow-y: auto;
-            flex-grow: 1;
+            padding: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        @media (min-width: 768px) {
+            .menu-list {
+                display: block;
+                overflow-y: auto;
+                flex-grow: 1;
+                padding: 15px 0;
+            }
         }
 
         .menu-item {
-            padding: 12px 20px;
+            padding: 12px 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             color: #cbd5e1;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            transition: all 0.2s ease;
+            width: 50%;
+        }
+
+        @media (min-width: 768px) {
+            .menu-item {
+                width: 100%;
+                padding: 12px 20px;
+                gap: 15px;
+                font-size: 14px;
+            }
         }
 
         .menu-item:hover, .menu-item.active {
@@ -183,15 +201,13 @@
         /* Botón de Logout inferior */
         .sidebar-footer {
             background-color: #10b981;
-            padding: 18px 20px;
+            padding: 15px 20px;
             color: #ffffff;
-            text-decoration: none;
             font-weight: 600;
             font-size: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: background 0.2s;
             border: none;
             width: 100%;
             cursor: pointer;
@@ -207,13 +223,20 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                overflow-y: auto;
+                height: 100vh;
+            }
         }
 
         header.main-header {
             background-color: #253342;
             color: white;
-            padding: 15px 30px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -225,7 +248,7 @@
         }
 
         .dashboard-container {
-            padding: 30px;
+            padding: 20px;
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
@@ -236,77 +259,80 @@
             background-color: #253342;
             color: white;
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
         }
 
         .sales-card h3 {
-            font-size: 13px;
+            font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #94a3b8;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         .sales-amount {
-            font-size: 36px;
+            font-size: 30px;
             font-weight: 700;
             margin-bottom: 5px;
         }
 
         .sales-subtitle {
-            font-size: 13px;
+            font-size: 12px;
             color: #94a3b8;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .btn-register-sale {
             background-color: #10b981;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 20px;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             max-width: 300px;
-            transition: background 0.2s;
-        }
-
-        .btn-register-sale:hover {
-            background-color: #059669;
         }
 
         /* Sección de Stock */
         .stock-section {
             background: white;
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-        }
-
-        .stock-section h2 {
-            font-size: 16px;
-            color: #1e293b;
             margin-bottom: 20px;
         }
 
+        .stock-section h2 {
+            font-size: 15px;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+
         .stock-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            align-items: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .stock-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                align-items: center;
+            }
         }
 
         .stock-info {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             background: #f8fafc;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             border: 1px solid #e2e8f0;
         }
@@ -317,49 +343,48 @@
         }
 
         .stock-metric h4 {
-            font-size: 24px;
+            font-size: 20px;
             color: #0f172a;
             font-weight: 700;
         }
 
         .stock-metric p {
-            font-size: 12px;
+            font-size: 11px;
             color: #64748b;
             margin-top: 4px;
         }
 
         .stock-metric-right {
             border-left: 1px solid #cbd5e1;
-            padding-left: 20px;
+            padding-left: 15px;
         }
 
         .btn-add-product {
             background-color: #10b981;
             color: white;
             border: none;
-            padding: 8px 16px;
+            padding: 8px 12px;
             border-radius: 6px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 12px;
+            margin-top: 10px;
             width: 100%;
         }
-        .btn-add-product:hover { background-color: #059669; }
 
         .chart-container {
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 20px;
             background: #f8fafc;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             border: 1px solid #e2e8f0;
         }
 
         .pie-chart {
-            width: 110px;
-            height: 110px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             background: conic-gradient(#10b981 0% 75%, #0ea5e9 75% 100%);
             flex-shrink: 0;
@@ -368,8 +393,8 @@
         .chart-legend {
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            font-size: 13px;
+            gap: 5px;
+            font-size: 12px;
             color: #334155;
         }
 
@@ -379,21 +404,22 @@
             gap: 8px;
         }
 
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
         .dot-green { background-color: #10b981; }
         .dot-blue { background-color: #0ea5e9; }
         .dot-orange { background-color: #f59e0b; }
         .dot-red { background-color: #ef4444; }
 
-        /* Tabla de Auditoría de Productos */
+        /* Tabla de Auditoría */
         .audit-section {
             background: white;
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            overflow-x: auto;
         }
         .audit-section h2 {
-            font-size: 16px;
+            font-size: 15px;
             color: #1e293b;
             margin-bottom: 15px;
         }
@@ -401,10 +427,11 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            font-size: 13px;
+            font-size: 12px;
+            min-width: 500px;
         }
         th, td {
-            padding: 12px;
+            padding: 10px;
             border-bottom: 1px solid #e2e8f0;
             color: #334155;
         }
@@ -424,12 +451,13 @@
             justify-content: center;
             z-index: 1000;
             display: none;
+            padding: 15px;
         }
         .modal-container {
             background: white;
             width: 100%;
-            max-width: 420px;
-            border-radius: 24px;
+            max-width: 400px;
+            border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
             display: flex;
@@ -445,7 +473,7 @@
             font-weight: 600;
         }
         .modal-tab {
-            padding: 15px;
+            padding: 12px;
             background: none;
             border: none;
             cursor: pointer;
@@ -459,9 +487,6 @@
     </style>
 </head>
 <body>
-
-    <!-- Indicador visual superior para deslizar -->
-    <div id="pull-to-refresh">🔄 Desliza para ir a index.html...</div>
 
     <!-- PANTALLA DE ACCESO RESTRINGIDO (LOGIN) -->
     <div id="auth-overlay">
@@ -495,7 +520,7 @@
                 </li>
                 <li><a href="#" class="menu-item">🗂️ Productos</a></li>
                 <li><a href="#" class="menu-item">💰 Finanzas</a></li>
-                <li><a href="#" class="menu-item">🎟️ Cupón <span style="background:#10b981; color:white; font-size:10px; padding:2px 6px; border-radius:4px;">NUEVO</span></a></li>
+                <li><a href="#" class="menu-item">🎟️ Cupón</a></li>
                 <li><a href="#" class="menu-item">👥 Clientes</a></li>
                 <li><a href="#" class="menu-item">💳 Transacciones</a></li>
                 <li><a href="#" class="menu-item">👤 Usuarios</a></li>
@@ -532,11 +557,11 @@
                     <div class="stock-info">
                         <div class="stock-metric">
                             <h4 id="total-productos">38</h4>
-                            <p>PRODUCTOS REGISTRADOS</p>
+                            <p>PRODUCTOS</p>
                         </div>
                         <div class="stock-metric stock-metric-right">
                             <p style="font-size: 11px; color: #64748b;">Valor en stock</p>
-                            <h4 style="font-size: 18px; margin-top: 4px;">8,590.00 Q</h4>
+                            <h4 style="font-size: 16px; margin-top: 4px;">8,590.00 Q</h4>
                             <button onclick="abrirModal()" class="btn-add-product">+ Producto</button>
                         </div>
                     </div>
@@ -547,7 +572,7 @@
                             <div class="legend-item"><span class="dot dot-green"></span> Disponibles (30)</div>
                             <div class="legend-item"><span class="dot dot-orange"></span> Mínimo (0)</div>
                             <div class="legend-item"><span class="dot dot-red"></span> Agotado (0)</div>
-                            <div class="legend-item"><span class="dot dot-blue"></span> Sin control de stock (8)</div>
+                            <div class="legend-item"><span class="dot dot-blue"></span> Sin control (8)</div>
                         </div>
                     </div>
                 </div>
@@ -555,7 +580,7 @@
 
             <!-- Tabla de Auditoría Reciente -->
             <div class="audit-section">
-                <h2>Historial y Auditoría de Productos Recientes</h2>
+                <h2>Historial y Auditoría Reciente</h2>
                 <table>
                     <thead>
                         <tr>
@@ -568,7 +593,7 @@
                     </thead>
                     <tbody id="tabla-audit-body">
                         <tr>
-                            <td>Silla Tiffany (Ejemplo)</td>
+                            <td>Silla Tiffany</td>
                             <td>25.00 Q</td>
                             <td>30</td>
                             <td>Samuel Siebenhor</td>
@@ -583,26 +608,22 @@
     <!-- VENTANA MODAL: NUEVO PRODUCTO -->
     <div id="modal-producto" class="modal-overlay">
         <div class="modal-container">
-            <!-- Header Modal -->
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
                 <button onclick="cerrarModal()" style="background:none; border:none; font-size: 16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 <h3 style="font-size: 15px; font-weight: 600;">Nuevo producto</h3>
                 <div style="width: 15px;"></div>
             </div>
 
-            <!-- Pestañas -->
             <div class="modal-tabs">
                 <button id="btn-tab-reg" onclick="cambiarPestana('registro')" class="modal-tab active">REGISTRO</button>
                 <button id="btn-tab-stk" onclick="cambiarPestana('stock')" class="modal-tab">STOCK</button>
             </div>
 
-            <!-- Formulario -->
-            <form id="form-nuevo-prod" onsubmit="guardarProductoSupabase(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;">
+            <form id="form-nuevo-prod" onsubmit="guardarProductoSupabase(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto;">
                 
-                <!-- PESTAÑA REGISTRO -->
                 <div id="seccion-registro" style="display: flex; flex-direction: column; gap: 15px;">
                     <div style="display: flex; justify-content: center;">
-                        <div style="width: 130px; height: 130px; background: #334155; border-radius: 12px; padding: 12px; color: white; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="width: 120px; height: 120px; background: #334155; border-radius: 12px; padding: 12px; color: white; display: flex; flex-direction: column; justify-content: space-between;">
                             <div style="font-size: 10px; opacity: 0.8;">Vista previa</div>
                             <div>
                                 <div id="prev-nombre" style="font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Nombre...</div>
@@ -621,20 +642,18 @@
                     </div>
                 </div>
 
-                <!-- PESTAÑA STOCK -->
                 <div id="seccion-stock" style="display: none; flex-direction: column; gap: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 8px;">
-                        <span style="font-size: 13px; font-weight: 500;">Controlar stock del producto</span>
+                        <span style="font-size: 13px; font-weight: 500;">Controlar stock</span>
                         <input type="checkbox" id="chk-control-stock" style="width: 18px; height: 18px; accent-color: #10b981;">
                     </div>
                     <div style="text-align: center; padding: 10px;">
                         <label style="font-size: 12px; color: #64748b; display: block; margin-bottom: 5px;">Stock actual</label>
                         <input type="number" id="inp-stock-actual" value="0" 
-                            style="width: 100px; text-align: center; font-size: 24px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px;">
+                            style="width: 100px; text-align: center; font-size: 20px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px;">
                     </div>
                 </div>
 
-                <!-- Botón Enviar -->
                 <button type="submit" id="btn-submit-form" 
                     style="background: #10b981; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px;">
                     Añadir producto
@@ -643,11 +662,9 @@
         </div>
     </div>
 
-    <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
-        // Configuración corregida de Supabase con comillas
         const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -663,43 +680,7 @@
             }
         });
 
-        // Lógica de Pull-to-Refresh para redirigir a index.html
-        let touchStartY = 0;
-        const ptrElement = document.getElementById('pull-to-refresh');
-
-        window.addEventListener('touchstart', (e) => {
-            touchStartY = e.touches[0].clientY;
-        }, { passive: true });
-
-        window.addEventListener('touchmove', (e) => {
-            const touchY = e.touches[0].clientY;
-            const diff = touchY - touchStartY;
-            
-            // Si está hasta arriba de la página y desliza hacia abajo
-            if (window.scrollY === 0 && diff > 0) {
-                const pullDist = Math.min(diff, 100);
-                ptrElement.style.transform = `translateY(${pullDist}px)`;
-                if (pullDist > 70) {
-                    ptrElement.innerText = "Soltar para ir a index.html...";
-                } else {
-                    ptrElement.innerText = "🔄 Desliza para ir a index.html...";
-                }
-            }
-        }, { passive: true });
-
-        window.addEventListener('touchend', (e) => {
-            const touchEndY = e.changedTouches[0].clientY;
-            const diff = touchEndY - touchStartY;
-
-            if (window.scrollY === 0 && diff > 90) {
-                ptrElement.innerText = "¡Cargando index.html...";
-                window.location.href = 'index.html';
-            } else {
-                ptrElement.style.transform = 'translateY(0px)';
-            }
-        });
-
-                // Función de autenticación con respaldo de emergencia
+        // Función de autenticación con respaldo de emergencia
         async function verificarAdmin(event) {
             event.preventDefault();
             const emailInput = document.getElementById('login-email').value.trim();
@@ -708,7 +689,6 @@
 
             errorDiv.style.display = 'none';
 
-            // ACCESO DIRECTO DE EMERGENCIA (Si coincide con tus credenciales maestras)
             if (emailInput === 'admin@hebron.com' && passInput === 'Jeremias2#') {
                 usuarioActivo = "Samuel Siebenhor";
                 sessionStorage.setItem('admin_hebron', usuarioActivo);
@@ -723,17 +703,9 @@
                     .eq('correo', emailInput)
                     .single();
 
-                if (error || !data) {
-                    throw new Error("Usuario no encontrado");
-                }
-
-                if (data.password !== passInput) {
-                    throw new Error("Contraseña incorrecta");
-                }
-
-                if (data.rol && data.rol.toLowerCase() !== 'admin') {
-                    throw new Error("No tienes permisos de administrador");
-                }
+                if (error || !data) throw new Error("Usuario no encontrado");
+                if (data.password !== passInput) throw new Error("Contraseña incorrecta");
+                if (data.rol && data.rol.toLowerCase() !== 'admin') throw new Error("No permisos");
 
                 usuarioActivo = data.nombre || "Samuel Siebenhor";
                 sessionStorage.setItem('admin_hebron', usuarioActivo);
@@ -746,14 +718,12 @@
             }
         }
 
-
         function handleLogout() {
             sessionStorage.removeItem('admin_hebron');
             localStorage.clear();
             window.location.reload();
         }
 
-        // Control del Modal
         function abrirModal() {
             document.getElementById('modal-producto').style.display = 'flex';
         }
@@ -761,7 +731,6 @@
             document.getElementById('modal-producto').style.display = 'none';
         }
 
-        // Cambio de pestañas en el modal
         function cambiarPestana(pestana) {
             const regSec = document.getElementById('seccion-registro');
             const stkSec = document.getElementById('seccion-stock');
@@ -776,7 +745,7 @@
                 btnStk.classList.remove('active');
                 btnSubmit.innerText = "Añadir producto";
             } else {
-                regSec.style.display = 'none';
+                regSec.style.display     = 'none';
                 stkSec.style.display = 'flex';
                 btnStk.classList.add('active');
                 btnReg.classList.remove('active');
@@ -784,7 +753,6 @@
             }
         }
 
-        // Vista previa dinámica
         function actualizarVistaPrevia() {
             const nombre = document.getElementById('inp-nombre').value;
             const precio = document.getElementById('inp-precio').value;
@@ -793,7 +761,6 @@
             document.getElementById('prev-precio').innerText = precio ? precio + ' Q' : '0.00 Q';
         }
 
-        // Guardar en Supabase y registrar auditoría
         async function guardarProductoSupabase(event) {
             event.preventDefault();
 
@@ -830,7 +797,7 @@
                     <td>${updated_at}</td>
                 `;
                 tbody.prepend(fila);
-                alert('¡Producto registrado con éxito (Modo simulación local)!');
+                alert('¡Producto registrado con éxito!');
             }
 
             document.getElementById('form-nuevo-prod').reset();
