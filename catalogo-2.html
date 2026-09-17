@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo Alternativo (Pruebas) - Hebron</title>
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #f8faf9;
+      color: #0f172a;
+      line-height: 1.6;
+    }
+    /* Cabecera de pruebas */
+    header {
+      background-color: #0f172a;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    header h1 { font-size: 24px; margin-bottom: 5px; }
+    header p { color: #94a3b8; font-size: 14px; }
+    
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    /* Barra de filtros de prueba */
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: white;
+      border: 1px solid #cbd5e1;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      color: #475569;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: #0f172a;
+      color: white;
+      border-color: #0f172a;
+    }
+
+    /* Cuadrícula de productos/servicios de prueba */
+    .grid-pruebas {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .card-test {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      transition: transform 0.2s;
+    }
+    .card-test:hover { transform: translateY(-3px); }
+    .card-img-container {
+      height: 160px;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #64748b;
+      font-size: 13px;
+    }
+    .card-body {
+      padding: 15px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 12px;
+    }
+    .btn-action {
+      display: block;
+      width: 100%;
+      text-align: center;
+      background: #22c55e;
+      color: white;
+      padding: 8px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .btn-action:hover { background: #16a34a; }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #0284c7;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🧪 Entorno de Pruebas - Catálogo Alternativo</h1>
+    <p>Área para experimentar con nuevos diseños y visualizaciones de inventario</p>
+  </header>
+
+  <div class="container">
+    <a href="index.html" class="back-link">⬅ Volver a la página principal</a>
+
+    <!-- Filtros simulados -->
+    <div class="filter-bar">
+      <button class="filter-btn active">Todos</button>
+      <button class="filter-btn">Mobiliario</button>
+      <button class="filter-btn">Toldos</button>
+      <button class="filter-btn">Paquetes</button>
+    </div>
+
+    <!-- Lista de elementos de prueba -->
+    <div class="grid-pruebas">
+      <!-- Item 1 -->
+      <div class="card-test">
+        <div class="card-img-container">Imagen de Prueba 1</div>
+        <div class="card-body">
+          <div class="card-title">Silla Tiffany (Blanca)</div>
+          <div class="card-desc">Ideal para bodas y eventos formales. Diseño elegante y cómodo.</div>
+          <a href="#" class="btn-action">Simular Selección</a>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="card-test">
+        <div class="card-img-container">Imagen de Prueba 2</div>
+        <div class="card-body">
+          <div class="card-title">Mesa Redonda Banquera</div>
+          <div class="card-desc">Capacidad para 10 personas con estructura reforzada.</div>
+          <a href="#" class="btn-action">Simular Selección</a>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="card-test">
+        <div class="card-img-container">Imagen de Prueba 3</div>
+        <div class="card-body">
+          <div class="card-title">Toldo Árabe 6x6</div>
+          <div class="card-desc">Estructura metálica resistente para exteriores y protección contra clima.</div>
+          <a href="#" class="btn-action">Simular Selección</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
