@@ -20,6 +20,24 @@
             display: flex;
             height: 100vh;
             overflow: hidden;
+            overscroll-behavior-y: contain; /* Evita rebotes raros del navegador */
+        }
+
+        /* Indicador visual de Pull to Refresh */
+        #pull-to-refresh {
+            position: fixed;
+            top: -50px;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e293b;
+            color: white;
+            font-size: 13px;
+            transition: transform 0.2s ease;
+            z-index: 10000;
         }
 
         /* PANTALLA DE BLOQUEO / LOGIN ADMIN */
@@ -442,6 +460,9 @@
 </head>
 <body>
 
+    <!-- Indicador visual superior para deslizar -->
+    <div id="pull-to-refresh">🔄 Desliza para ir a index.html...</div>
+
     <!-- PANTALLA DE ACCESO RESTRINGIDO (LOGIN) -->
     <div id="auth-overlay">
         <div class="auth-card">
@@ -626,10 +647,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
-        // Configuración de Supabase (Sustituye con tus credenciales reales si aún no lo están)
-        const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co/rest/v1/';
+        // Configuración corregida de Supabase con comillas
+        const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
-        const supabaseClient = supabase.createClient(https://uidoqzlzvhjhfzxmkgci.supabase.co/rest/v1/, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let usuarioActivo = "Samuel Siebenhor";
 
@@ -639,6 +660,42 @@
             if (adminLogueado) {
                 document.getElementById('auth-overlay').style.display = 'none';
                 usuarioActivo = adminLogueado;
+            }
+        });
+
+        // Lógica de Pull-to-Refresh para redirigir a index.html
+        let touchStartY = 0;
+        const ptrElement = document.getElementById('pull-to-refresh');
+
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            const touchY = e.touches[0].clientY;
+            const diff = touchY - touchStartY;
+            
+            // Si está hasta arriba de la página y desliza hacia abajo
+            if (window.scrollY === 0 && diff > 0) {
+                const pullDist = Math.min(diff, 100);
+                ptrElement.style.transform = `translateY(${pullDist}px)`;
+                if (pullDist > 70) {
+                    ptrElement.innerText = "Soltar para ir a index.html...";
+                } else {
+                    ptrElement.innerText = "🔄 Desliza para ir a index.html...";
+                }
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchEndY - touchStartY;
+
+            if (window.scrollY === 0 && diff > 90) {
+                ptrElement.innerText = "¡Cargando index.html...";
+                window.location.href = 'index.html';
+            } else {
+                ptrElement.style.transform = 'translateY(0px)';
             }
         });
 
@@ -652,7 +709,6 @@
             errorDiv.style.display = 'none';
 
             try {
-                // Consultamos el usuario en la tabla 'usuarios' de Supabase
                 const { data, error } = await supabaseClient
                     .from('usuarios')
                     .select('*')
@@ -663,17 +719,14 @@
                     throw new Error("Usuario no encontrado");
                 }
 
-                // Verificamos que la contraseña coincida exactamente con la de la base de datos
                 if (data.password !== passInput) {
                     throw new Error("Contraseña incorrecta");
                 }
 
-                // Verificamos que tenga rol de admin
                 if (data.rol && data.rol.toLowerCase() !== 'admin') {
                     throw new Error("No tienes permisos de administrador");
                 }
 
-                // Si todo es correcto, guardamos la sesión y ocultamos el login
                 usuarioActivo = data.nombre || "Samuel Siebenhor";
                 sessionStorage.setItem('admin_hebron', usuarioActivo);
                 document.getElementById('auth-overlay').style.display = 'none';
