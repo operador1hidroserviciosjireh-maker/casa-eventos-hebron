@@ -22,6 +22,63 @@
             overflow: hidden;
         }
 
+        /* PANTALLA DE LOGIN (Bloqueo inicial) */
+        #auth-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .login-card h2 {
+            font-size: 20px;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+        .login-card p {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+        .login-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        .login-input:focus {
+            border-color: #10b981;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #10b981;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .login-btn:hover {
+            background-color: #059669;
+        }
+
         /* Menú Lateral */
         aside {
             width: 280px;
@@ -333,7 +390,7 @@
             align-items: center;
             justify-content: center;
             z-index: 1000;
-            display: none; /* Oculto por defecto */
+            display: none;
         }
         .modal-container {
             background: white;
@@ -369,6 +426,19 @@
     </style>
 </head>
 <body>
+
+    <!-- PANTALLA DE ACCESO / LOGIN (BLOQUEO) -->
+    <div id="auth-overlay">
+        <div class="login-card">
+            <h2>Hebron Admin</h2>
+            <p>Ingresa tus credenciales para acceder</p>
+            <form onsubmit="realizarLogin(event)">
+                <input type="email" id="login-correo" placeholder="Correo electrónico" required class="login-input" value="admin@hebron.com">
+                <input type="password" id="login-password" placeholder="Contraseña" required class="login-input" value="123456">
+                <button type="submit" class="login-btn">Entrar al Sistema</button>
+            </form>
+        </div>
+    </div>
 
     <!-- MENÚ LATERAL -->
     <aside>
@@ -476,25 +546,19 @@
     <!-- VENTANA MODAL: NUEVO PRODUCTO -->
     <div id="modal-producto" class="modal-overlay">
         <div class="modal-container">
-            <!-- Header Modal -->
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
                 <button onclick="cerrarModal()" style="background:none; border:none; font-size: 16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
                 <h3 style="font-size: 15px; font-weight: 600;">Nuevo producto</h3>
                 <div style="width: 15px;"></div>
             </div>
 
-            <!-- Pestañas -->
             <div class="modal-tabs">
                 <button id="btn-tab-reg" onclick="cambiarPestana('registro')" class="modal-tab active">REGISTRO</button>
                 <button id="btn-tab-stk" onclick="cambiarPestana('stock')" class="modal-tab">STOCK</button>
             </div>
 
-            <!-- Formulario -->
             <form id="form-nuevo-prod" onsubmit="guardarProductoSupabase(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;">
-                
-                <!-- PESTAÑA REGISTRO -->
                 <div id="seccion-registro" style="display: flex; flex-direction: column; gap: 15px;">
-                    <!-- Vista previa visual -->
                     <div style="display: flex; justify-content: center;">
                         <div style="width: 130px; height: 130px; background: #334155; border-radius: 12px; padding: 12px; color: white; display: flex; flex-direction: column; justify-content: space-between;">
                             <div style="font-size: 10px; opacity: 0.8;">Vista previa</div>
@@ -515,7 +579,6 @@
                     </div>
                 </div>
 
-                <!-- PESTAÑA STOCK (Oculta por defecto) -->
                 <div id="seccion-stock" style="display: none; flex-direction: column; gap: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 8px;">
                         <span style="font-size: 13px; font-weight: 500;">Controlar stock del producto</span>
@@ -528,7 +591,6 @@
                     </div>
                 </div>
 
-                <!-- Botón Enviar -->
                 <button type="submit" id="btn-submit-form" 
                     style="background: #10b981; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px;">
                     Añadir producto
@@ -541,18 +603,66 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
-        // Configuración de Supabase (Sustituye con tus claves reales cuando lo conectes)
+        // Configuración de Supabase
         const SUPABASE_URL = 'TU_SUPABASE_URL';
         const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Usuario actual para la auditoría
-        const usuarioActivo = "Samuel Siebenhor";
+        // Variable global para almacenar el nombre del usuario logueado
+        let usuarioActivo = "Samuel Siebenhor";
+
+        // Verificar si ya hay una sesión activa al cargar la página
+        window.onload = function() {
+            const sesionGuardada = localStorage.getItem('hebron_admin_sesion');
+            if (sesionGuardada) {
+                usuarioActivo = sesionGuardada;
+                document.getElementById('auth-overlay').style.display = 'none';
+            }
+        }
+
+        // Lógica de Login
+        async function realizarLogin(event) {
+            event.preventDefault();
+            const correo = document.getElementById('login-correo').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                // Consultar en la tabla 'usuarios' de Supabase
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .select('*')
+                    .eq('correo', correo)
+                    .eq('password', password)
+                    .single();
+
+                if (error || !data) {
+                    throw new Error('Credenciales inválidas');
+                }
+
+                // Guardar sesión y ocultar login
+                usuarioActivo = data.nombre;
+                localStorage.setItem('hebron_admin_sesion', usuarioActivo);
+                document.getElementById('auth-overlay').style.display = 'none';
+                alert('¡Bienvenido, ' + usuarioActivo + '!');
+
+            } catch (err) {
+                // Modo simulación si Supabase no está conectado aún (permite entrar con admin@hebron.com / 123456)
+                if (correo === 'admin@hebron.com' && password === '123456') {
+                    usuarioActivo = "Samuel Siebenhor";
+                    localStorage.setItem('hebron_admin_sesion', usuarioActivo);
+                    document.getElementById('auth-overlay').style.display = 'none';
+                    alert('¡Acceso concedido (Modo simulación local)!');
+                } else {
+                    alert('Correo o contraseña incorrectos.');
+                }
+            }
+        }
 
         function handleLogout() {
+            localStorage.removeItem('hebron_admin_sesion');
             localStorage.clear();
             sessionStorage.clear();
-            window.location.href = 'index.html';
+            window.location.reload(); // Recarga y muestra el login de nuevo
         }
 
         // Control del Modal
@@ -563,7 +673,6 @@
             document.getElementById('modal-producto').style.display = 'none';
         }
 
-        // Cambio de pestañas en el modal
         function cambiarPestana(pestana) {
             const regSec = document.getElementById('seccion-registro');
             const stkSec = document.getElementById('seccion-stock');
@@ -586,7 +695,6 @@
             }
         }
 
-        // Vista previa dinámica
         function actualizarVistaPrevia() {
             const nombre = document.getElementById('inp-nombre').value;
             const precio = document.getElementById('inp-precio').value;
@@ -595,7 +703,6 @@
             document.getElementById('prev-precio').innerText = precio ? precio + ' Q' : '0.00 Q';
         }
 
-        // Guardar en Supabase y registrar auditoría
         async function guardarProductoSupabase(event) {
             event.preventDefault();
 
@@ -604,9 +711,8 @@
             const controlar_stock = document.getElementById('chk-control-stock').checked;
             const stock_actual = parseInt(document.getElementById('inp-stock-actual').value) || 0;
             
-            // Datos de auditoría automáticos
             const modificado_por = usuarioActivo;
-            const updated_at = new Date().toLocaleString(); // Fecha y hora local legible
+            const updated_at = new Date().toLocaleString();
 
             const nuevoItem = {
                 nombre,
@@ -618,15 +724,10 @@
             };
 
             try {
-                // Intentar inserción real en Supabase
                 const { error } = await supabaseClient.from('productos').insert([nuevoItem]);
                 if (error) throw error;
                 alert('¡Producto guardado exitosamente!');
             } catch (err) {
-                // Modo simulador si Supabase no está configurado todavía
-                console.log("Supabase simulado:", err);
-                
-                // Agregar directamente a la tabla visual de auditoría para demostración
                 const tbody = document.getElementById('tabla-audit-body');
                 const fila = document.createElement('tr');
                 fila.innerHTML = `
