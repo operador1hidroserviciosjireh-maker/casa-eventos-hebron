@@ -53,3 +53,109 @@ export async function guardarProductoSupabase(producto) {
     return { success: false, error: error.message };
   }
 }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <!-- Tailwind CSS para un diseño rápido y moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librería de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-900">Panel de Administración</h1>
+            <span id="user-email" class="text-sm text-gray-600">Cargando usuario...</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Sección de Estadísticas / Control -->
+        <div class="px-4 py-6 sm:px-0">
+            <div class="border-4 border-dashed border-gray-200 rounded-lg p-6 bg-white">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Gestión de Productos y Datos</h2>
+                
+                <!-- Botón de prueba para cargar datos de Supabase -->
+                <button id="btn-cargar" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition">
+                    Cargar Usuarios desde Supabase
+                </button>
+
+                <!-- Contenedor para mostrar resultados -->
+                <div id="resultado-tabla" class="mt-6 overflow-x-auto">
+                    <!-- Aquí se pintarán los datos dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Script de Conexión y Lógica -->
+    <script type="module">
+        // 1. Configuración de Supabase (Reemplaza con tus datos reales)
+        const SUPABASE_URL = 'https://TU_PROYECTO_AQUI.supabase.co';
+        const SUPABASE_KEY = 'TU_CLAVE_ANON_PUBLICA_AQUI';
+        
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // 2. Función para obtener y mostrar los usuarios de la tabla
+        async function cargarUsuarios() {
+            const contenedor = document.getElementById('resultado-tabla');
+            contenedor.innerHTML = '<p class="text-gray-500">Consultando la base de datos...</p>';
+
+            try {
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .select('*');
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    contenedor.innerHTML = '<p class="text-gray-500">No se encontraron registros en la tabla.</p>';
+                    return;
+                }
+
+                // Construir una tabla HTML con los resultados
+                let html = `
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                `;
+
+                data.forEach(user => {
+                    html += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.id || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.nombre || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.correo || ''}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.rol || 'N/A'}</td>
+                        </tr>
+                    `;
+                });
+
+                html += `</tbody></table>`;
+                contenedor.innerHTML = html;
+
+            } catch (err) {
+                console.error('Error:', err.message);
+                contenedor.innerHTML = `<p class="text-red-600">Error al cargar los datos: ${err.message}</p>`;
+            }
+        }
+
+        // Asignar evento al botón
+        document.getElementById('btn-cargar').addEventListener('click', cargarUsuarios);
+    </script>
+</body>
+</html>
