@@ -1,176 +1,413 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Administración Hebron</title>
-  <link rel="icon" type="image/jpeg" href="logo.jpg">
-  <!-- Supabase JS Client desde CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background-color: #f1f5f9;
-      color: #0f172a;
-      display: flex;
-      height: 100vh;
-      overflow: hidden;
-    }
-    /* Barra lateral */
-    aside {
-      width: 260px;
-      background-color: #0f172a;
-      color: white;
-      display: flex;
-      flex-direction: column;
-    }
-    .aside-header {
-      padding: 20px;
-      font-size: 18px;
-      font-weight: 700;
-      border-bottom: 1px solid #1e293b;
-    }
-    .aside-menu {
-      list-style: none;
-      padding: 20px 0;
-    }
-    .aside-menu li a {
-      display: block;
-      padding: 12px 20px;
-      color: #94a3b8;
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.2s, background 0.2s;
-    }
-    .aside-menu li a:hover {
-      color: white;
-      background-color: #1e293b;
-    }
-    /* Contenido Principal */
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-    header {
-      background: white;
-      padding: 15px 30px;
-      border-bottom: 1px solid #e2e8f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .content-body {
-      padding: 30px;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    .btn {
-      background-color: #22c55e;
-      color: white;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .btn:hover { background-color: #16a34a; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hebron Casa de Eventos - Panel Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Menú Lateral */
+        aside {
+            width: 280px;
+            background-color: #253342;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid #1e293b;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 15px 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: #1e293b;
+            color: #ffffff;
+            border-left: 4px solid #10b981;
+        }
+
+        .menu-badge {
+            background-color: #10b981;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* Botón de Logout inferior */
+        .sidebar-footer {
+            background-color: #10b981;
+            padding: 18px 20px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .sidebar-footer:hover {
+            background-color: #059669;
+        }
+
+        /* Contenido Principal */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        header.main-header {
+            background-color: #253342;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .main-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .dashboard-container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Tarjeta de Ventas de Hoy */
+        .sales-card {
+            background-color: #253342;
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .sales-card h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .sales-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .sales-subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .btn-register-sale {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            transition: background 0.2s;
+        }
+
+        .btn-register-sale:hover {
+            background-color: #059669;
+        }
+
+        /* Sección de Stock con Gráfica a la Derecha */
+        .stock-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+
+        .stock-section h2 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stock-info {
+            display: flex;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stock-metric {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stock-metric h4 {
+            font-size: 24px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .stock-metric p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .stock-metric-right {
+            border-left: 1px solid #cbd5e1;
+            padding-left: 20px;
+        }
+
+        .btn-add-product {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        /* Contenedor de la Gráfica Circular */
+        .chart-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pie-chart {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 0% 75%, #0ea5e9 75% 100%);
+            flex-shrink: 0;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .dot-green { background-color: #10b981; }
+        .dot-blue { background-color: #0ea5e9; }
+        .dot-orange { background-color: #f59e0b; }
+        .dot-red { background-color: #ef4444; }
+
+        .btn-view-stock {
+            background: transparent;
+            border: 2px solid #10b981;
+            color: #10b981;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-view-stock:hover {
+            background: #f0fdf4;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Sidebar de Navegación del Dashboard -->
-  <aside>
-    <div class="aside-header">Hebron Admin</div>
-    <ul class="aside-menu">
-      <li><a href="#" onclick="switchTab('reservas')">📅 Reservas / Leads</a></li>
-      <li><a href="#" onclick="switchTab('inventario')">📦 Inventario / Mobiliario</a></li>
-      <li><a href="index.html">⬅️ Volver al Sitio Web</a></li>
-    </ul>
-  </aside>
-
-  <!-- Área Principal -->
-  <main>
-    <header>
-      <h2>Panel de Control</h2>
-      <span id="user-status" style="font-size: 14px; color: #64748b;">Conectando a base de datos...</span>
-    </header>
-
-    <div class="content-body">
-      <div class="card">
-        <h3>Gestión de Datos</h3>
-        <p style="margin: 10px 0; color: #475569;">Aquí puedes visualizar y administrar la información sincronizada con tu base de datos central.</p>
-        <button class="btn" onclick="cargarDatosSupabase()">Actualizar Datos</button>
-      </div>
-
-      <div class="card">
-        <h3>Registros Recientes</h3>
-        <div id="data-container" style="margin-top: 15px; font-size: 14px; color: #334155;">
-          Haz clic en "Actualizar Datos" para sincronizar la información.
+    <!-- MENÚ LATERAL -->
+    <aside>
+        <div>
+            <div class="sidebar-header">
+                <h2>Hebron casa de eventos <span>&gt;</span></h2>
+                <p>Nube Voladora</p>
+            </div>
+            <ul class="menu-list">
+                <li><a href="#" class="menu-item active">🏠 Inicio</a></li>
+                <li><a href="#" class="menu-item">🛒 Vender</a></li>
+                <li>
+                    <a href="#" class="menu-item">
+                        📦 Pedidos 
+                        <span class="menu-badge">1</span>
+                    </a>
+                </li>
+                <li><a href="#" class="menu-item">🗂️ Productos</a></li>
+                <li><a href="#" class="menu-item">💰 Finanzas</a></li>
+                <li><a href="#" class="menu-item">🎟️ Cupón <span style="background:#10b981; color:white; font-size:10px; padding:2px 6px; border-radius:4px;">NUEVO</span></a></li>
+                <li><a href="#" class="menu-item">👥 Clientes</a></li>
+                <li><a href="#" class="menu-item">💳 Transacciones</a></li>
+                <li><a href="#" class="menu-item">👤 Usuarios</a></li>
+            </ul>
         </div>
-      </div>
-    </div>
-  </main>
+        
+        <!-- Botón de Logout -->
+        <button onclick="handleLogout()" class="sidebar-footer">
+            <span>Logout</span>
+            <span>&gt;</span>
+        </button>
+    </aside>
 
-  <script>
-    // Configuración de Supabase (Sustituye con tus credenciales de proyecto)
-    const SUPABASE_URL = 'TU_SUPABASE_URL';
-    const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
-    
-    // Inicializar cliente de Supabase
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
+        <header class="main-header">
+            <h1>Inicio</h1>
+            <span id="sync-status" style="font-size: 12px; color: #94a3b8;">Sistema Activo</span>
+        </header>
 
-    document.addEventListener("DOMContentLoaded", () => {
-      // Verificar conexión inicial
-      if(SUPABASE_URL.includes('TU_SUPABASE')) {
-        document.getElementById('user-status').innerText = '⚠️ Configura tus credenciales de Supabase';
-      } else {
-        document.getElementById('user-status').innerText = '🟢 Conectado';
-        cargarDatosSupabase();
-      }
-    });
+        <div class="dashboard-container">
+            <!-- Tarjeta Ventas de Hoy -->
+            <div class="sales-card">
+                <h3>Hoy</h3>
+                <div class="sales-amount">0.00 Q</div>
+                <div class="sales-subtitle">en 0 ventas completadas</div>
+                <button class="btn-register-sale">Registrar venta</button>
+            </div>
 
-    async function cargarDatosSupabase() {
-      const container = document.getElementById('data-container');
-      container.innerHTML = 'Cargando registros...';
-      
-      try {
-        // Ejemplo de consulta a una tabla llamada 'reservas' o 'mobiliario'
-        // Cambia 'tu_tabla' por el nombre real de tu tabla en Supabase
-        const { data, error } = await supabaseClient
-          .from('tu_tabla')
-          .select('*')
-          .limit(10);
+            <!-- Sección Stock y Gráfica -->
+            <div class="stock-section">
+                <h2>Stock</h2>
+                <div class="stock-grid">
+                    <!-- Izquierda: Métricas de Productos -->
+                    <div class="stock-info">
+                        <div class="stock-metric">
+                            <h4>38</h4>
+                            <p>PRODUCTOS REGISTRADOS</p>
+                        </div>
+                        <div class="stock-metric stock-metric-right">
+                            <p style="font-size: 11px; color: #64748b;">Valor en stock</p>
+                            <h4 style="font-size: 18px; margin-top: 4px;">8,590.00 Q</h4>
+                            <button class="btn-add-product">+ Producto</button>
+                        </div>
+                    </div>
 
-        if (error) throw error;
+                    <!-- Derecha: Gráfica Circular y Leyenda -->
+                    <div class="chart-container">
+                        <div class="pie-chart"></div>
+                        <div class="chart-legend">
+                            <div class="legend-item"><span class="dot dot-green"></span> Disponibles (30)</div>
+                            <div class="legend-item"><span class="dot dot-orange"></span> Mínimo (0)</div>
+                            <div class="legend-item"><span class="dot dot-red"></span> Agotado (0)</div>
+                            <div class="legend-item"><span class="dot dot-blue"></span> Sin control de stock (8)</div>
+                        </div>
+                    </div>
+                </div>
 
-        if (!data || data.length === 0) {
-          container.innerHTML = 'No se encontraron registros en esta tabla.';
-          return;
+                <button class="btn-view-stock">Ver stock</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function handleLogout() {
+            // Aquí puedes limpiar datos de sesión locales si los usas en el futuro
+            localStorage.clear();
+            sessionStorage.clear();
+            // Redirige al sitio web principal
+            window.location.href = 'index.html';
         }
+    </script>
 
-        let html = '<ul style="padding-left: 20px;">';
-        data.forEach(row => {
-          html += `<li>${JSON.stringify(row)}</li>`;
-        });
-        html += '</ul>';
-        container.innerHTML = html;
-
-      } catch (err) {
-        container.innerHTML = `<span style="color: red;">Error al conectar: ${err.message}</span>`;
-      }
-    }
-
-    function switchTab(seccion) {
-      alert(`Cambiando a la sección: ${seccion}`);
-    }
-  </script>
 </body>
 </html>
