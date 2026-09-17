@@ -3,228 +3,647 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuevo Producto - Panel de Gestión</title>
-    <!-- Tailwind CSS para diseño moderno y limpio -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Hebron Casa de Eventos - Panel Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- SDK de Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- FontAwesome para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f8;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Menú Lateral */
+        aside {
+            width: 280px;
+            background-color: #253342;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border-right: 1px solid #1e293b;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .sidebar-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header p {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 15px 0;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: #1e293b;
+            color: #ffffff;
+            border-left: 4px solid #10b981;
+        }
+
+        .menu-badge {
+            background-color: #10b981;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        /* Botón de Logout inferior */
+        .sidebar-footer {
+            background-color: #10b981;
+            padding: 18px 20px;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .sidebar-footer:hover {
+            background-color: #059669;
+        }
+
+        /* Contenido Principal */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        header.main-header {
+            background-color: #253342;
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .main-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .dashboard-container {
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Tarjeta de Ventas de Hoy */
+        .sales-card {
+            background-color: #253342;
+            color: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .sales-card h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .sales-amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .sales-subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+
+        .btn-register-sale {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            max-width: 300px;
+            transition: background 0.2s;
+        }
+
+        .btn-register-sale:hover {
+            background-color: #059669;
+        }
+
+        /* Sección de Stock */
+        .stock-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 25px;
+        }
+
+        .stock-section h2 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .stock-info {
+            display: flex;
+            gap: 20px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stock-metric {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stock-metric h4 {
+            font-size: 24px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .stock-metric p {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .stock-metric-right {
+            border-left: 1px solid #cbd5e1;
+            padding-left: 20px;
+        }
+
+        .btn-add-product {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            width: 100%;
+        }
+        .btn-add-product:hover { background-color: #059669; }
+
+        .chart-container {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .pie-chart {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 0% 75%, #0ea5e9 75% 100%);
+            flex-shrink: 0;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-green { background-color: #10b981; }
+        .dot-blue { background-color: #0ea5e9; }
+        .dot-orange { background-color: #f59e0b; }
+        .dot-red { background-color: #ef4444; }
+
+        /* Tabla de Auditoría de Productos */
+        .audit-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
+        .audit-section h2 {
+            font-size: 16px;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+        }
+        th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        /* MODAL DE NUEVO PRODUCTO */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            display: none; /* Oculto por defecto */
+        }
+        .modal-container {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+        .modal-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .modal-tab {
+            padding: 15px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #94a3b8;
+            border-bottom: 2px solid transparent;
+        }
+        .modal-tab.active {
+            color: #10b981;
+            border-bottom-color: #10b981;
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body>
 
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col" style="min-height: 650px;">
+    <!-- MENÚ LATERAL -->
+    <aside>
+        <div>
+            <div class="sidebar-header">
+                <h2>Hebron casa de eventos <span>&gt;</span></h2>
+                <p>Nube Voladora</p>
+            </div>
+            <ul class="menu-list">
+                <li><a href="#" class="menu-item active">🏠 Inicio</a></li>
+                <li><a href="#" class="menu-item">🛒 Vender</a></li>
+                <li>
+                    <a href="#" class="menu-item">
+                        📦 Pedidos 
+                        <span class="menu-badge">1</span>
+                    </a>
+                </li>
+                <li><a href="#" class="menu-item">🗂️ Productos</a></li>
+                <li><a href="#" class="menu-item">💰 Finanzas</a></li>
+                <li><a href="#" class="menu-item">🎟️ Cupón <span style="background:#10b981; color:white; font-size:10px; padding:2px 6px; border-radius:4px;">NUEVO</span></a></li>
+                <li><a href="#" class="menu-item">👥 Clientes</a></li>
+                <li><a href="#" class="menu-item">💳 Transacciones</a></li>
+                <li><a href="#" class="menu-item">👤 Usuarios</a></li>
+            </ul>
+        </div>
         
-        <!-- Header superior -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <button onclick="history.back()" class="text-gray-600 hover:text-black text-lg">
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
-            <h1 class="text-lg font-semibold text-gray-800">Nuevo producto</h1>
-            <div class="w-6"></div> <!-- Espaciador para centrar título -->
-        </div>
+        <!-- Botón de Logout -->
+        <button onclick="handleLogout()" class="sidebar-footer">
+            <span>Logout</span>
+            <span>&gt;</span>
+        </button>
+    </aside>
 
-        <!-- Pestañas de Navegación: REGISTRO / STOCK -->
-        <div class="grid grid-cols-2 border-b border-gray-200 text-center font-medium text-sm">
-            <button id="tab-registro-btn" onclick="switchTab('registro')" class="py-3 text-teal-600 border-b-2 border-teal-600 focus:outline-none transition-colors">
-                REGISTRO
-            </button>
-            <button id="tab-stock-btn" onclick="switchTab('stock')" class="py-3 text-gray-400 border-b-2 border-transparent focus:outline-none transition-colors">
-                STOCK
-            </button>
-        </div>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main>
+        <header class="main-header">
+            <h1>Inicio</h1>
+            <span id="sync-status" style="font-size: 12px; color: #94a3b8;">Sistema Activo</span>
+        </header>
 
-        <!-- Contenedor del Formulario -->
-        <form id="product-form" onsubmit="guardarProducto(event)" class="flex-1 flex flex-col justify-between p-6">
-            
-            <!-- VISTA 1: REGISTRO -->
-            <div id="tab-registro" class="space-y-6">
-                <!-- Tarjeta de Vista Previa del Producto -->
-                <div class="flex justify-center my-2">
-                    <div class="w-40 h-40 bg-slate-700 rounded-2xl flex flex-col justify-between p-4 text-white shadow-md relative">
-                        <div class="flex justify-between items-center">
-                            <div class="w-5 h-5 bg-slate-500 rounded"></div>
-                            <i class="fa-regular fa-image text-slate-400 text-xl"></i>
+        <div class="dashboard-container">
+            <!-- Tarjeta Ventas de Hoy -->
+            <div class="sales-card">
+                <h3>Hoy</h3>
+                <div class="sales-amount">0.00 Q</div>
+                <div class="sales-subtitle">en 0 ventas completadas</div>
+                <button class="btn-register-sale">Registrar venta</button>
+            </div>
+
+            <!-- Sección Stock y Gráfica -->
+            <div class="stock-section">
+                <h2>Stock</h2>
+                <div class="stock-grid">
+                    <div class="stock-info">
+                        <div class="stock-metric">
+                            <h4 id="total-productos">38</h4>
+                            <p>PRODUCTOS REGISTRADOS</p>
                         </div>
-                        <div>
-                            <p class="text-xs text-slate-300 font-medium">Nombre</p>
-                            <h3 id="preview-nombre" class="font-bold text-sm truncate">Nombre del pr...</h3>
-                            <p id="preview-precio" class="text-xs text-slate-300">0.00 Q</p>
+                        <div class="stock-metric stock-metric-right">
+                            <p style="font-size: 11px; color: #64748b;">Valor en stock</p>
+                            <h4 style="font-size: 18px; margin-top: 4px;">8,590.00 Q</h4>
+                            <button onclick="abrirModal()" class="btn-add-product">+ Producto</button>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="pie-chart"></div>
+                        <div class="chart-legend">
+                            <div class="legend-item"><span class="dot dot-green"></span> Disponibles (30)</div>
+                            <div class="legend-item"><span class="dot dot-orange"></span> Mínimo (0)</div>
+                            <div class="legend-item"><span class="dot dot-red"></span> Agotado (0)</div>
+                            <div class="legend-item"><span class="dot dot-blue"></span> Sin control de stock (8)</div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Campo Nombre del Producto -->
-                <div>
-                    <input type="text" id="nombre" placeholder="Nombre del producto" required
-                        class="w-full pb-2 border-b border-gray-300 focus:border-teal-600 focus:outline-none text-gray-700 placeholder-gray-400 text-base transition-colors"
-                        oninput="actualizarPreview()">
-                </div>
-
-                <!-- Campo Precio -->
-                <div>
-                    <input type="number" step="0.01" id="precio" placeholder="Precio" required
-                        class="w-full pb-2 border-b border-gray-300 focus:border-teal-600 focus:outline-none text-gray-700 placeholder-gray-400 text-base transition-colors"
-                        oninput="actualizarPreview()">
-                </div>
-
-                <!-- Campo Opcionales / Descripción -->
-                <div>
-                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Opcionales</p>
-                    <input type="text" id="descripcion" placeholder="Prueba la descripción generada con IA"
-                        class="w-full pb-2 border-b border-gray-300 focus:border-teal-600 focus:outline-none text-gray-700 placeholder-gray-400 text-sm transition-colors">
-                </div>
             </div>
 
-            <!-- VISTA 2: STOCK (Oculta por defecto) -->
-            <div id="tab-stock" class="space-y-6 hidden">
-                <!-- Interruptor Controlar Stock -->
-                <div class="flex items-center justify-between py-2">
-                    <span class="text-gray-700 text-sm font-medium">Controlar stock del producto</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="controlar_stock" class="sr-only peer">
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-600"></div>
-                    </label>
-                </div>
+            <!-- Tabla de Auditoría Reciente -->
+            <div class="audit-section">
+                <h2>Historial y Auditoría de Productos Recientes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Modificado por</th>
+                            <th>Fecha y Hora</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-audit-body">
+                        <tr>
+                            <td>Silla Tiffany (Ejemplo)</td>
+                            <td>25.00 Q</td>
+                            <td>30</td>
+                            <td>Samuel Siebenhor</td>
+                            <td>16/09/2026 18:30</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
-                <!-- Stock Actual -->
-                <div class="text-center py-6">
-                    <p class="text-sm text-gray-400 mb-2">Stock actual</p>
-                    <input type="number" id="stock_actual" value="0"
-                        class="w-32 text-center text-4xl font-light text-rose-400 border-b border-gray-300 focus:border-teal-600 focus:outline-none">
-                </div>
-
-                <!-- Historial de movimientos -->
-                <div class="flex items-center justify-between py-3 border-b border-gray-100 text-gray-400 text-sm cursor-pointer hover:text-gray-600">
-                    <span>Historial de movimientos</span>
-                    <i class="fa-solid fa-chevron-right text-xs"></i>
-                </div>
-
-                <!-- Stock Mínimo -->
-                <div class="flex items-center justify-between py-3 border-b border-gray-100 text-gray-600 text-sm cursor-pointer">
-                    <span id="label-stock-minimo">Stock Mínimo: 0</span>
-                    <i class="fa-solid fa-chevron-right text-xs"></i>
-                </div>
-                <input type="hidden" id="stock_minimo" value="0">
+    <!-- VENTANA MODAL: NUEVO PRODUCTO -->
+    <div id="modal-producto" class="modal-overlay">
+        <div class="modal-container">
+            <!-- Header Modal -->
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
+                <button onclick="cerrarModal()" style="background:none; border:none; font-size: 16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <h3 style="font-size: 15px; font-weight: 600;">Nuevo producto</h3>
+                <div style="width: 15px;"></div>
             </div>
 
-            <!-- Botón de Envío Inferior -->
-            <div class="pt-6 mt-auto">
-                <button type="submit" id="btn-submit"
-                    class="w-full py-4 bg-gray-200 text-gray-400 font-medium rounded-xl transition-all duration-200 cursor-pointer text-center">
+            <!-- Pestañas -->
+            <div class="modal-tabs">
+                <button id="btn-tab-reg" onclick="cambiarPestana('registro')" class="modal-tab active">REGISTRO</button>
+                <button id="btn-tab-stk" onclick="cambiarPestana('stock')" class="modal-tab">STOCK</button>
+            </div>
+
+            <!-- Formulario -->
+            <form id="form-nuevo-prod" onsubmit="guardarProductoSupabase(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto;">
+                
+                <!-- PESTAÑA REGISTRO -->
+                <div id="seccion-registro" style="display: flex; flex-direction: column; gap: 15px;">
+                    <!-- Vista previa visual -->
+                    <div style="display: flex; justify-content: center;">
+                        <div style="width: 130px; height: 130px; background: #334155; border-radius: 12px; padding: 12px; color: white; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="font-size: 10px; opacity: 0.8;">Vista previa</div>
+                            <div>
+                                <div id="prev-nombre" style="font-size: 12px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Nombre...</div>
+                                <div id="prev-precio" style="font-size: 11px; opacity: 0.9;">0.00 Q</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input type="text" id="inp-nombre" placeholder="Nombre del producto" required oninput="actualizarVistaPrevia()"
+                            style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+                    <div>
+                        <input type="number" step="0.01" id="inp-precio" placeholder="Precio (Q)" required oninput="actualizarVistaPrevia()"
+                            style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none;">
+                    </div>
+                </div>
+
+                <!-- PESTAÑA STOCK (Oculta por defecto) -->
+                <div id="seccion-stock" style="display: none; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 12px; border-radius: 8px;">
+                        <span style="font-size: 13px; font-weight: 500;">Controlar stock del producto</span>
+                        <input type="checkbox" id="chk-control-stock" style="width: 18px; height: 18px; accent-color: #10b981;">
+                    </div>
+                    <div style="text-align: center; padding: 10px;">
+                        <label style="font-size: 12px; color: #64748b; display: block; margin-bottom: 5px;">Stock actual</label>
+                        <input type="number" id="inp-stock-actual" value="0" 
+                            style="width: 100px; text-align: center; font-size: 24px; border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px;">
+                    </div>
+                </div>
+
+                <!-- Botón Enviar -->
+                <button type="submit" id="btn-submit-form" 
+                    style="background: #10b981; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 10px;">
                     Añadir producto
                 </button>
-            </div>
-
-        </form>
+            </form>
+        </div>
     </div>
 
+    <!-- FontAwesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script>
-        // Configuración de Supabase (Reemplaza con tus credenciales reales)
+        // Configuración de Supabase (Sustituye con tus claves reales cuando lo conectes)
         const SUPABASE_URL = 'TU_SUPABASE_URL';
         const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Usuario actual (simulado o obtenido de sesión activa)
-        const usuarioActual = "Samuel Siebenhor";
+        // Usuario actual para la auditoría
+        const usuarioActivo = "Samuel Siebenhor";
 
-        // Control de pestañas
-        function switchTab(tab) {
-            const regTab = document.getElementById('tab-registro');
-            const stockTab = document.getElementById('tab-stock');
-            const regBtn = document.getElementById('tab-registro-btn');
-            const stockBtn = document.getElementById('tab-stock-btn');
-            const submitBtn = document.getElementById('btn-submit');
+        function handleLogout() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
 
-            if (tab === 'registro') {
-                regTab.classList.remove('hidden');
-                stockTab.classList.add('hidden');
-                regBtn.className = "py-3 text-teal-600 border-b-2 border-teal-600 font-medium transition-colors";
-                stockBtn.className = "py-3 text-gray-400 border-b-2 border-transparent font-medium transition-colors";
-                submitBtn.innerText = "Añadir producto";
+        // Control del Modal
+        function abrirModal() {
+            document.getElementById('modal-producto').style.display = 'flex';
+        }
+        function cerrarModal() {
+            document.getElementById('modal-producto').style.display = 'none';
+        }
+
+        // Cambio de pestañas en el modal
+        function cambiarPestana(pestana) {
+            const regSec = document.getElementById('seccion-registro');
+            const stkSec = document.getElementById('seccion-stock');
+            const btnReg = document.getElementById('btn-tab-reg');
+            const btnStk = document.getElementById('btn-tab-stk');
+            const btnSubmit = document.getElementById('btn-submit-form');
+
+            if (pestana === 'registro') {
+                regSec.style.display = 'flex';
+                stkSec.style.display = 'none';
+                btnReg.classList.add('active');
+                btnStk.classList.remove('active');
+                btnSubmit.innerText = "Añadir producto";
             } else {
-                regTab.classList.add('hidden');
-                stockTab.classList.remove('hidden');
-                stockBtn.className = "py-3 text-teal-600 border-b-2 border-teal-600 font-medium transition-colors";
-                regBtn.className = "py-3 text-gray-400 border-b-2 border-transparent font-medium transition-colors";
-                submitBtn.innerText = "Añadir al producto";
+                regSec.style.display = 'none';
+                stkSec.style.display = 'flex';
+                btnStk.classList.add('active');
+                btnReg.classList.remove('active');
+                btnSubmit.innerText = "Añadir al producto";
             }
         }
 
-        // Actualizar vista previa en tiempo real
-        function actualizarPreview() {
-            const nombre = document.getElementById('nombre').value;
-            const precio = document.getElementById('precio').value;
-            const submitBtn = document.getElementById('btn-submit');
+        // Vista previa dinámica
+        function actualizarVistaPrevia() {
+            const nombre = document.getElementById('inp-nombre').value;
+            const precio = document.getElementById('inp-precio').value;
 
-            document.getElementById('preview-nombre.').innerText = nombre ? (nombre.length > 15 ? nombre.substring(0, 15) + '...' : nombre) : 'Nombre del pr...';
-            
-            // Corregido ID preview
-            if(nombre) {
-                document.getElementById('preview-nombre').innerText = nombre.length > 15 ? nombre.substring(0, 15) + '...' : nombre;
-            } else {
-                document.getElementById('preview-nombre').innerText = 'Nombre del pr...';
-            }
-
-            document.getElementById('preview-precio').innerText = precio ? precio + ' Q' : '0.00 Q';
-
-            // Activar botón si hay nombre y precio
-            if (nombre && precio) {
-                submitBtn.className = "w-full py-4 bg-teal-600 text-white font-medium rounded-xl shadow-md hover:bg-teal-700 transition-all cursor-pointer";
-            } else {
-                submitBtn.className = "w-full py-4 bg-gray-200 text-gray-400 font-medium rounded-xl transition-all cursor-pointer";
-            }
+            document.getElementById('prev-nombre').innerText = nombre ? nombre : 'Nombre...';
+            document.getElementById('prev-precio').innerText = precio ? precio + ' Q' : '0.00 Q';
         }
 
-        // Función para guardar en Supabase incluyendo auditoría
-        async function guardarProducto(event) {
+        // Guardar en Supabase y registrar auditoría
+        async function guardarProductoSupabase(event) {
             event.preventDefault();
 
-            const nombre = document.getElementById('nombre').value;
-            const precio = parseFloat(document.getElementById('precio').value) || 0;
-            const controlar_stock = document.getElementById('controlar_stock').checked;
-            const stock_actual = parseInt(document.getElementById('stock_actual').value) || 0;
-            const stock_minimo = parseInt(document.getElementById('stock_minimo').value) || 0;
+            const nombre = document.getElementById('inp-nombre').value;
+            const precio = parseFloat(document.getElementById('inp-precio').value) || 0;
+            const controlar_stock = document.getElementById('chk-control-stock').checked;
+            const stock_actual = parseInt(document.getElementById('inp-stock-actual').value) || 0;
             
-            // Datos de Auditoría automáticos solicitados
-            const modificado_por = usuarioActual;
-            const updated_at = new Date().toISOString(); // Fecha y hora exacta UTC / local
+            // Datos de auditoría automáticos
+            const modificado_por = usuarioActivo;
+            const updated_at = new Date().toLocaleString(); // Fecha y hora local legible
 
-            // Objeto a insertar en Supabase
-            const nuevoProducto = {
+            const nuevoItem = {
                 nombre,
                 precio,
                 controlar_stock,
                 stock_actual,
-                stock_minimo,
                 modificado_por,
-                updated_at
+                updated_at: new Date().toISOString()
             };
 
             try {
-                const { data, error } = await supabaseClient
-                    .from('productos')
-                    .insert([nuevoProducto]);
-
-                if (error) {
-                    throw error;
-                }
-
-                alert('¡Producto guardado exitosamente con auditoría!');
-                document.getElementById('product-form').reset();
-                actualizarPreview();
-                switchTab('registro');
-
+                // Intentar inserción real en Supabase
+                const { error } = await supabaseClient.from('productos').insert([nuevoItem]);
+                if (error) throw error;
+                alert('¡Producto guardado exitosamente!');
             } catch (err) {
-                console.error('Error al guardar en Supabase:', err.message);
-                alert('Simulación de guardado exitoso (Configura tus credenciales de Supabase en el código).
-
-Datos registrados:
-' + JSON.stringify(nuevoProducto, null, 2));
+                // Modo simulador si Supabase no está configurado todavía
+                console.log("Supabase simulado:", err);
+                
+                // Agregar directamente a la tabla visual de auditoría para demostración
+                const tbody = document.getElementById('tabla-audit-body');
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${nombre}</td>
+                    <td>${precio.toFixed(2)} Q</td>
+                    <td>${stock_actual}</td>
+                    <td>${modificado_por}</td>
+                    <td>${updated_at}</td>
+                `;
+                tbody.prepend(fila);
+                alert('¡Producto registrado con éxito (Modo simulación local)!');
             }
+
+            document.getElementById('form-nuevo-prod').reset();
+            actualizarVistaPrevia();
+            cambiarPestana('registro');
+            cerrarModal();
         }
     </script>
 </body>
