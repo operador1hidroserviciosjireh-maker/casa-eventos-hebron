@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Administración Hebron</title>
+  <link rel="icon" type="image/jpeg" href="logo.jpg">
+  <!-- Supabase JS Client desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    /* Barra lateral */
+    aside {
+      width: 260px;
+      background-color: #0f172a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+    }
+    .aside-header {
+      padding: 20px;
+      font-size: 18px;
+      font-weight: 700;
+      border-bottom: 1px solid #1e293b;
+    }
+    .aside-menu {
+      list-style: none;
+      padding: 20px 0;
+    }
+    .aside-menu li a {
+      display: block;
+      padding: 12px 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s, background 0.2s;
+    }
+    .aside-menu li a:hover {
+      color: white;
+      background-color: #1e293b;
+    }
+    /* Contenido Principal */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    header {
+      background: white;
+      padding: 15px 30px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .content-body {
+      padding: 30px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .btn {
+      background-color: #22c55e;
+      color: white;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn:hover { background-color: #16a34a; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar de Navegación del Dashboard -->
+  <aside>
+    <div class="aside-header">Hebron Admin</div>
+    <ul class="aside-menu">
+      <li><a href="#" onclick="switchTab('reservas')">📅 Reservas / Leads</a></li>
+      <li><a href="#" onclick="switchTab('inventario')">📦 Inventario / Mobiliario</a></li>
+      <li><a href="index.html">⬅️ Volver al Sitio Web</a></li>
+    </ul>
+  </aside>
+
+  <!-- Área Principal -->
+  <main>
+    <header>
+      <h2>Panel de Control</h2>
+      <span id="user-status" style="font-size: 14px; color: #64748b;">Conectando a base de datos...</span>
+    </header>
+
+    <div class="content-body">
+      <div class="card">
+        <h3>Gestión de Datos</h3>
+        <p style="margin: 10px 0; color: #475569;">Aquí puedes visualizar y administrar la información sincronizada con tu base de datos central.</p>
+        <button class="btn" onclick="cargarDatosSupabase()">Actualizar Datos</button>
+      </div>
+
+      <div class="card">
+        <h3>Registros Recientes</h3>
+        <div id="data-container" style="margin-top: 15px; font-size: 14px; color: #334155;">
+          Haz clic en "Actualizar Datos" para sincronizar la información.
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Configuración de Supabase (Sustituye con tus credenciales de proyecto)
+    const SUPABASE_URL = 'TU_SUPABASE_URL';
+    const SUPABASE_KEY = 'TU_SUPABASE_ANON_KEY';
+    
+    // Inicializar cliente de Supabase
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Verificar conexión inicial
+      if(SUPABASE_URL.includes('TU_SUPABASE')) {
+        document.getElementById('user-status').innerText = '⚠️ Configura tus credenciales de Supabase';
+      } else {
+        document.getElementById('user-status').innerText = '🟢 Conectado';
+        cargarDatosSupabase();
+      }
+    });
+
+    async function cargarDatosSupabase() {
+      const container = document.getElementById('data-container');
+      container.innerHTML = 'Cargando registros...';
+      
+      try {
+        // Ejemplo de consulta a una tabla llamada 'reservas' o 'mobiliario'
+        // Cambia 'tu_tabla' por el nombre real de tu tabla en Supabase
+        const { data, error } = await supabaseClient
+          .from('tu_tabla')
+          .select('*')
+          .limit(10);
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+          container.innerHTML = 'No se encontraron registros en esta tabla.';
+          return;
+        }
+
+        let html = '<ul style="padding-left: 20px;">';
+        data.forEach(row => {
+          html += `<li>${JSON.stringify(row)}</li>`;
+        });
+        html += '</ul>';
+        container.innerHTML = html;
+
+      } catch (err) {
+        container.innerHTML = `<span style="color: red;">Error al conectar: ${err.message}</span>`;
+      }
+    }
+
+    function switchTab(seccion) {
+      alert(`Cambiando a la sección: ${seccion}`);
+    }
+  </script>
+</body>
+</html>
