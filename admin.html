@@ -699,7 +699,7 @@
             }
         });
 
-        // Función de autenticación validando directamente contra la tabla 'usuarios' de Supabase
+                // Función de autenticación con respaldo de emergencia
         async function verificarAdmin(event) {
             event.preventDefault();
             const emailInput = document.getElementById('login-email').value.trim();
@@ -707,6 +707,14 @@
             const errorDiv = document.getElementById('auth-error');
 
             errorDiv.style.display = 'none';
+
+            // ACCESO DIRECTO DE EMERGENCIA (Si coincide con tus credenciales maestras)
+            if (emailInput === 'admin@hebron.com' && passInput === 'Jeremias2#') {
+                usuarioActivo = "Samuel Siebenhor";
+                sessionStorage.setItem('admin_hebron', usuarioActivo);
+                document.getElementById('auth-overlay').style.display = 'none';
+                return;
+            }
 
             try {
                 const { data, error } = await supabaseClient
@@ -737,6 +745,7 @@
                 errorDiv.innerText = "Credenciales incorrectas o acceso denegado.";
             }
         }
+
 
         function handleLogout() {
             sessionStorage.removeItem('admin_hebron');
