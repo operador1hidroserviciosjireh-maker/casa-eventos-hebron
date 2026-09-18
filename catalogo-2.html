@@ -75,23 +75,13 @@
         .btn-checkout { background-color: #936f38; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; }
         .btn-checkout:hover { background-color: #78582b; }
 
-        /* Estilos formularios / Pasos de Checkout */
+        /* Estilos pantalla de Entrega / Checkout */
         .form-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
-        .textarea-obs, .form-input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 15px; background: #fff; }
-        .textarea-obs { resize: none; height: 80px; }
-        .form-input:focus, .textarea-obs:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
-        
-        .delivery-option, .payment-option-box { border: 1px solid #cbd5e1; border-radius: 10px; padding: 15px; margin-bottom: 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; background: #fff; }
-        .delivery-option input, .payment-option-box input { margin-top: 3px; }
-        .delivery-option-title, .payment-option-title { font-size: 14px; font-weight: 700; color: #1e293b; }
-        .delivery-option-sub, .payment-option-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
-
-        /* Estilo pantalla éxito */
-        .success-box { text-align: center; padding: 20px 10px; }
-        .success-icon { font-size: 48px; margin-bottom: 10px; }
-        .success-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 5px; }
-        .success-date { font-size: 13px; color: #64748b; margin-bottom: 20px; }
-        .success-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: left; margin-bottom: 20px; }
+        .textarea-obs { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: none; height: 90px; outline: none; margin-bottom: 15px; }
+        .delivery-option { border: 1px solid #cbd5e1; border-radius: 10px; padding: 15px; margin-bottom: 12px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; background: #fff; }
+        .delivery-option input { margin-top: 3px; }
+        .delivery-option-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+        .delivery-option-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -145,15 +135,15 @@
     <div id="deliveryModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Forma de Entrega</h2>
+                <h2>Finalizar Pedido</h2>
                 <button class="close-modal" onclick="cerrarModalEntrega()">&times;</button>
             </div>
             
             <div style="overflow-y: auto; max-height: 55vh; padding-right: 2px;">
                 <div class="form-section-title">Observación</div>
-                <textarea id="txtObservacion" class="textarea-obs" placeholder="Escribe aquí la observación de tu pedido..." maxlength="200"></textarea>
+                <textarea id="txtObservacion" class="textarea-obs" placeholder="Escribe aquí la observación de tu pedido (opcional)..." maxlength="200"></textarea>
 
-                <div class="form-section-title" style="margin-top: 5px;">Forma de entrega</div>
+                <div class="form-section-title" style="margin-top: 10px;">Forma de entrega</div>
                 
                 <label class="delivery-option">
                     <input type="radio" name="formaEntrega" value="Entrega en lugar de evento" checked>
@@ -167,7 +157,7 @@
                     <input type="radio" name="formaEntrega" value="Retirada en local">
                     <div>
                         <div class="delivery-option-title">Retirada</div>
-                        <div class="delivery-option-sub">Especificar en WhatsApp</div>
+                        <div class="delivery-option-sub">Especificar detalles en WhatsApp</div>
                     </div>
                 </label>
             </div>
@@ -177,69 +167,7 @@
                     <span>Total productos:</span>
                     <span id="deliveryTotalPrecio">Q. 0.00</span>
                 </div>
-                <button class="btn-checkout" onclick="abrirModalDatosCliente()">Continuar para finalizar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Datos del Cliente y Pago (Captura en Tabla) -->
-    <div id="clientModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Datos del Cliente y Pago</h2>
-                <button class="close-modal" onclick="cerrarModalDatosCliente()">&times;</button>
-            </div>
-            
-            <div style="overflow-y: auto; max-height: 55vh; padding-right: 2px;">
-                <div class="form-section-title">Nombre y apellido</div>
-                <input type="text" id="txtNombreCliente" class="form-input" placeholder="Ej. Samuel Siebenhor">
-
-                <div class="form-section-title">Teléfono</div>
-                <input type="tel" id="txtTelefonoCliente" class="form-input" placeholder="+502 0000-0000">
-
-                <div class="form-section-title" style="margin-top: 5px;">Método de pago</div>
-                <div class="payment-option-box">
-                    <input type="radio" name="metodoPago" value="Efectivo" checked>
-                    <div style="width: 100%;">
-                        <div class="payment-option-title">Efectivo</div>
-                        <div class="payment-option-sub" style="margin-bottom: 8px;">Ingresa el monto que tienes en mano:</div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
-                            <input type="number" id="txtMontoEfectivo" class="form-input" style="margin-bottom:0;" placeholder="Q 0.00" oninput="calcularCambio()">
-                            <div style="font-size: 13px; white-space: nowrap;">Cambio: <strong id="lblCambio">GTQ 0.00</strong></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="modal-footer" style="margin-top: 15px;">
-                <div class="modal-total" style="margin-bottom: 10px;">
-                    <span>Total:</span>
-                    <span id="clientTotalPrecio">Q. 0.00</span>
-                </div>
-                <button class="btn-checkout" onclick="procesarYEnviarPedido()">Enviar pedido</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Progreso / Éxito del Pedido -->
-    <div id="successModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="tituloProgresoPedido">Progreso del pedido #10</h2>
-                <button class="close-modal" onclick="cerrarModalExito()">&times;</button>
-            </div>
-            
-            <div class="success-box">
-                <div class="success-icon">📦</div>
-                <div class="success-title">¡Pedido enviado!</div>
-                <div class="success-date" id="lblFechaPedido">18/09/2026 02:12</div>
-
-                <div class="success-card">
-                    <div style="font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">Plazo para retirar el pedido:</div>
-                    <div style="font-size: 13px; color: #64748b;" id="lblPlazoRetiro">Especificar en WhatsApp</div>
-                </div>
-
-                <button class="btn-checkout" onclick="finalizarYEnviarWhatsApp()" style="background-color: #25d366; margin-bottom: 10px;">Abrir WhatsApp con el pedido</button>
+                <button class="btn-checkout" onclick="enviarPedidoWhatsApp()">Enviar pedido por WhatsApp</button>
             </div>
         </div>
     </div>
@@ -247,11 +175,10 @@
     <script>
         const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
-        const supabaseClient = supabase.createClient(https://uidoqzlzvhjhfzxmkgci.supabase.co/rest/v1/, eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI);
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let listaProductosGlobal = [];
         let carrito = {}; 
-        let datosUltimoPedido = null;
 
         document.addEventListener('DOMContentLoaded', cargarDatos);
 
@@ -409,110 +336,37 @@
             document.getElementById('deliveryModal').classList.remove('active');
         }
 
-        function abrirModalDatosCliente() {
-            cerrarModalEntrega();
-            let precioTotal = 0;
-            for (let id in carrito) {
-                precioTotal += carrito[id].precio * carrito[id].cantidad;
-            }
-            document.getElementById('clientTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
-            document.getElementById('clientModal').classList.add('active');
+        function vaciarCarrito() {
+            carrito = {};
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+            cerrarModalCarrito();
         }
 
-        function cerrarModalDatosCliente() {
-            document.getElementById('clientModal').classList.remove('active');
-        }
-
-        function calcularCambio() {
-            let precioTotal = 0;
-            for (let id in carrito) {
-                precioTotal += carrito[id].precio * carrito[id].cantidad;
-            }
-            let montoIngresado = parseFloat(document.getElementById('txtMontoEfectivo').value) || 0;
-            let cambio = montoIngresado - precioTotal;
-            document.getElementById('lblCambio').innerText = `GTQ ${cambio >= 0 ? cambio.toFixed(2) : '0.00'}`;
-        }
-
-        async function procesarYEnviarPedido() {
-            let nombre = document.getElementById('txtNombreCliente').value.trim();
-            let telefono = document.getElementById('txtTelefonoCliente').value.trim();
+        function enviarPedidoWhatsApp() {
             let observacion = document.getElementById('txtObservacion').value.trim();
             let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
-            let metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
 
-            if (!nombre || !telefono) {
-                alert("Por favor ingresa tu nombre y teléfono.");
-                return;
-            }
-
+            let mensaje = "Hola, me gustaría realizar el siguiente pedido:\n\n";
             let precioTotal = 0;
-            let itemsArray = [];
+
             for (let id in carrito) {
                 let item = carrito[id];
                 let subtotal = item.precio * item.cantidad;
                 precioTotal += subtotal;
-                itemsArray.push({ id, nombre: item.nombre, cantidad: item.cantidad, precio: item.precio, subtotal });
+                mensaje += `• ${item.cantidad}x ${item.nombre} (Q. ${subtotal.toFixed(2)})\n`;
             }
 
-            datosUltimoPedido = {
-                nombre_cliente: nombre,
-                telefono_cliente: telefono,
-                observacion: observacion,
-                forma_entrega: formaEntrega,
-                metodo_pago: metodoPago,
-                total: precioTotal,
-                items: itemsArray,
-                fecha: new Date().toISOString()
-            };
-
-            const { error } = await supabaseClient
-                .from('pedidos')
-                .insert([datosUltimoPedido]);
-
-            if (error) {
-                console.error("Error guardando en Supabase:", error.message);
-            }
-
-            cerrarModalDatosCliente();
+            mensaje += `\n*Total productos: Q. ${precioTotal.toFixed(2)}*`;
+            mensaje += `\n\n🚚 *Forma de entrega:* ${formaEntrega}`;
             
-            let fechaStr = new Date().toLocaleString();
-            document.getElementById('lblFechaPedido').innerText = fechaStr;
-            document.getElementById('lblPlazoRetiro').innerText = formaEntrega.includes('Retirada') ? 'Especificar en WhatsApp' : 'Entrega programada para evento';
-            document.getElementById('successModal').classList.add('active');
-        }
-
-        function cerrarModalExito() {
-            document.getElementById('successModal').classList.remove('active');
-            vaciarCarrito();
-        }
-
-        function finalizarYEnviarWhatsApp() {
-            if (!datosUltimoPedido) return;
-
-            let mensaje = `Hola, mi nombre es *${datosUltimoPedido.nombre_cliente}* (Tel: ${datosUltimoPedido.telefono_cliente}). Me gustaría confirmar el siguiente pedido:\n\n`;
-            
-            datosUltimoPedido.items.forEach(item => {
-                mensaje += `• ${item.cantidad}x ${item.nombre} (Q. ${item.subtotal.toFixed(2)})\n`;
-            });
-
-            mensaje += `\n*Total a pagar: Q. ${datosUltimoPedido.total.toFixed(2)}*`;
-            mensaje += `\n\n🚚 *Forma de entrega:* ${datosUltimoPedido.forma_entrega}`;
-            mensaje += `\n💳 *Método de pago:* ${datosUltimoPedido.metodo_pago}`;
-            
-            if (datosUltimoPedido.observacion) {
-                mensaje += `\n📝 *Observación:* ${datosUltimoPedido.observacion}`;
+            if (observacion) {
+                mensaje += `\n📝 *Observación:* ${observacion}`;
             }
 
             let numeroWhatsApp = "50200000000"; 
             let url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
-            cerrarModalExito();
-        }
-
-        function vaciarCarrito() {
-            carrito = {};
-            renderizarProductos(listaProductosGlobal);
-            actualizarBarraCarrito();
         }
 
         function filtrarCatalogo() {
