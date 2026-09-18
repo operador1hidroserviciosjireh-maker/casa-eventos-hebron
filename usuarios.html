@@ -461,38 +461,55 @@ cargarUsuarios();
 });
 
 async function verificarAdmin(event) {
-event.preventDefault();
-const emailInput = document.getElementById('login-email').value.trim();
-const passInput = document.getElementById('login-pass').value;
-const errorDiv = document.getElementById('auth-error');
+    event.preventDefault();
+    const emailInput = document.getElementById('login-email').value.trim();
+    const passInput = document.getElementById('login-pass').value;
+    const errorDiv = document.getElementById('auth-error');
 
-errorDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
 
-if (emailInput === 'admin@hebron.com' && passInput === 'Jeremias2#') {
-usuarioActivo = "Samuel Siebenhor";
-sessionStorage.setItem('admin_hebron', usuarioActivo);
-document.getElementById('auth-overlay').style.display = 'none';
-return;
+    // 1. Verificación de emergencia / Administrador Maestro
+    if (emailInput === 'admin@hebron.com' && passInput === 'Jeremias2#') {
+        usuarioActivo = "Samuel Siebenhor";
+        sessionStorage.setItem('admin_hebron', usuarioActivo);
+        document.getElementById('auth-overlay').style.display = 'none';
+        return;
+    }
+
+    // 2. Verificación contra la tabla 'usuarios' en Supabase
+    try {
+        const { data, error } = await supabaseClient
+            .from('usuarios')
+            .select('*')
+            .eq('correo', emailInput)
+            .maybeSingle();
+
+        if (error || !data) {
+            alert("Credenciales incorrectas.");
+            return;
+        }
+
+        // Comparamos la contraseña de la base de datos
+        if (data.password !== passInput) {
+            alert("Credenciales incorrectas.");
+            return;
+        }
+
+        // Validar si el colaborador está dado de baja
+        if (data.estado === 'Baja') {
+            alert("Este usuario se encuentra dado de baja.");
+            return;
+        }
+
+        usuarioActivo = data.nombre || "Colaborador";
+        sessionStorage.setItem('admin_hebron', usuarioActivo);
+        document.getElementById('auth-overlay').style.display = 'none';
+        
+    } catch (err) {
+        alert("Error de conexión al verificar el usuario.");
+    }
 }
 
-try {
-const { data, error } = await supabaseClient
-.from('usuarios')
-.select('*')
-.eq('correo', emailInput)
-.single();
-
-if (error || !data) throw new Error("Usuario no encontrado");
-if (data.password !== passInput) throw new Error("Contraseña incorrecta");
-
-usuarioActivo = data.nombre || "Colaborador";
-sessionStorage.setItem('admin_hebron', usuarioActivo);
-document.getElementById('auth-overlay').style.display = 'none';
-} catch (err) {
-errorDiv.style.display = 'block';
-errorDiv.innerText = "Credenciales incorrectas.";
-}
-}
 
 function handleLogout() {
 sessionStorage.removeItem('admin_hebron');
