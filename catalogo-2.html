@@ -1,171 +1,129 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catálogo Alternativo (Pruebas) - Hebron</title>
-  <link rel="icon" type="image/jpeg" href="logo.jpg">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background-color: #f8faf9;
-      color: #0f172a;
-      line-height: 1.6;
-    }
-    /* Cabecera de pruebas */
-    header {
-      background-color: #0f172a;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    header h1 { font-size: 24px; margin-bottom: 5px; }
-    header p { color: #94a3b8; font-size: 14px; }
-    
-    .container {
-      max-width: 1100px;
-      margin: 30px auto;
-      padding: 0 20px;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - Hebron Casa de Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SDK de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #334155; }
+        
+        .header-catalogo { background-color: #253342; color: white; padding: 25px 20px; text-align: center; }
+        .header-catalogo h1 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .header-catalogo p { font-size: 12px; color: #94a3b8; }
 
-    /* Barra de filtros de prueba */
-    .filter-bar {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-    }
-    .filter-btn {
-      background: white;
-      border: 1px solid #cbd5e1;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      color: #475569;
-      transition: all 0.2s;
-    }
-    .filter-btn:hover, .filter-btn.active {
-      background: #0f172a;
-      color: white;
-      border-color: #0f172a;
-    }
+        .container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; flex-grow: 1; }
+        
+        .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
+        .back-link:hover { text-decoration: underline; }
 
-    /* Cuadrícula de productos/servicios de prueba */
-    .grid-pruebas {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-    }
-    .card-test {
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-      transition: transform 0.2s;
-    }
-    .card-test:hover { transform: translateY(-3px); }
-    .card-img-container {
-      height: 160px;
-      background: #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-      font-size: 13px;
-    }
-    .card-body {
-      padding: 15px;
-    }
-    .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .card-desc {
-      font-size: 13px;
-      color: #64748b;
-      margin-bottom: 12px;
-    }
-    .btn-action {
-      display: block;
-      width: 100%;
-      text-align: center;
-      background: #22c55e;
-      color: white;
-      padding: 8px;
-      border-radius: 6px;
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-    }
-    .btn-action:hover { background: #16a34a; }
+        /* Filtros */
+        .filtros-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
+        .filtro-btn { background: white; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+        .filtro-btn.active, .filtro-btn:hover { background: #0f172a; color: white; border-color: #0f172a; }
 
-    .back-link {
-      display: inline-block;
-      margin-bottom: 20px;
-      color: #0284c7;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    .back-link:hover { text-decoration: underline; }
-  </style>
+        /* Grid de Productos */
+        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .producto-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #e2e8f0; }
+        
+        .producto-img-container { width: 100%; height: 180px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .producto-img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .producto-sin-foto { color: #94a3b8; font-size: 12px; }
+
+        .producto-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+        .producto-nombre { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
+        .producto-precio { font-size: 16px; font-weight: 700; color: #10b981; margin-bottom: 12px; }
+        
+        .btn-accion { background-color: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center; transition: background 0.2s; }
+        .btn-accion:hover { background-color: #059669; }
+    </style>
 </head>
 <body>
 
-  <header>
-    <h1>🧪 Entorno de Pruebas - Catálogo Alternativo</h1>
-    <p>Área para experimentar con nuevos diseños y visualizaciones de inventario</p>
-  </header>
-
-  <div class="container">
-    <a href="index.html" class="back-link">⬅ Volver a la página principal</a>
-
-    <!-- Filtros simulados -->
-    <div class="filter-bar">
-      <button class="filter-btn active">Todos</button>
-      <button class="filter-btn">Mobiliario</button>
-      <button class="filter-btn">Toldos</button>
-      <button class="filter-btn">Paquetes</button>
+    <div class="header-catalogo">
+        <h1>🧪 Catálogo Dinámico - Hebron</h1>
+        <p>Inventario sincronizado en tiempo real con la base de datos</p>
     </div>
 
-    <!-- Lista de elementos de prueba -->
-    <div class="grid-pruebas">
-      <!-- Item 1 -->
-      <div class="card-test">
-        <div class="card-img-container">Imagen de Prueba 1</div>
-        <div class="card-body">
-          <div class="card-title">Silla Tiffany (Blanca)</div>
-          <div class="card-desc">Ideal para bodas y eventos formales. Diseño elegante y cómodo.</div>
-          <a href="#" class="btn-action">Simular Selección</a>
-        </div>
-      </div>
+    <div class="container">
+        <a href="admin.html" class="back-link">← Volver a la página principal</a>
 
-      <!-- Item 2 -->
-      <div class="card-test">
-        <div class="card-img-container">Imagen de Prueba 2</div>
-        <div class="card-body">
-          <div class="card-title">Mesa Redonda Banquera</div>
-          <div class="card-desc">Capacidad para 10 personas con estructura reforzada.</div>
-          <a href="#" class="btn-action">Simular Selección</a>
+        <!-- Botones de Categoría (Opcional si deseas filtrar después) -->
+        <div class="filtros-container">
+            <button class="filtro-btn active">Todos</button>
+            <button class="filtro-btn">Mobiliario</button>
+            <button class="filtro-btn">Toldos</button>
+            <button class="filtro-btn">Paquetes</button>
         </div>
-      </div>
 
-      <!-- Item 3 -->
-      <div class="card-test">
-        <div class="card-img-container">Imagen de Prueba 3</div>
-        <div class="card-body">
-          <div class="card-title">Toldo Árabe 6x6</div>
-          <div class="card-desc">Estructura metálica resistente para exteriores y protección contra clima.</div>
-          <a href="#" class="btn-action">Simular Selección</a>
+        <!-- Contenedor donde se cargarán los productos de Supabase -->
+        <div id="grid-catalogo" class="productos-grid">
+            <!-- Cargando dinámicamente -->
+            <p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">Cargando productos desde la base de datos...</p>
         </div>
-      </div>
     </div>
-  </div>
 
+    <script>
+        const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.addEventListener('DOMContentLoaded', cargarCatalogoPublico);
+
+        async function cargarCatalogoPublico() {
+            const { data, error } = await supabaseClient
+                .from('productos')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const grid = document.getElementById('grid-catalogo');
+            grid.innerHTML = '';
+
+            if (error) {
+                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al cargar el catálogo: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">No hay productos disponibles en el catálogo actualmente.</p>`;
+                return;
+            }
+
+            data.forEach(p => {
+                let imgHtml = p.foto 
+                    ? `<img src="${p.foto}" alt="${p.nombre}">` 
+                    : `<span class="producto-sin-foto">Sin imagen disponible</span>`;
+                
+                let precioFormateado = `Q. ${parseFloat(p.precio || 0).toFixed(2)}`;
+                let stockTexto = p.controlar_stock ? `Stock: ${p.stock || 0}` : `Disponible`;
+
+                grid.innerHTML += `
+                    <div class="producto-card">
+                        <div class="producto-img-container">
+                            ${imgHtml}
+                        </div>
+                        <div class="producto-info">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <h3 class="producto-nombre">${p.nombre}</h3>
+                                    <span style="font-size: 11px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #475569;">${stockTexto}</span>
+                                </div>
+                                <div class="producto-precio">${precioFormateado}</div>
+                            </div>
+                            <button onclick="seleccionarProducto('${p.nombre}', ${p.precio})" class="btn-accion">Seleccionar</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function seleccionarProducto(nombre, precio) {
+            alert(`Has seleccionado: ${nombre} por Q. ${precio.toFixed(2)}`);
+            // Aquí puedes enlazar la lógica para agregar al carrito o realizar el pedido si lo deseas.
+        }
+    </script>
 </body>
 </html>
