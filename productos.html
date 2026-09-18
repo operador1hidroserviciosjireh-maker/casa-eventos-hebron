@@ -136,7 +136,7 @@
             <div style="display: flex; justify-content: space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #fff;">
                 <button onclick="cerrarModal()" style="background:none; border:none; font-size: 16px; cursor:pointer; color:#64748b;">✕</button>
                 <h3 style="font-size: 15px; font-weight: 600; color:#1e293b;">Nuevo producto</h3>
-                <button type="button" onclick="crearConIA()" style="background: #f0fdf4; color: #10b981; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; cursor: pointer;">✨ Crear con IA</button>
+                <div style="width: 15px;"></div>
             </div>
 
             <!-- Pestañas -->
@@ -193,7 +193,7 @@
 
                 <!-- Botón de acción inferior dentro del modal -->
                 <div style="padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
-                    <button type="submit" class="btn-nuevo" style="width: 100%; padding: 12px; font-size: 14px;" id="btn-accion-form">Añadir al producto</button>
+                    <button type="submit" class="btn-nuevo" style="width: 100%; padding: 12px; font-size: 14px;">Añadir al producto</button>
                 </div>
             </form>
         </div>
@@ -245,13 +245,6 @@
             }
         }
 
-        function crearConIA() {
-            alert("✨ Generador IA: Rellenando campos sugeridos automáticamente...");
-            document.getElementById('p-nombre').value = "Decoración de Evento Premium";
-            document.getElementById('p-precio').value = "350.00";
-            document.getElementById('p-stock').value = "15";
-        }
-
         async function cargarProductos() {
             const { data, error } = await supabaseClient.from('productos').select('*');
             const tbody = document.getElementById('tabla-productos');
@@ -288,7 +281,6 @@
             const fileInput = document.getElementById('p-foto');
             let fotoUrl = null;
 
-            // Simulación de almacenamiento o subida de foto local/URL si se adjunta
             if (fileInput.files && fileInput.files[0]) {
                 fotoUrl = URL.createObjectURL(fileInput.files[0]);
             }
