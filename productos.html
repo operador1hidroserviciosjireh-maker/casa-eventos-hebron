@@ -68,7 +68,7 @@
         input:checked + .slider:before { transform: translateX(20px); }
 
         .stock-display-box { text-align: center; padding: 15px; margin-bottom: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .stock-number-input { font-size: 28px; font-weight: 700; color: #10b981; border: none; background: transparent; text-align: center; width: 100px; outline: none; border-bottom: 2px solid #10b981; }
+        .stock-number-input { font-size: 28px; font-weight: 700; color: #10b981; border: none; background: transparent; text-align: center; width: 120px; outline: none; border-bottom: 2px solid #10b981; }
 
         .config-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; font-size: 13px; color: #475569; }
 
@@ -190,10 +190,10 @@
                                 <span style="color: #cbd5e1;">&gt;</span>
                             </div>
 
-                            <!-- Stock Mínimo cambiado a un campo input directo limpio -->
+                            <!-- Stock Mínimo cambiado a campo de texto directo y limpio -->
                             <div class="config-row">
                                 <span>Stock Mínimo para alertas</span>
-                                <input type="number" id="p-stock-minimo" value="0" style="width: 75px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-weight: 600; outline: none; background: #fff; color: #334155;">
+                                <input type="number" id="p-stock-minimo" value="10" style="width: 75px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-weight: 600; outline: none; background: #fff; color: #334155;">
                             </div>
                         </div>
                     </div>
@@ -323,7 +323,7 @@
                 cerrarModal();
                 document.querySelector('form').reset();
                 document.getElementById('texto-foto').innerText = '📷 Haz clic para subir foto del producto';
-                document.getElementById('p-stock-minimo').value = 0;
+                document.getElementById('p-stock-minimo').value = 10;
                 cargarProductos();
             }
         }
