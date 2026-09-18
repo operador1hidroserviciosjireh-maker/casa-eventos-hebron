@@ -20,12 +20,20 @@
         .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; outline: none; }
         .auth-btn { width: 100%; padding: 12px; background-color: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
 
-        /* MENU LATERAL ORIGINAL */
+        /* MENU LATERAL */
         aside { width: 100%; background-color: #253342; color: #ffffff; display: flex; flex-direction: column; border-bottom: 1px solid #1e293b; }
         @media (min-width: 768px) { aside { width: 280px; height: 100vh; border-right: 1px solid #1e293b; justify-content: space-between; } }
-        .sidebar-header { padding: 20px; border-bottom: 1px solid #334155; }
-        .sidebar-header h2 { font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; }
+        
+        .sidebar-header { 
+            padding: 20px; 
+            border-bottom: 1px solid #334155; 
+            cursor: pointer; 
+            transition: background 0.2s; 
+        }
+        .sidebar-header:hover { background-color: #1e293b; }
+        .sidebar-header h2 { font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
         .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
         .menu-list { list-style: none; padding: 10px 0; display: flex; flex-wrap: wrap; }
         @media (min-width: 768px) { .menu-list { display: block; overflow-y: auto; flex-grow: 1; padding: 15px 0; } }
         .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; color: #cbd5e1; text-decoration: none; font-size: 13px; font-weight: 500; width: 50%; cursor: pointer; }
@@ -61,9 +69,10 @@
     <!-- MENÚ LATERAL -->
     <aside>
         <div>
-            <div class="sidebar-header">
-                <h2>Hebron casa de eventos <span>&gt;</span></h2>
-                <p>Nube Voladora</p>
+            <!-- Header interactivo para volver atrás -->
+            <div class="sidebar-header" onclick="history.back()">
+                <h2>Hebron casa de eventos <span>&lt;</span></h2>
+                <p>Nube Voladora (Volver)</p>
             </div>
             <ul class="menu-list">
                 <li><a href="admin.html" class="menu-item active">🏠 Inicio</a></li>
@@ -71,7 +80,6 @@
                 <li><a href="pedidos.html" class="menu-item">📦 Pedidos <span class="menu-badge">1</span></a></li>
                 <li><a href="productos.html" class="menu-item">🗂️ Productos</a></li>
                 <li><a href="finanzas.html" class="menu-item">💰 Finanzas</a></li>
-                <li><a href="cupon.html" class="menu-item">🎟️ Cupón</a></li>
                 <li><a href="clientes.html" class="menu-item">👥 Clientes</a></li>
                 <li><a href="transacciones.html" class="menu-item">💳 Transacciones</a></li>
                 <li><a href="usuarios.html" class="menu-item">👤 Usuarios</a></li>
@@ -95,7 +103,7 @@
                 <h3>Hoy</h3>
                 <div style="font-size: 30px; font-weight: 700; margin: 5px 0;">0.00 Q</div>
                 <div style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">en 0 ventas completadas</div>
-                <button class="btn-nuevo">Registrar venta</button>
+                <button class="btn-nuevo" onclick="window.location.href='vender.html'">Registrar venta</button>
             </div>
         </div>
     </main>
