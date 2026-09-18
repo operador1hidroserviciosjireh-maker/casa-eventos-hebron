@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Hebron Casa de Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; }
+        @media (min-width: 768px) { body { flex-direction: row; height: 100vh; overflow: hidden; } }
+
+        aside { width: 100%; background-color: #253342; color: #ffffff; display: flex; flex-direction: column; border-bottom: 1px solid #1e293b; }
+        @media (min-width: 768px) { aside { width: 280px; height: 100vh; border-right: 1px solid #1e293b; justify-content: space-between; } }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #334155; }
+        .sidebar-header h2 { font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; color: white; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+        .menu-list { list-style: none; padding: 10px 0; display: flex; flex-wrap: wrap; }
+        @media (min-width: 768px) { .menu-list { display: block; overflow-y: auto; flex-grow: 1; padding: 15px 0; } }
+        .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; color: #cbd5e1; text-decoration: none; font-size: 13px; font-weight: 500; width: 50%; }
+        @media (min-width: 768px) { .menu-item { width: 100%; padding: 12px 20px; gap: 15px; font-size: 14px; } }
+        .menu-item:hover, .menu-item.active { background-color: #1e293b; color: #ffffff; border-left: 4px solid #10b981; }
+        .menu-badge { background-color: #10b981; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
+        .sidebar-footer { background-color: #10b981; padding: 15px 20px; color: #ffffff; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; border: none; width: 100%; cursor: pointer; text-align: left; }
+
+        main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; }
+        @media (min-width: 768px) { main { overflow-y: auto; height: 100vh; } }
+        header.main-header { background-color: #253342; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .dashboard-container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+        .section-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; overflow-x: auto; }
+        .usuarios-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .btn-nuevo { background-color: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; min-width: 600px; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+        th { background-color: #f8fafc; font-weight: 600; color: #64748b; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none; padding: 15px; }
+        .modal-container { background: white; width: 100%; max-width: 400px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; color: #334155; font-size: 14px; outline: none; }
+    </style>
+</head>
+<body>
+
+    <!-- MENÚ LATERAL -->
+    <aside>
+        <div>
+            <div class="sidebar-header">
+                <h2>Hebron casa de eventos <span>&gt;</span></h2>
+                <p>Nube Voladora</p>
+            </div>
+            <ul class="menu-list">
+                <li><a href="admin.html" class="menu-item">🏠 Inicio</a></li>
+                <li><a href="vender.html" class="menu-item">🛒 Vender</a></li>
+                <li><a href="pedidos.html" class="menu-item">📦 Pedidos <span class="menu-badge">1</span></a></li>
+                <li><a href="productos.html" class="menu-item active">🗂️ Productos</a></li>
+                <li><a href="finanzas.html" class="menu-item">💰 Finanzas</a></li>
+                <li><a href="cupon.html" class="menu-item">🎟️ Cupón</a></li>
+                <li><a href="clientes.html" class="menu-item">👥 Clientes</a></li>
+                <li><a href="transacciones.html" class="menu-item">💳 Transacciones</a></li>
+                <li><a href="usuarios.html" class="menu-item">👤 Usuarios</a></li>
+            </ul>
+        </div>
+        <button onclick="sessionStorage.clear(); window.location.href='admin.html';" class="sidebar-footer">
+            <span>Logout</span><span>&gt;</span>
+        </button>
+    </aside>
+
+    <!-- CONTENIDO PRODUCTOS -->
+    <main>
+        <header class="main-header">
+            <h1>Catálogo de Productos y Stock</h1>
+        </header>
+
+        <div class="dashboard-container">
+            <div class="section-card">
+                <div class="usuarios-header">
+                    <h2>Inventario</h2>
+                    <button onclick="abrirModal()" class="btn-nuevo">+ Producto</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio (Q)</th>
+                            <th>Stock</th>
+                            <th>Creado Por (Operador/Admin)</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-productos">
+                        <!-- Se llena desde Supabase -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL NUEVO PRODUCTO -->
+    <div id="modal-producto" class="modal-overlay">
+        <div class="modal-container">
+            <div style="display: flex; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
+                <button onclick="cerrarModal()" style="background:none; border:none; font-size: 16px; cursor:pointer;">✕</button>
+                <h3 style="font-size: 15px; font-weight: 600;">Nuevo Producto</h3>
+                <div style="width: 15px;"></div>
+            </div>
+            <form onsubmit="guardarProducto(event)" style="padding: 20px;">
+                <input type="text" id="p-nombre" placeholder="Nombre del producto" required class="auth-input">
+                <input type="number" step="0.01" id="p-precio" placeholder="Precio (Q)" required class="auth-input">
+                <input type="number" id="p-stock" placeholder="Cantidad en stock" required class="auth-input">
+                <button type="submit" class="btn-nuevo" style="width: 100%; padding: 12px;">Guardar Producto</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        document.addEventListener('DOMContentLoaded', cargarProductos);
+
+        function abrirModal() { document.getElementById('modal-producto').style.display = 'flex'; }
+        function cerrarModal() { document.getElementById('modal-producto').style.display = 'none'; }
+
+        async function cargarProductos() {
+            const { data, error } = await supabaseClient.from('productos').select('*');
+            const tbody = document.getElementById('tabla-productos');
+            tbody.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8;">No hay productos registrados.</td></tr>`;
+                return;
+            }
+
+            data.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.nombre}</td>
+                        <td>Q ${parseFloat(p.precio || 0).toFixed(2)}</td>
+                        <td>${p.stock || 0}</td>
+                        <td><span style="background: #0ea5e9; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">${p.creado_por || 'Sistema'}</span></td>
+                        <td><button onclick="eliminarProducto('${p.id}')" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Eliminar</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function guardarProducto(event) {
+            event.preventDefault();
+            const nombre = document.getElementById('p-nombre').value;
+            const precio = parseFloat(document.getElementById('p-precio').value);
+            const stock = parseInt(document.getElementById('p-stock').value);
+            
+            // Captura automáticamente el operador o admin logueado
+            const creadoPor = sessionStorage.getItem('admin_hebron') || "Administrador";
+
+            const { error } = await supabaseClient.from('productos').insert([{ nombre, precio, stock, creado_por: creadoPor }]);
+            if (error) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('¡Producto guardado exitosamente!');
+                cerrarModal();
+                cargarProductos();
+            }
+        }
+
+        async function eliminarProducto(id) {
+            if (!confirm('¿Eliminar producto?')) return;
+            await supabaseClient.from('productos').delete().eq('id', id);
+            cargarProductos();
+        }
+    </script>
+</body>
+</html>
