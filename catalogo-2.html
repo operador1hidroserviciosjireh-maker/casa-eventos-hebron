@@ -65,7 +65,7 @@
         .modal-header h2 { font-size: 18px; font-weight: 700; color: #1e293b; }
         .close-modal { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
         
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
         .cart-item-details { flex-grow: 1; padding-right: 10px; }
         .cart-item-title { font-size: 14px; font-weight: 600; color: #1e293b; }
         .cart-item-price { font-size: 13px; color: #64748b; }
@@ -113,8 +113,11 @@
                 <!-- Items del carrito -->
             </div>
             <div class="modal-footer">
-                <div style="text-align: right; margin-bottom: 8px;">
+                <div style="text-align: right; margin-bottom: 6px;">
                     <button onclick="vaciarCarrito()" style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; font-weight:600;">Vaciar carrito</button>
+                </div>
+                <div style="text-align: center; margin-bottom: 15px;">
+                    <button onclick="cerrarModalCarrito()" style="background:none; border:none; color:#936f38; font-size:14px; cursor:pointer; font-weight:700;">Ver más productos &gt;</button>
                 </div>
                 <div class="modal-total">
                     <span>Total:</span>
@@ -264,10 +267,13 @@
                             <div class="cart-item-title">${item.nombre}</div>
                             <div class="cart-item-price">Q. ${item.precio.toFixed(2)} c/u</div>
                         </div>
-                        <div class="cart-item-controls">
-                            <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, -1); abrirModalCarrito();">-</button>
-                            <input type="number" min="0" class="qty-input" style="width: 45px;" value="${item.cantidad}" onchange="fijarCantidadDirecta('${id}', '${item.nombre}', ${item.precio}, this.value); abrirModalCarrito();">
-                            <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, 1); abrirModalCarrito();">+</button>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="cart-item-controls">
+                                <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, -1); abrirModalCarrito();">-</button>
+                                <input type="number" min="0" class="qty-input" style="width: 45px;" value="${item.cantidad}" onchange="fijarCantidadDirecta('${id}', '${item.nombre}', ${item.precio}, this.value); abrirModalCarrito();">
+                                <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, 1); abrirModalCarrito();">+</button>
+                            </div>
+                            <button onclick="eliminarItemCarrito('${id}')" style="background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 2px 5px;" title="Eliminar">&times;</button>
                         </div>
                     </div>
                 `;
@@ -275,6 +281,13 @@
 
             document.getElementById('modalTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
             document.getElementById('cartModal').classList.add('active');
+        }
+
+        function eliminarItemCarrito(id) {
+            delete carrito[id];
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+            abrirModalCarrito();
         }
 
         function cerrarModalCarrito() {
