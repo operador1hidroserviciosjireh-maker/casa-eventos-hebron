@@ -41,11 +41,12 @@
         .producto-nombre { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
         .producto-precio { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
 
-        /* Controles de cantidad en tarjeta estilo Kyte */
+        /* Controles de cantidad con input editable */
         .card-actions { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; }
-        .btn-qty { background: #fff; border: none; padding: 10px 16px; font-size: 16px; font-weight: bold; cursor: pointer; color: #334155; transition: background 0.2s; }
+        .btn-qty { background: #fff; border: none; padding: 10px 14px; font-size: 16px; font-weight: bold; cursor: pointer; color: #334155; transition: background 0.2s; }
         .btn-qty:hover { background: #e2e8f0; }
-        .qty-display { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .qty-input { width: 50px; text-align: center; border: none; background: transparent; font-size: 14px; font-weight: 600; color: #1e293b; outline: none; }
+        
         .btn-add-initial { background-color: #936f38; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center; }
         .btn-add-initial:hover { background-color: #78582b; }
 
@@ -68,7 +69,7 @@
         .cart-item-details { flex-grow: 1; padding-right: 10px; }
         .cart-item-title { font-size: 14px; font-weight: 600; color: #1e293b; }
         .cart-item-price { font-size: 13px; color: #64748b; }
-        .cart-item-controls { display: flex; align-items: center; gap: 8px; }
+        .cart-item-controls { display: flex; align-items: center; background: #f1f5f9; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; }
         
         .modal-footer { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
         .modal-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 15px; }
@@ -130,7 +131,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let listaProductosGlobal = [];
-        let carrito = {}; // Clave: id o nombre del producto, Valor: {nombre, precio, cantidad}
+        let carrito = {}; 
 
         document.addEventListener('DOMContentLoaded', cargarDatos);
 
@@ -173,7 +174,7 @@
                     ? `<button onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, 1)" class="btn-add-initial">+ Agregar</button>`
                     : `<div class="card-actions">
                          <button class="btn-qty" onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, -1)">-</button>
-                         <span class="qty-display">${cantidadEnCarrito}</span>
+                         <input type="number" min="0" class="qty-input" value="${cantidadEnCarrito}" onchange="fijarCantidadDirecta('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, this.value)">
                          <button class="btn-qty" onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, 1)">+</button>
                        </div>`;
 
@@ -206,6 +207,21 @@
                 carrito[id].cantidad += delta;
                 if (carrito[id].cantidad <= 0) {
                     delete carrito[id];
+                }
+            }
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+        }
+
+        function fijarCantidadDirecta(id, nombre, precio, valor) {
+            let cantidad = parseInt(valor);
+            if (isNaN(cantidad) || cantidad <= 0) {
+                delete carrito[id];
+            } else {
+                if (!carrito[id]) {
+                    carrito[id] = { nombre, precio, cantidad };
+                } else {
+                    carrito[id].cantidad = cantidad;
                 }
             }
             renderizarProductos(listaProductosGlobal);
@@ -250,7 +266,7 @@
                         </div>
                         <div class="cart-item-controls">
                             <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, -1); abrirModalCarrito();">-</button>
-                            <span style="font-weight:600; font-size:14px;">${item.cantidad}</span>
+                            <input type="number" min="0" class="qty-input" style="width: 45px;" value="${item.cantidad}" onchange="fijarCantidadDirecta('${id}', '${item.nombre}', ${item.precio}, this.value); abrirModalCarrito();">
                             <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, 1); abrirModalCarrito();">+</button>
                         </div>
                     </div>
@@ -285,7 +301,6 @@
 
             mensaje += `\n*Total a pagar: Q. ${precioTotal.toFixed(2)}*`;
 
-            // Reemplaza con tu número de WhatsApp de Hebron (ejemplo con código de país 502...)
             let numeroWhatsApp = "50200000000"; 
             let url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
