@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #334155; }
+        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #334155; padding-bottom: 90px; }
         
         .header-catalogo { background-color: #253342; color: white; padding: 25px 20px; text-align: center; }
         .header-catalogo h1 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
@@ -20,41 +20,60 @@
         .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
         .back-link:hover { text-decoration: underline; }
 
-        /* Barra de Búsqueda estilo Kyte */
+        /* Buscador */
         .search-container { margin-bottom: 20px; }
-        .search-input { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: white; transition: border-color 0.2s; }
+        .search-input { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: white; }
         .search-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
 
         /* Grid de Productos */
         .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .producto-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #e2e8f0; }
         
-        /* Contenedor y ajuste perfecto de la imagen (tanto grandes como chicas) */
         .producto-img-container { 
-            width: 100%; 
-            height: 190px; 
-            background: #f8fafc; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-            position: relative; 
-            padding: 10px; 
+            width: 100%; height: 190px; background: #f8fafc; 
+            display: flex; align-items: center; justify-content: center; 
+            overflow: hidden; position: relative; padding: 10px; 
         }
-        
-        .producto-img-container img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            object-fit: contain; 
-        }
+        .producto-img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
         .producto-sin-foto { color: #94a3b8; font-size: 12px; }
 
         .producto-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
-        .producto-nombre { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
-        .producto-precio { font-size: 16px; font-weight: 700; color: #10b981; margin-bottom: 12px; }
+        .producto-nombre { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+        .producto-precio { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+
+        /* Controles de cantidad en tarjeta estilo Kyte */
+        .card-actions { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; }
+        .btn-qty { background: #fff; border: none; padding: 10px 16px; font-size: 16px; font-weight: bold; cursor: pointer; color: #334155; transition: background 0.2s; }
+        .btn-qty:hover { background: #e2e8f0; }
+        .qty-display { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .btn-add-initial { background-color: #936f38; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center; }
+        .btn-add-initial:hover { background-color: #78582b; }
+
+        /* Barra Inferior Flotante del Carrito */
+        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #253342; color: white; padding: 15px 20px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.15); z-index: 1000; }
+        .cart-bar.active { display: flex; }
+        .cart-bar-info { font-size: 15px; font-weight: 600; }
+        .cart-bar-btn { background-color: #936f38; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .cart-bar-btn:hover { background-color: #78582b; }
+
+        /* Modal del Carrito */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 600px; max-height: 85vh; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 15px; }
+        .modal-header h2 { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .close-modal { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
         
-        .btn-accion { background-color: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center; transition: background 0.2s; }
-        .btn-accion:hover { background-color: #059669; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
+        .cart-item-details { flex-grow: 1; padding-right: 10px; }
+        .cart-item-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .cart-item-price { font-size: 13px; color: #64748b; }
+        .cart-item-controls { display: flex; align-items: center; gap: 8px; }
+        
+        .modal-footer { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+        .modal-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 15px; }
+        .btn-checkout { background-color: #936f38; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; }
+        .btn-checkout:hover { background-color: #78582b; }
     </style>
 </head>
 <body>
@@ -67,14 +86,41 @@
     <div class="container">
         <a href="admin.html" class="back-link">← Volver al panel</a>
 
-        <!-- Buscador en tiempo real -->
         <div class="search-container">
             <input type="text" id="inputBuscar" class="search-input" placeholder="Buscar productos..." onkeyup="filtrarCatalogo()">
         </div>
 
-        <!-- Contenedor de Productos -->
         <div id="grid-catalogo" class="productos-grid">
             <p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">Cargando catálogo...</p>
+        </div>
+    </div>
+
+    <!-- Barra Inferior Flotante -->
+    <div id="cartBar" class="cart-bar">
+        <div class="cart-bar-info" id="cartBarInfo">0 artículos • Q. 0.00</div>
+        <button class="cart-bar-btn" onclick="abrirModalCarrito()">Ver carrito</button>
+    </div>
+
+    <!-- Modal del Carrito -->
+    <div id="cartModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tu Carrito de Pedido</h2>
+                <button class="close-modal" onclick="cerrarModalCarrito()">&times;</button>
+            </div>
+            <div id="cartItemsContainer" style="overflow-y: auto; max-height: 40vh;">
+                <!-- Items del carrito -->
+            </div>
+            <div class="modal-footer">
+                <div style="text-align: right; margin-bottom: 8px;">
+                    <button onclick="vaciarCarrito()" style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; font-weight:600;">Vaciar carrito</button>
+                </div>
+                <div class="modal-total">
+                    <span>Total:</span>
+                    <span id="modalTotalPrecio">Q. 0.00</span>
+                </div>
+                <button class="btn-checkout" onclick="enviarPedidoWhatsApp()">Continuar para finalizar</button>
+            </div>
         </div>
     </div>
 
@@ -84,6 +130,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let listaProductosGlobal = [];
+        let carrito = {}; // Clave: id o nombre del producto, Valor: {nombre, precio, cantidad}
 
         document.addEventListener('DOMContentLoaded', cargarDatos);
 
@@ -94,7 +141,6 @@
                 .order('created_at', { ascending: false });
 
             const grid = document.getElementById('grid-catalogo');
-
             if (error) {
                 grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al cargar: ${error.message}</p>`;
                 return;
@@ -120,12 +166,20 @@
                 
                 let precioFormateado = `Q. ${parseFloat(p.precio || 0).toFixed(2)}`;
                 let stockTexto = p.controlar_stock ? `Stock: ${p.stock || 0}` : `Disponible`;
+                let idProd = p.id || p.nombre;
+                let cantidadEnCarrito = carrito[idProd] ? carrito[idProd].cantidad : 0;
+
+                let actionHtml = cantidadEnCarrito === 0 
+                    ? `<button onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, 1)" class="btn-add-initial">+ Agregar</button>`
+                    : `<div class="card-actions">
+                         <button class="btn-qty" onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, -1)">-</button>
+                         <span class="qty-display">${cantidadEnCarrito}</span>
+                         <button class="btn-qty" onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, 1)">+</button>
+                       </div>`;
 
                 grid.innerHTML += `
                     <div class="producto-card">
-                        <div class="producto-img-container">
-                            ${imgHtml}
-                        </div>
+                        <div class="producto-img-container">${imgHtml}</div>
                         <div class="producto-info">
                             <div>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
@@ -134,11 +188,107 @@
                                 </div>
                                 <div class="producto-precio">${precioFormateado}</div>
                             </div>
-                            <button onclick="seleccionar('${p.nombre}', ${p.precio})" class="btn-accion">Seleccionar</button>
+                            <div id="action-${idProd}">
+                                ${actionHtml}
+                            </div>
                         </div>
                     </div>
                 `;
             });
+        }
+
+        function cambiarCantidad(id, nombre, precio, delta) {
+            if (!carrito[id]) {
+                if (delta > 0) {
+                    carrito[id] = { nombre, precio, cantidad: delta };
+                }
+            } else {
+                carrito[id].cantidad += delta;
+                if (carrito[id].cantidad <= 0) {
+                    delete carrito[id];
+                }
+            }
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+        }
+
+        function actualizarBarraCarrito() {
+            let totalArticulos = 0;
+            let precioTotal = 0;
+
+            for (let id in carrito) {
+                totalArticulos += carrito[id].cantidad;
+                precioTotal += carrito[id].precio * carrito[id].cantidad;
+            }
+
+            const cartBar = document.getElementById('cartBar');
+            const cartBarInfo = document.getElementById('cartBarInfo');
+
+            if (totalArticulos > 0) {
+                cartBarInfo.innerText = `${totalArticulos} artículos • Q. ${precioTotal.toFixed(2)}`;
+                cartBar.classList.add('active');
+            } else {
+                cartBar.classList.remove('active');
+            }
+        }
+
+        function abrirModalCarrito() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+            let precioTotal = 0;
+
+            for (let id in carrito) {
+                let item = carrito[id];
+                let subtotal = item.precio * item.cantidad;
+                precioTotal += subtotal;
+
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.nombre}</div>
+                            <div class="cart-item-price">Q. ${item.precio.toFixed(2)} c/u</div>
+                        </div>
+                        <div class="cart-item-controls">
+                            <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, -1); abrirModalCarrito();">-</button>
+                            <span style="font-weight:600; font-size:14px;">${item.cantidad}</span>
+                            <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, 1); abrirModalCarrito();">+</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modalTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
+            document.getElementById('cartModal').classList.add('active');
+        }
+
+        function cerrarModalCarrito() {
+            document.getElementById('cartModal').classList.remove('active');
+        }
+
+        function vaciarCarrito() {
+            carrito = {};
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+            cerrarModalCarrito();
+        }
+
+        function enviarPedidoWhatsApp() {
+            let mensaje = "Hola, me gustaría realizar el siguiente pedido:\n\n";
+            let precioTotal = 0;
+
+            for (let id in carrito) {
+                let item = carrito[id];
+                let subtotal = item.precio * item.cantidad;
+                precioTotal += subtotal;
+                mensaje += `• ${item.cantidad}x ${item.nombre} (Q. ${subtotal.toFixed(2)})\n`;
+            }
+
+            mensaje += `\n*Total a pagar: Q. ${precioTotal.toFixed(2)}*`;
+
+            // Reemplaza con tu número de WhatsApp de Hebron (ejemplo con código de país 502...)
+            let numeroWhatsApp = "50200000000"; 
+            let url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
         }
 
         function filtrarCatalogo() {
@@ -147,10 +297,6 @@
                 p.nombre && p.nombre.toLowerCase().includes(texto)
             );
             renderizarProductos(filtrados);
-        }
-
-        function seleccionar(nombre, precio) {
-            alert(`Seleccionado: ${nombre} - Q. ${precio.toFixed(2)}`);
         }
     </script>
 </body>
