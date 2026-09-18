@@ -53,6 +53,11 @@
 
         .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; color: #334155; font-size: 14px; outline: none; }
         
+        /* Input con prefijo Q. */
+        .price-input-container { display: flex; align-items: center; border: 1px solid #cbd5e1; border-radius: 8px; background: white; margin-bottom: 15px; overflow: hidden; }
+        .price-prefix { padding: 0 12px; background: #f1f5f9; color: #64748b; font-weight: 600; font-size: 14px; border-right: 1px solid #cbd5e1; height: 100%; display: flex; align-items: center; }
+        .price-input-container input { border: none; outline: none; width: 100%; padding: 12px; font-size: 14px; color: #334155; }
+
         /* Estilos específicos Stock */
         .switch-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; }
         .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
@@ -151,7 +156,12 @@
                     <!-- PESTAÑA REGISTRO -->
                     <div id="tab-registro" class="tab-content active">
                         <input type="text" id="p-nombre" placeholder="Nombre del producto" required class="auth-input">
-                        <input type="number" step="0.01" id="p-precio" placeholder="Precio (Ej: 11.00)" required class="auth-input">
+                        
+                        <!-- Input de precio con formato Q. integrado -->
+                        <div class="price-input-container">
+                            <span class="price-prefix">Q.</span>
+                            <input type="number" step="0.01" id="p-precio" placeholder="0.00" required>
+                        </div>
                         
                         <!-- Opción Subir Foto -->
                         <div class="upload-box" onclick="document.getElementById('p-foto').click()">
