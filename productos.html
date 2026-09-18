@@ -246,7 +246,7 @@
         }
 
         async function cargarProductos() {
-            const { data, error } = await supabaseClient.from('productos').select('*');
+            const { data, error } = await supabaseClient.from('productos').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('tabla-productos');
             tbody.innerHTML = '';
             
@@ -281,11 +281,31 @@
             const fileInput = document.getElementById('p-foto');
             let fotoUrl = null;
 
+            // Subir imagen al Bucket 'productos' de Supabase Storage
             if (fileInput.files && fileInput.files[0]) {
-                fotoUrl = URL.createObjectURL(fileInput.files[0]);
+                const file = fileInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}.${fileExt}`;
+                const filePath = `${fileName}`;
+
+                let { error: uploadError } = await supabaseClient.storage
+                    .from('productos')
+                    .upload(filePath, file);
+
+                if (uploadError) {
+                    alert('Error al subir la imagen: ' + uploadError.message);
+                    return;
+                }
+
+                // Obtener URL pública de la imagen subida
+                const { data: publicUrlData } = supabaseClient.storage
+                    .from('productos')
+                    .getPublicUrl(filePath);
+
+                fotoUrl = publicUrlData.publicUrl;
             }
 
-            const creadoPor = sessionStorage.getItem('admin_hebron') || "Administrador";
+            const creadoPor = sessionStorage.getItem('admin_hebron') || sessionStorage.getItem('usuario_actual') || "Administrador";
 
             const { error } = await supabaseClient.from('productos').insert([{ 
                 nombre, 
@@ -302,14 +322,23 @@
             } else {
                 alert('¡Producto guardado exitosamente!');
                 cerrarModal();
+                // Limpiar formulario
+                document.querySelector('form').reset();
+                document.getElementById('texto-foto').innerText = '📷 Haz clic para subir foto del producto';
+                document.getElementById('p-stock-minimo').value = 0;
+                document.getElementById('lbl-stock-minimo').innerText = '0';
                 cargarProductos();
             }
         }
 
         async function eliminarProducto(id) {
             if (!confirm('¿Deseas eliminar este producto?')) return;
-            await supabaseClient.from('productos').delete().eq('id', id);
-            cargarProductos();
+            const { error } = await supabaseClient.from('productos').delete().eq('id', id);
+            if (error) {
+                alert('Error al eliminar: ' + error.message);
+            } else {
+                cargarProductos();
+            }
         }
     </script>
 </body>
