@@ -64,7 +64,7 @@
                 <input type="email" id="login-email" placeholder="Correo electrónico" required class="auth-input">
                 <input type="password" id="login-pass" placeholder="Contraseña" required class="auth-input">
                 <button type="submit" class="auth-btn">Ingresar al Panel</button>
-                <button type="button" onclick="history.back()" class="auth-back-btn">⬅️ Regresar a la página anterior</button>
+                <button type="button" onclick="window.location.href='index.html'" class="auth-back-btn">⬅️ Regresar al Inicio</button>
             </form>
         </div>
     </div>
@@ -168,7 +168,7 @@
 
         function handleLogout() {
             sessionStorage.removeItem('admin_hebron');
-            window.location.reload();
+            window.location.href = 'index.html';
         }
     </script>
 </body>
