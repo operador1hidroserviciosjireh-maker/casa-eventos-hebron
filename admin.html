@@ -261,7 +261,6 @@
             display: block;
         }
 
-        /* Tarjeta de Ventas y Estilos generales */
         .sales-card {
             background-color: #253342;
             color: white;
@@ -270,25 +269,6 @@
             text-align: center;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-
-        .sales-amount {
-            font-size: 30px;
-            font-weight: 700;
-            margin: 5px 0;
-        }
-
-        .btn-register-sale {
-            background-color: #10b981;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            max-width: 300px;
         }
 
         .stock-section, .audit-section, .usuarios-section {
@@ -325,7 +305,7 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 12px;
-            min-width: 500px;
+            min-width: 650px;
         }
 
         th, td {
@@ -339,6 +319,19 @@
             font-weight: 600;
             color: #64748b;
         }
+
+        .btn-accion {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin-right: 4px;
+        }
+        .btn-editar { background-color: #0ea5e9; color: white; }
+        .btn-baja { background-color: #ef4444; color: white; }
+        .btn-activar { background-color: #10b981; color: white; }
 
         /* MODALES */
         .modal-overlay {
@@ -367,7 +360,7 @@
 </head>
 <body>
 
-    <!-- PANTALLA DE ACCESO RESTRINGIDO (LOGIN) -->
+    <!-- LOGIN -->
     <div id="auth-overlay">
         <div class="auth-card">
             <h2>Acceso Restringido</h2>
@@ -420,38 +413,9 @@
             <div id="vista-inicio" class="vista-seccion active-view">
                 <div class="sales-card">
                     <h3>Hoy</h3>
-                    <div class="sales-amount">0.00 Q</div>
+                    <div style="font-size: 30px; font-weight: 700; margin: 5px 0;">0.00 Q</div>
                     <div style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">en 0 ventas completadas</div>
-                    <button class="btn-register-sale">Registrar venta</button>
-                </div>
-
-                <div class="stock-section">
-                    <h2>Stock Rápido</h2>
-                    <button onclick="abrirModalProducto()" class="btn-nuevo-usuario" style="margin-top: 5px;">+ Añadir Producto</button>
-                </div>
-
-                <div class="audit-section">
-                    <h2>Historial y Auditoría Reciente</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Precio</th>
-                                <th>Stock</th>
-                                <th>Registrado por</th>
-                                <th>Fecha y Hora</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabla-audit-body">
-                            <tr>
-                                <td>Silla Tiffany</td>
-                                <td>25.00 Q</td>
-                                <td>30</td>
-                                <td>Samuel Siebenhor</td>
-                                <td>16/09/2026 18:30</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <button class="btn-nuevo-usuario">Registrar venta</button>
                 </div>
             </div>
 
@@ -459,7 +423,7 @@
             <div id="vista-usuarios" class="vista-seccion">
                 <div class="usuarios-header">
                     <h2>Gestión de Colaboradores</h2>
-                    <button onclick="abrirModalUsuario()" class="btn-nuevo-usuario">+ Nuevo Colaborador</button>
+                    <button onclick="abrirModalUsuarioParaCrear()" class="btn-nuevo-usuario">+ Nuevo Colaborador</button>
                 </div>
                 <div class="audit-section" style="padding: 0;">
                     <table>
@@ -468,22 +432,20 @@
                                 <th>Nombre</th>
                                 <th>Correo</th>
                                 <th>Rol</th>
-                                <th>Acción</th>
+                                <th>Ingreso</th>
+                                <th>Baja / Reactivación</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-usuarios-body">
-                            <tr>
-                                <td>Samuel Siebenhor</td>
-                                <td>admin@hebron.com</td>
-                                <td><span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">Admin</span></td>
-                                <td>Principal</td>
-                            </tr>
+                            <!-- Se llena dinámicamente -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- OTRAS VISTAS (GENÉRICAS PARA QUE NO QUEDEN VACÍAS) -->
+            <!-- OTRAS VISTAS -->
             <div id="vista-vender" class="vista-seccion"><div class="sales-card"><h2>Módulo de Ventas</h2></div></div>
             <div id="vista-pedidos" class="vista-seccion"><div class="sales-card"><h2>Módulo de Pedidos</h2></div></div>
             <div id="vista-productos" class="vista-seccion"><div class="sales-card"><h2>Catálogo Completo de Productos</h2></div></div>
@@ -495,15 +457,16 @@
         </div>
     </main>
 
-    <!-- VENTANA MODAL: NUEVO USUARIO / COLABORADOR -->
+    <!-- VENTANA MODAL: NUEVO / EDITAR COLABORADOR -->
     <div id="modal-usuario" class="modal-overlay">
         <div class="modal-container">
             <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
                 <button onclick="cerrarModalUsuario()" style="background:none; border:none; font-size: 16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-                <h3 style="font-size: 15px; font-weight: 600;">Nuevo Colaborador</h3>
+                <h3 id="modal-usuario-titulo" style="font-size: 15px; font-weight: 600;">Nuevo Colaborador</h3>
                 <div style="width: 15px;"></div>
             </div>
-            <form id="form-nuevo-usuario" onsubmit="guardarUsuarioSupabase(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+            <form id="form-nuevo-usuario" onsubmit="guardarOActualizarUsuario(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                <input type="hidden" id="usr-id">
                 <input type="text" id="usr-nombre" placeholder="Nombre completo" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
                 <input type="email" id="usr-correo" placeholder="Correo electrónico" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
                 <input type="password" id="usr-pass" placeholder="Contraseña temporal" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
@@ -516,23 +479,6 @@
         </div>
     </div>
 
-    <!-- VENTANA MODAL: NUEVO PRODUCTO -->
-    <div id="modal-producto" class="modal-overlay">
-        <div class="modal-container">
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
-                <button onclick="cerrarModalProducto()" style="background:none; border:none; font-size: 16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
-                <h3 style="font-size: 15px; font-weight: 600;">Nuevo producto</h3>
-                <div style="width: 15px;"></div>
-            </div>
-            <form id="form-nuevo-prod" onsubmit="guardarProductoSupabase(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 15px;">
-                <input type="text" id="inp-nombre" placeholder="Nombre del producto" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
-                <input type="number" step="0.01" id="inp-precio" placeholder="Precio (Q)" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
-                <input type="number" id="inp-stock" placeholder="Stock actual" value="0" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
-                <button type="submit" class="auth-btn">Añadir producto</button>
-            </form>
-        </div>
-    </div>
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
@@ -541,6 +487,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let usuarioActivo = "Samuel Siebenhor";
+        let listaColaboradores = [];
 
         window.addEventListener('DOMContentLoaded', () => {
             const adminLogueado = sessionStorage.getItem('admin_hebron');
@@ -551,7 +498,6 @@
             cargarUsuarios();
         });
 
-        // Cambio de Vistas en el Menú Lateral
         function cambiarVista(vistaId, event) {
             document.querySelectorAll('.vista-seccion').forEach(v => v.classList.remove('active-view'));
             document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
@@ -606,99 +552,150 @@
             window.location.reload();
         }
 
-        // Modales Colaboradores
-        function abrirModalUsuario() { document.getElementById('modal-usuario').style.display = 'flex'; }
-        function cerrarModalUsuario() { document.getElementById('modal-usuario').style.display = 'none'; }
+        // Gestión de Modales
+        function abrirModalUsuarioParaCrear() {
+            document.getElementById('form-nuevo-usuario').reset();
+            document.getElementById('usr-id').value = '';
+            document.getElementById('modal-usuario-titulo').innerText = 'Nuevo Colaborador';
+            document.getElementById('modal-usuario').style.display = 'flex';
+        }
 
-        // Modales Productos
-        function abrirModalProducto() { document.getElementById('modal-producto').style.display = 'flex'; }
-        function cerrarModalProducto() { document.getElementById('modal-producto').style.display = 'none'; }
+        function abrirModalEditar(id) {
+            const u = listaColaboradores.find(item => item.id == id);
+            if (!u) return;
+
+            document.getElementById('usr-id').value = u.id;
+            document.getElementById('usr-nombre').value = u.nombre || '';
+            document.getElementById('usr-correo').value = u.correo || '';
+            document.getElementById('usr-pass').value = u.password || '';
+            document.getElementById('usr-rol').value = u.rol || 'Operador';
+            
+            document.getElementById('modal-usuario-titulo').innerText = 'Editar Colaborador';
+            document.getElementById('modal-usuario').style.display = 'flex';
+        }
+
+        function cerrarModalUsuario() { 
+            document.getElementById('modal-usuario').style.display = 'none'; 
+        }
 
         // Cargar Colaboradores desde Supabase
         async function cargarUsuarios() {
             try {
                 const { data, error } = await supabaseClient.from('usuarios').select('*');
                 if (error) throw error;
-                if (data && data.length > 0) {
-                    const tbody = document.getElementById('tabla-usuarios-body');
-                    tbody.innerHTML = '';
-                    data.forEach(u => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${u.nombre || 'Sin nombre'}</td>
-                                <td>${u.correo}</td>
-                                <td><span style="background: #0ea5e9; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">${u.rol || 'Operador'}</span></td>
-                                <td>Activo</td>
-                            </tr>
-                        `;
-                    });
+                if (data) {
+                    listaColaboradores = data;
+                    renderizarTablaUsuarios();
                 }
             } catch (err) {
-                console.log("Usando tabla local de usuarios.");
+                console.log("Error cargando usuarios o usando datos locales");
             }
         }
 
-        // Guardar Nuevo Colaborador
-        async function guardarUsuarioSupabase(event) {
+        function renderizarTablaUsuarios() {
+            const tbody = document.getElementById('tabla-usuarios-body');
+            tbody.innerHTML = '';
+            
+            if (listaColaboradores.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay colaboradores registrados.</td></tr>`;
+                return;
+            }
+
+            listaColaboradores.forEach(u => {
+                const estado = u.estado || 'Activo';
+                const fechaIngreso = u.fecha_ingreso ? new Date(u.fecha_ingreso).toLocaleDateString() : '-';
+                const fechaBaja = u.fecha_baja ? new Date(u.fecha_baja).toLocaleDateString() : 'N/A';
+                
+                const badgeEstado = estado === 'Activo' 
+                    ? `<span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">Activo</span>`
+                    : `<span style="background: #ef4444; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">Baja</span>`;
+
+                const btnBajaReactivar = estado === 'Activo'
+                    ? `<button onclick="cambiarEstadoUsuario('${u.id}', 'Baja')" class="btn-accion btn-baja">Dar de baja</button>`
+                    : `<button onclick="cambiarEstadoUsuario('${u.id}', 'Activo')" class="btn-accion btn-activar">Reactivar</button>`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${u.nombre || 'Sin nombre'}</td>
+                        <td>${u.correo}</td>
+                        <td><span style="background: #0ea5e9; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">${u.rol || 'Operador'}</span></td>
+                        <td>${fechaIngreso}</td>
+                        <td>${fechaBaja}</td>
+                        <td>${badgeEstado}</td>
+                        <td>
+                            <button onclick="abrirModalEditar('${u.id}')" class="btn-accion btn-editar">Editar</button>
+                            ${btnBajaReactivar}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Guardar o Actualizar Colaborador
+        async function guardarOActualizarUsuario(event) {
             event.preventDefault();
+            const id = document.getElementById('usr-id').value;
             const nombre = document.getElementById('usr-nombre').value;
             const correo = document.getElementById('usr-correo').value;
             const password = document.getElementById('usr-pass').value;
             const rol = document.getElementById('usr-rol').value;
 
+            const fechaActual = new Date().toISOString();
+
             try {
-                const { error } = await supabaseClient.from('usuarios').insert([{ nombre, correo, password, rol }]);
-                if (error) throw error;
-                alert('¡Colaborador guardado exitosamente!');
+                if (id) {
+                    // Actualizar
+                    const { error } = await supabaseClient
+                        .from('usuarios')
+                        .update({ nombre, correo, password, rol })
+                        .eq('id', id);
+                    if (error) throw error;
+                    alert('¡Colaborador actualizado exitosamente!');
+                } else {
+                    // Crear nuevo con fecha de ingreso automática
+                    const nuevoColaborador = {
+                        nombre,
+                        correo,
+                        password,
+                        rol,
+                        estado: 'Activo',
+                        fecha_ingreso: fechaActual,
+                        fecha_baja: null
+                    };
+                    const { error } = await supabaseClient.from('usuarios').insert([nuevoColaborador]);
+                    if (error) throw error;
+                    alert('¡Colaborador registrado exitosamente!');
+                }
+                cerrarModalUsuario();
                 cargarUsuarios();
             } catch (err) {
-                alert('Error al guardar en Supabase: ' + err.message);
+                alert('Error al guardar: ' + err.message);
             }
-
-            document.getElementById('form-nuevo-usuario').reset();
-            cerrarModalUsuario();
         }
 
-        // Guardar Producto vinculado al usuario activo y hora exacta
-        async function guardarProductoSupabase(event) {
-            event.preventDefault();
-            const nombre = document.getElementById('inp-nombre').value;
-            const precio = parseFloat(document.getElementById('inp-precio').value) || 0;
-            const stock_actual = parseInt(document.getElementById('inp-stock').value) || 0;
+        // Dar de baja o Reactivar
+        async function cambiarEstadoUsuario(id, nuevoEstado) {
+            const fechaActual = new Date().toISOString();
+            const datosActualizar = { estado: nuevoEstado };
             
-            const modificado_por = usuarioActivo;
-            const updated_at = new Date().toLocaleString();
-
-            const nuevoItem = {
-                nombre,
-                precio,
-                stock_actual,
-                modificado_por,
-                updated_at: new Date().toISOString()
-            };
-
-            try {
-                const { error } = await supabaseClient.from('productos').insert([nuevoItem]);
-                if (error) throw error;
-            } catch (err) {
-                console.log("Guardado local/simulado");
+            if (nuevoEstado === 'Baja') {
+                datosActualizar.fecha_baja = fechaActual;
+            } else {
+                datosActualizar.fecha_baja = null; // Limpia la fecha de baja al reactivar
             }
 
-            // Refrescar tabla de auditoría en pantalla
-            const tbody = document.getElementById('tabla-audit-body');
-            const fila = document.createElement('tr');
-            fila.innerHTML = `
-                <td>${nombre}</td>
-                <td>${precio.toFixed(2)} Q</td>
-                <td>${stock_actual}</td>
-                <td>${modificado_por}</td>
-                <td>${updated_at}</td>
-            `;
-            tbody.prepend(fila);
+            try {
+                const { error } = await supabaseClient
+                    .from('usuarios')
+                    .update(datosActualizar)
+                    .eq('id', id);
 
-            alert('¡Producto registrado con éxito por ' + usuarioActivo + '!');
-            document.getElementById('form-nuevo-prod').reset();
-            cerrarModalProducto();
+                if (error) throw error;
+                alert(`Estado actualizado a: ${nuevoEstado}`);
+                cargarUsuarios();
+            } catch (err) {
+                alert('Error al cambiar estado: ' + err.message);
+            }
         }
     </script>
 </body>
