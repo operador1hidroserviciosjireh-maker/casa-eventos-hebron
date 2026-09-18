@@ -343,7 +343,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             cerrarModalCarrito();
         }
 
-                function enviarPedidoWhatsApp() {
+                       function enviarPedidoWhatsApp() {
             let observacion = document.getElementById('txtObservacion').value.trim();
             let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
 
@@ -368,6 +368,7 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             let url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
         }
+ 
 
 
         function filtrarCatalogo() {
