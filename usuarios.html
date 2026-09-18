@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Colaboradores - Hebron Casa de Eventos</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- SDK de Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Inter', sans-serif;
+}
+
+body {
+background-color: #f4f6f8;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+@media (min-width: 768px) {
+body {
+flex-direction: row;
+height: 100vh;
+overflow: hidden;
+}
+}
+
+/* PANTALLA DE BLOQUEO / LOGIN ADMIN */
+#auth-overlay {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background-color: #1e293b;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 9999;
+padding: 20px;
+}
+
+.auth-card {
+background: #253342;
+padding: 30px;
+border-radius: 16px;
+box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3);
+width: 100%;
+max-width: 400px;
+color: white;
+text-align: center;
+}
+
+.auth-card h2 {
+font-size: 20px;
+margin-bottom: 8px;
+}
+
+.auth-card p {
+font-size: 13px;
+color: #94a3b8;
+margin-bottom: 24px;
+}
+
+.auth-input {
+width: 100%;
+padding: 12px;
+margin-bottom: 15px;
+border-radius: 8px;
+border: 1px solid #334155;
+background: #1e293b;
+color: white;
+font-size: 14px;
+outline: none;
+}
+
+.auth-input:focus {
+border-color: #10b981;
+}
+
+.auth-btn {
+width: 100%;
+padding: 12px;
+background-color: #10b981;
+color: white;
+border: none;
+border-radius: 8px;
+font-weight: 600;
+cursor: pointer;
+transition: background 0.2s;
+}
+
+.auth-btn:hover {
+background-color: #059669;
+}
+
+#auth-error {
+color: #ef4444;
+font-size: 12px;
+margin-top: 10px;
+display: none;
+}
+
+/* Menú Lateral Adaptable */
+aside {
+width: 100%;
+background-color: #253342;
+color: #ffffff;
+display: flex;
+flex-direction: column;
+border-bottom: 1px solid #1e293b;
+}
+
+@media (min-width: 768px) {
+aside {
+width: 280px;
+height: 100vh;
+border-bottom: none;
+border-right: 1px solid #1e293b;
+justify-content: space-between;
+}
+}
+
+.sidebar-header {
+padding: 20px;
+border-bottom: 1px solid #334155;
+}
+
+.sidebar-header h2 {
+font-size: 16px;
+font-weight: 600;
+display: flex;
+align-items: center;
+justify-content: space-between;
+}
+
+.sidebar-header p {
+font-size: 12px;
+color: #94a3b8;
+margin-top: 4px;
+}
+
+.menu-list {
+list-style: none;
+padding: 10px 0;
+display: flex;
+flex-wrap: wrap;
+}
+
+@media (min-width: 768px) {
+.menu-list {
+display: block;
+overflow-y: auto;
+flex-grow: 1;
+padding: 15px 0;
+}
+}
+
+.menu-item {
+padding: 12px 15px;
+display: flex;
+align-items: center;
+gap: 10px;
+color: #cbd5e1;
+text-decoration: none;
+font-size: 13px;
+font-weight: 500;
+width: 50%;
+cursor: pointer;
+}
+
+@media (min-width: 768px) {
+.menu-item {
+width: 100%;
+padding: 12px 20px;
+gap: 15px;
+font-size: 14px;
+}
+}
+
+.menu-item:hover, .menu-item.active {
+background-color: #1e293b;
+color: #ffffff;
+border-left: 4px solid #10b981;
+}
+
+.menu-badge {
+background-color: #10b981;
+color: white;
+border-radius: 50%;
+width: 20px;
+height: 20px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 11px;
+font-weight: bold;
+}
+
+.sidebar-footer {
+background-color: #10b981;
+padding: 15px 20px;
+color: #ffffff;
+font-weight: 600;
+font-size: 14px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border: none;
+width: 100%;
+cursor: pointer;
+text-align: left;
+}
+
+.sidebar-footer:hover {
+background-color: #059669;
+}
+
+/* Contenido Principal */
+main {
+flex-grow: 1;
+display: flex;
+flex-direction: column;
+width: 100%;
+}
+
+@media (min-width: 768px) {
+main {
+overflow-y: auto;
+height: 100vh;
+}
+}
+
+header.main-header {
+background-color: #253342;
+color: white;
+padding: 15px 20px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.main-header h1 {
+font-size: 18px;
+font-weight: 600;
+}
+
+.dashboard-container {
+padding: 20px;
+max-width: 1200px;
+margin: 0 auto;
+width: 100%;
+}
+
+.audit-section, .usuarios-section {
+background: white;
+border-radius: 12px;
+padding: 20px;
+box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+margin-bottom: 20px;
+overflow-x: auto;
+}
+
+.usuarios-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+flex-wrap: wrap;
+gap: 10px;
+}
+
+.btn-nuevo-usuario {
+background-color: #10b981;
+color: white;
+border: none;
+padding: 8px 14px;
+border-radius: 6px;
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+}
+
+table {
+width: 100%;
+border-collapse: collapse;
+text-align: left;
+font-size: 12px;
+min-width: 650px;
+}
+
+th, td {
+padding: 12px 10px;
+border-bottom: 1px solid #e2e8f0;
+color: #334155;
+}
+
+th {
+background-color: #f8fafc;
+font-weight: 600;
+color: #64748b;
+}
+
+.btn-accion {
+padding: 5px 10px;
+border-radius: 4px;
+font-size: 11px;
+font-weight: 600;
+cursor: pointer;
+border: none;
+margin-right: 4px;
+}
+.btn-editar { background-color: #0ea5e9; color: white; }
+.btn-baja { background-color: #ef4444; color: white; }
+.btn-activar { background-color: #10b981; color: white; }
+
+/* MODALES */
+.modal-overlay {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: rgba(0, 0, 0, 0.5);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+display: none;
+padding: 15px;
+}
+.modal-container {
+background: white;
+width: 100%;
+max-width: 400px;
+border-radius: 16px;
+overflow: hidden;
+box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+display: flex;
+flex-direction: column;
+max-height: 90vh;
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="auth-overlay">
+<div class="auth-card">
+<h2>Acceso Restringido</h2>
+<p>Hebron Casa de Eventos - Panel Admin</p>
+<form onsubmit="verificarAdmin(event)">
+<input type="email" id="login-email" placeholder="Correo electrónico" required class="auth-input">
+<input type="password" id="login-pass" placeholder="Contraseña" required class="auth-input">
+<button type="submit" class="auth-btn">Ingresar al Panel</button>
+<div id="auth-error">Credenciales incorrectas o acceso denegado.</div>
+</form>
+</div>
+</div>
+
+<!-- MENÚ LATERAL ENLAZADO A OTRAS PÁGINAS -->
+<aside>
+<div>
+<div class="sidebar-header">
+<h2>Hebron casa de eventos <span>></span></h2>
+<p>Nube Voladora</p>
+</div>
+<ul class="menu-list">
+<li><a href="admin.html" class="menu-item">🏠 Inicio</a></li>
+<li><a href="vender.html" class="menu-item">🛒 Vender</a></li>
+<li><a href="pedidos.html" class="menu-item">📦 Pedidos <span class="menu-badge">1</span></a></li>
+<li><a href="productos.html" class="menu-item">🗂️ Productos</a></li>
+<li><a href="finanzas.html" class="menu-item">💰 Finanzas</a></li>
+<li><a href="cupon.html" class="menu-item">🎟️ Cupón</a></li>
+<li><a href="clientes.html" class="menu-item">👥 Clientes</a></li>
+<li><a href="transacciones.html" class="menu-item">💳 Transacciones</a></li>
+<li><a href="usuarios.html" class="menu-item active">👤 Usuarios</a></li>
+</ul>
+</div>
+
+<button onclick="handleLogout()" class="sidebar-footer">
+<span>Logout</span>
+<span>></span>
+</button>
+</aside>
+
+<!-- CONTENIDO PRINCIPAL -->
+<main>
+<header class="main-header">
+<h1 id="header-title">Colaboradores</h1>
+<span id="sync-status" style="font-size: 12px; color: #94a3b8;">Sistema Activo</span>
+</header>
+
+<div class="dashboard-container">
+<!-- VISTA USUARIOS / COLABORADORES -->
+<div id="vista-usuarios" class="vista-seccion active-view">
+<div class="usuarios-header">
+<h2>Gestión de Colaboradores</h2>
+<button onclick="abrirModalUsuarioParaCrear()" class="btn-nuevo-usuario">+ Nuevo Colaborador</button>
+</div>
+<div class="audit-section" style="padding: 0;">
+<table>
+<thead>
+<tr>
+<th>Nombre</th>
+<th>Correo</th>
+<th>Rol</th>
+<th>Ingreso</th>
+<th>Baja / Reactivación</th>
+<th>Estado</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody id="tabla-usuarios-body">
+<!-- Se llena dinámicamente -->
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+
+<!-- VENTANA MODAL: NUEVO / EDITAR COLABORADOR -->
+<div id="modal-usuario" class="modal-overlay">
+<div class="modal-container">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; border-bottom: 1px solid #f1f5f9;">
+<button onclick="cerrarModalUsuario()" style="background:none; border:none; font-size: 16px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+<h3 id="modal-usuario-titulo" style="font-size: 15px; font-weight: 600;">Nuevo Colaborador</h3>
+<div style="width: 15px;"></div>
+</div>
+<form id="form-nuevo-usuario" onsubmit="guardarOActualizarUsuario(event)" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+<input type="hidden" id="usr-id">
+<input type="text" id="usr-nombre" placeholder="Nombre completo" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
+<input type="email" id="usr-correo" placeholder="Correo electrónico" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
+<input type="password" id="usr-pass" placeholder="Contraseña temporal" required class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
+<select id="usr-rol" class="auth-input" style="background:white; color:#334155; border:1px solid #cbd5e1;">
+<option value="Operador">Operador</option>
+<option value="Admin">Administrador</option>
+</select>
+<button type="submit" class="auth-btn">Guardar Colaborador</button>
+</form>
+</div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script>
+const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let usuarioActivo = "Samuel Siebenhor";
+let listaColaboradores = [];
+
+window.addEventListener('DOMContentLoaded', () => {
+const adminLogueado = sessionStorage.getItem('admin_hebron');
+if (adminLogueado) {
+document.getElementById('auth-overlay').style.display = 'none';
+usuarioActivo = adminLogueado;
+}
+cargarUsuarios();
+});
+
+async function verificarAdmin(event) {
+event.preventDefault();
+const emailInput = document.getElementById('login-email').value.trim();
+const passInput = document.getElementById('login-pass').value;
+const errorDiv = document.getElementById('auth-error');
+
+errorDiv.style.display = 'none';
+
+if (emailInput === 'admin@hebron.com' && passInput === 'Jeremias2#') {
+usuarioActivo = "Samuel Siebenhor";
+sessionStorage.setItem('admin_hebron', usuarioActivo);
+document.getElementById('auth-overlay').style.display = 'none';
+return;
+}
+
+try {
+const { data, error } = await supabaseClient
+.from('usuarios')
+.select('*')
+.eq('correo', emailInput)
+.single();
+
+if (error || !data) throw new Error("Usuario no encontrado");
+if (data.password !== passInput) throw new Error("Contraseña incorrecta");
+
+usuarioActivo = data.nombre || "Colaborador";
+sessionStorage.setItem('admin_hebron', usuarioActivo);
+document.getElementById('auth-overlay').style.display = 'none';
+} catch (err) {
+errorDiv.style.display = 'block';
+errorDiv.innerText = "Credenciales incorrectas.";
+}
+}
+
+function handleLogout() {
+sessionStorage.removeItem('admin_hebron');
+window.location.reload();
+}
+
+// Gestión de Modales
+function abrirModalUsuarioParaCrear() {
+document.getElementById('form-nuevo-usuario').reset();
+document.getElementById('usr-id').value = '';
+document.getElementById('modal-usuario-titulo').innerText = 'Nuevo Colaborador';
+document.getElementById('modal-usuario').style.display = 'flex';
+}
+
+function abrirModalEditar(id) {
+const u = listaColaboradores.find(item => item.id == id);
+if (!u) return;
+
+document.getElementById('usr-id').value = u.id;
+document.getElementById('usr-nombre').value = u.nombre || '';
+document.getElementById('usr-correo').value = u.correo || '';
+document.getElementById('usr-pass').value = u.password || '';
+document.getElementById('usr-rol').value = u.rol || 'Operador';
+
+document.getElementById('modal-usuario-titulo').innerText = 'Editar Colaborador';
+document.getElementById('modal-usuario').style.display = 'flex';
+}
+
+function cerrarModalUsuario() {
+document.getElementById('modal-usuario').style.display = 'none';
+}
+
+// Cargar Colaboradores desde Supabase
+async function cargarUsuarios() {
+try {
+const { data, error } = await supabaseClient.from('usuarios').select('*');
+if (error) throw error;
+if (data) {
+listaColaboradores = data;
+renderizarTablaUsuarios();
+}
+} catch (err) {
+console.log("Error cargando usuarios");
+}
+}
+
+function renderizarTablaUsuarios() {
+const tbody = document.getElementById('tabla-usuarios-body');
+tbody.innerHTML = '';
+
+if (listaColaboradores.length === 0) {
+tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay colaboradores registrados.</td></tr>`;
+return;
+}
+
+listaColaboradores.forEach(u => {
+const estado = u.estado || 'Activo';
+const fechaIngreso = u.fecha_ingreso ? new Date(u.fecha_ingreso).toLocaleDateString() : '-';
+const fechaBaja = u.fecha_baja ? new Date(u.fecha_baja).toLocaleDateString() : 'N/A';
+
+const badgeEstado = estado === 'Activo'
+? `<span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">Activo</span>`
+: `<span style="background: #ef4444; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">Baja</span>`;
+
+const btnBajaReactivar = estado === 'Activo'
+? `<button onclick="cambiarEstadoUsuario('${u.id}', 'Baja')" class="btn-accion btn-baja">Dar de baja</button>`
+: `<button onclick="cambiarEstadoUsuario('${u.id}', 'Activo')" class="btn-accion btn-activar">Reactivar</button>`;
+
+tbody.innerHTML += `
+<tr>
+<td>${u.nombre || 'Sin nombre'}</td>
+<td>${u.correo}</td>
+<td><span style="background: #0ea5e9; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">${u.rol || 'Operador'}</span></td>
+<td>${fechaIngreso}</td>
+<td>${fechaBaja}</td>
+<td>${badgeEstado}</td>
+<td>
+<button onclick="abrirModalEditar('${u.id}')" class="btn-accion btn-editar">Editar</button>
+${btnBajaReactivar}
+</td>
+</tr>
+`;
+});
+}
+
+// Guardar o Actualizar Colaborador
+async function guardarOActualizarUsuario(event) {
+event.preventDefault();
+const id = document.getElementById('usr-id').value;
+const nombre = document.getElementById('usr-nombre').value;
+const correo = document.getElementById('usr-correo').value;
+const password = document.getElementById('usr-pass').value;
+const rol = document.getElementById('usr-rol').value;
+
+const fechaActual = new Date().toISOString();
+
+try {
+if (id) {
+const { error } = await supabaseClient
+.from('usuarios')
+.update({ nombre, correo, password, rol })
+.eq('id', id);
+if (error) throw error;
+alert('¡Colaborador actualizado exitosamente!');
+} else {
+const nuevoColaborador = {
+nombre,
+correo,
+password,
+rol,
+estado: 'Activo',
+fecha_ingreso: fechaActual,
+fecha_baja: null
+};
+const { error } = await supabaseClient.from('usuarios').insert([nuevoColaborador]);
+if (error) throw error;
+alert('¡Colaborador registrado exitosamente!');
+}
+cerrarModalUsuario();
+cargarUsuarios();
+} catch (err) {
+alert('Error al guardar: ' + err.message);
+}
+}
+
+// Dar de baja o Reactivar
+async function cambiarEstadoUsuario(id, nuevoEstado) {
+const fechaActual = new Date().toISOString();
+const datosActualizar = { estado: nuevoEstado };
+
+if (nuevoEstado === 'Baja') {
+datosActualizar.fecha_baja = fechaActual;
+} else {
+datosActualizar.fecha_baja = null;
+}
+
+try {
+const { error } = await supabaseClient
+.from('usuarios')
+.update(datosActualizar)
+.eq('id', id);
+
+if (error) throw error;
+alert(`Estado actualizado a: ${nuevoEstado}`);
+cargarUsuarios();
+} catch (err) {
+alert('Error al cambiar estado: ' + err.message);
+}
+}
+</script>
+</body>
+</html>
