@@ -1,1 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - Hebron Casa de Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- SDK de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #334155; padding-bottom: 90px; }
+        
+        .header-catalogo { background-color: #253342; color: white; padding: 25px 20px; text-align: center; }
+        .header-catalogo h1 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+        .header-catalogo p { font-size: 12px; color: #94a3b8; }
+
+        .container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; flex-grow: 1; }
+        
+        .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
+        .back-link:hover { text-decoration: underline; }
+
+        /* Buscador */
+        .search-container { margin-bottom: 20px; }
+        .search-input { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: white; }
+        .search-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+
+        /* Grid de Productos */
+        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .producto-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #e2e8f0; }
+        
+        .producto-img-container { 
+            width: 100%; height: 190px; background: #f8fafc; 
+            display: flex; align-items: center; justify-content: center; 
+            overflow: hidden; position: relative; padding: 10px; 
+        }
+        .producto-img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .producto-sin-foto { color: #94a3b8; font-size: 12px; }
+
+        .producto-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
+        .producto-nombre { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+        .producto-precio { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+
+        /* Controles de cantidad */
+        .card-actions { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; }
+        .btn-qty { background: #fff; border: none; padding: 10px 14px; font-size: 16px; font-weight: bold; cursor: pointer; color: #334155; transition: background 0.2s; }
+        .btn-qty:hover { background: #e2e8f0; }
+        .qty-input { width: 50px; text-align: center; border: none; background: transparent; font-size: 14px; font-weight: 600; color: #1e293b; outline: none; }
+        
+        .btn-add-initial { background-color: #936f38; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center; }
+        .btn-add-initial:hover { background-color: #78582b; }
+
+        /* Barra Inferior Flotante del Carrito */
+        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #253342; color: white; padding: 15px 20px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.15); z-index: 1000; }
+        .cart-bar.active { display: flex; }
+        .cart-bar-info { font-size: 15px; font-weight: 600; }
+        .cart-bar-btn { background-color: #936f38; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+        /* Modales */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 600px; max-height: 85vh; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 15px; }
+        .modal-header h2 { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .close-modal { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
+        
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+        .cart-item-details { flex-grow: 1; padding-right: 10px; }
+        .cart-item-title { font-size: 14px; font-weight: 600; color: #1e293b; }
+        .cart-item-price { font-size: 13px; color: #64748b; }
+        .cart-item-controls { display: flex; align-items: center; background: #f1f5f9; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; }
+        
+        .modal-footer { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+        .modal-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 15px; }
+        .btn-checkout { background-color: #936f38; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; }
+        .btn-checkout:hover { background-color: #78582b; }
+
+        /* Estilos pantalla de Entrega / Checkout */
+        .form-section-title { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 12px; }
+        .textarea-obs { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: none; height: 80px; outline: none; margin-bottom: 12px; }
+        .delivery-option { border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 10px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; background: #fff; }
+        .delivery-option input { margin-top: 3px; }
+        .delivery-option-title { font-size: 14px; font-weight: 700; color: #1e293b; }
+        .delivery-option-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-catalogo">
+        <h1>Hebron Casa de Eventos</h1>
+        <p>Catálogo Digital Sincronizado</p>
+    </div>
+
+    <div class="container">
+        <a href="admin.html" class="back-link">← Volver al panel</a>
+
+        <div class="search-container">
+            <input type="text" id="inputBuscar" class="search-input" placeholder="Buscar productos..." onkeyup="filtrarCatalogo()">
+        </div>
+
+        <div id="grid-catalogo" class="productos-grid">
+            <p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">Cargando catálogo...</p>
+        </div>
+    </div>
+
+    <!-- Barra Inferior Flotante -->
+    <div id="cartBar" class="cart-bar">
+        <div class="cart-bar-info" id="cartBarInfo">0 artículos • Q. 0.00</div>
+        <button class="cart-bar-btn" onclick="abrirModalCarrito()">Ver carrito</button>
+    </div>
+
+    <!-- Modal del Carrito -->
+    <div id="cartModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tu Carrito de Pedido</h2>
+                <button class="close-modal" onclick="cerrarModalCarrito()">&times;</button>
+            </div>
+            <div id="cartItemsContainer" style="overflow-y: auto; max-height: 35vh;"></div>
+            <div class="modal-footer">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                    <button onclick="vaciarCarrito()" style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; font-weight:600;">Vaciar carrito</button>
+                    <button onclick="cerrarModalCarrito()" style="background:none; border:none; color:#936f38; font-size:13px; cursor:pointer; font-weight:700;">Ver más productos &gt;</button>
+                </div>
+                <div class="modal-total">
+                    <span>Total:</span>
+                    <span id="modalTotalPrecio">Q. 0.00</span>
+                </div>
+                <button class="btn-checkout" onclick="abrirModalEntrega()">Continuar para finalizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Datos, Pago y Entrega -->
+    <div id="deliveryModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Finalizar Pedido</h2>
+                <button class="close-modal" onclick="cerrarModalEntrega()">&times;</button>
+            </div>
+            
+            <div style="overflow-y: auto; max-height: 55vh; padding-right: 2px;">
+                <div class="form-section-title">Datos del Cliente</div>
+                <input type="text" id="txtNombreCliente" class="form-input" placeholder="Nombre y Apellido">
+                <input type="tel" id="txtTelefonoCliente" class="form-input" placeholder="Teléfono / WhatsApp">
+
+                <div class="form-section-title" style="margin-top: 5px;">Método de Pago</div>
+                <label class="delivery-option">
+                    <input type="radio" name="metodoPago" value="Efectivo" checked>
+                    <div>
+                        <div class="delivery-option-title">Efectivo</div>
+                    </div>
+                </label>
+                <label class="delivery-option">
+                    <input type="radio" name="metodoPago" value="Transferencia">
+                    <div>
+                        <div class="delivery-option-title">Transferencia bancaria</div>
+                    </div>
+                </label>
+
+                <div class="form-section-title" style="margin-top: 5px;">Forma de entrega</div>
+                <label class="delivery-option">
+                    <input type="radio" name="formaEntrega" value="Entrega en lugar de evento" checked>
+                    <div>
+                        <div class="delivery-option-title">Entrega en lugar de evento</div>
+                        <div class="delivery-option-sub">Precio según distancia o a convenir</div>
+                    </div>
+                </label>
+                <label class="delivery-option">
+                    <input type="radio" name="formaEntrega" value="Retirada en local">
+                    <div>
+                        <div class="delivery-option-title">Retirada en local</div>
+                    </div>
+                </label>
+
+                <div class="form-section-title" style="margin-top: 5px;">Observación</div>
+                <textarea id="txtObservacion" class="textarea-obs" placeholder="Observaciones opcionales..." maxlength="200"></textarea>
+            </div>
+
+            <div class="modal-footer" style="margin-top: 15px;">
+                <div class="modal-total" style="margin-bottom: 10px;">
+                    <span>Total productos:</span>
+                    <span id="deliveryTotalPrecio">Q. 0.00</span>
+                </div>
+                <button class="btn-checkout" onclick="enviarPedidoWhatsApp()">Enviar pedido por WhatsApp</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let listaProductosGlobal = [];
+        let carrito = {}; 
+
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+
+        async function cargarDatos() {
+            const { data, error } = await supabaseClient
+                .from('productos')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const grid = document.getElementById('grid-catalogo');
+            if (error) {
+                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al cargar: ${error.message}</p>`;
+                return;
+            }
+
+            listaProductosGlobal = data || [];
+            renderizarProductos(listaProductosGlobal);
+        }
+
+        function renderizarProductos(productos) {
+            const grid = document.getElementById('grid-catalogo');
+            grid.innerHTML = '';
+
+            if (!productos || productos.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">No se encontraron productos.</p>`;
+                return;
+            }
+
+            productos.forEach(p => {
+                let imgHtml = p.foto ? `<img src="${p.foto}" alt="${p.nombre}">` : `<span class="producto-sin-foto">Sin imagen</span>`;
+                let precioFormateado = `Q. ${parseFloat(p.precio || 0).toFixed(2)}`;
+                let stockTexto = p.controlar_stock ? `Stock: ${p.stock || 0}` : `Disponible`;
+                let idProd = p.id || p.nombre;
+                let cantidadEnCarrito = carrito[idProd] ? carrito[idProd].cantidad : 0;
+
+                let actionHtml = cantidadEnCarrito === 0 
+                    ? `<button onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, 1)" class="btn-add-initial">+ Agregar</button>`
+                    : `<div class="card-actions">
+                         <button class="btn-qty" onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, -1)">-</button>
+                         <input type="number" min="0" class="qty-input" value="${cantidadEnCarrito}" onchange="fijarCantidadDirecta('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, this.value)">
+                         <button class="btn-qty" onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, 1)">+</button>
+                       </div>`;
+
+                grid.innerHTML += `
+                    <div class="producto-card">
+                        <div class="producto-img-container">${imgHtml}</div>
+                        <div class="producto-info">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <h3 class="producto-nombre">${p.nombre}</h3>
+                                    <span style="font-size: 11px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #475569;">${stockTexto}</span>
+                                </div>
+                                <div class="producto-precio">${precioFormateado}</div>
+                            </div>
+                            <div>${actionHtml}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function cambiarCantidad(id, nombre, precio, delta) {
+            if (!carrito[id]) {
+                if (delta > 0) carrito[id] = { nombre, precio, cantidad: delta };
+            } else {
+                carrito[id].cantidad += delta;
+                if (carrito[id].cantidad <= 0) delete carrito[id];
+            }
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+        }
+
+        function fijarCantidadDirecta(id, nombre, precio, valor) {
+            let cantidad = parseInt(valor);
+            if (isNaN(cantidad) || cantidad <= 0) {
+                delete carrito[id];
+            } else {
+                if (!carrito[id]) carrito[id] = { nombre, precio, cantidad };
+                else carrito[id].cantidad = cantidad;
+            }
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+        }
+
+        function actualizarBarraCarrito() {
+            let totalArticulos = 0, precioTotal = 0;
+            for (let id in carrito) {
+                totalArticulos += carrito[id].cantidad;
+                precioTotal += carrito[id].precio * carrito[id].cantidad;
+            }
+            const cartBar = document.getElementById('cartBar');
+            const cartBarInfo = document.getElementById('cartBarInfo');
+            if (totalArticulos > 0) {
+                cartBarInfo.innerText = `${totalArticulos} artículos • Q. ${precioTotal.toFixed(2)}`;
+                cartBar.classList.add('active');
+            } else {
+                cartBar.classList.remove('active');
+            }
+        }
+
+        function abrirModalCarrito() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+            let precioTotal = 0;
+
+            for (let id in carrito) {
+                let item = carrito[id];
+                let subtotal = item.precio * item.cantidad;
+                precioTotal += subtotal;
+
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.nombre}</div>
+                            <div class="cart-item-price">Q. ${item.precio.toFixed(2)} c/u</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div class="cart-item-controls">
+                                <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, -1); abrirModalCarrito();">-</button>
+                                <input type="number" min="0" class="qty-input" style="width: 45px;" value="${item.cantidad}" onchange="fijarCantidadDirecta('${id}', '${item.nombre}', ${item.precio}, this.value); abrirModalCarrito();">
+                                <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, 1); abrirModalCarrito();">+</button>
+                            </div>
+                            <button onclick="eliminarItemCarrito('${id}')" style="background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 2px 5px;" title="Eliminar">&times;</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('modalTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
+            document.getElementById('cartModal').classList.add('active');
+        }
+
+        function eliminarItemCarrito(id) {
+            delete carrito[id];
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+            abrirModalCarrito();
+        }
+
+        function cerrarModalCarrito() {
+            document.getElementById('cartModal').classList.remove('active');
+        }
+
+        function abrirModalEntrega() {
+            cerrarModalCarrito();
+            let precioTotal = 0;
+            for (let id in carrito) {
+                precioTotal += carrito[id].precio * carrito[id].cantidad;
+            }
+            document.getElementById('deliveryTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
+            document.getElementById('deliveryModal').classList.add('active');
+        }
+
+        function cerrarModalEntrega() {
+            document.getElementById('deliveryModal').classList.remove('active');
+        }
+
+        function vaciarCarrito() {
+            carrito = {};
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraCarrito();
+            cerrarModalCarrito();
+        }
+
+        async function enviarPedidoWhatsApp() {
+            let nombre = document.getElementById('txtNombreCliente').value.trim();
+            let telefono = document.getElementById('txtTelefonoCliente').value.trim();
+            let metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
+            let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
+            let observacion = document.getElementById('txtObservacion').value.trim();
+
+            if (!nombre || !telefono) {
+                alert('Por favor ingresa tu nombre y teléfono.');
+                return;
+            }
+
+            let precioTotal = 0;
+            let productosArray = [];
+            for (let id in carrito) {
+                let item = carrito[id];
+                let subtotal = item.precio * item.cantidad;
+                precioTotal += subtotal;
+                productosArray.push(`${item.cantidad}x ${item.nombre}`);
+            }
+
+            // Guardar o actualizar cliente en Supabase opcionalmente (si tienes tabla de clientes)
+            try {
+                await supabaseClient.from('clientes').upsert([
+                    { nombre: nombre, telefono: telefono }
+                ], { onConflict: 'telefono' });
+            } catch (e) {
+                console.log('Nota: Tabla clientes opcional no detectada aún o error menor.');
+            }
+
+            let mensaje = `Hola, mi nombre es *${nombre}* (${telefono}). Me gustaría realizar el siguiente pedido:\n\n`;
+            for (let id in carrito) {
+                let item = carrito[id];
+                let subtotal = item.precio * item.cantidad;
+                mensaje += `• ${item.cantidad}x ${item.nombre} (Q. ${subtotal.toFixed(2)})\n`;
+            }
+
+            mensaje += `\n*Total productos: Q. ${precioTotal.toFixed(2)}*`;
+            mensaje += `\n💳 *Método de pago:* ${metodoPago}`;
+            mensaje += `\n🚚 *Forma de entrega:* ${formaEntrega}`;
+            
+            if (observacion) {
+                mensaje += `\n📝 *Observación:* ${observacion}`;
+            }
+
+            let numeroWhatsApp = "50250390762";
+            let url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+            window.open(url, '_blank');
+        }
+
+        function filtrarCatalogo() {
+            const texto = document.getElementById('inputBuscar').value.toLowerCase();
+            const filtrados = listaProductosGlobal.filter(p => p.nombre && p.nombre.toLowerCase().includes(texto));
+            renderizarProductos(filtrados);
+        }
+    </script>
+</body>
+</html>
 
