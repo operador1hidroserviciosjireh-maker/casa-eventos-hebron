@@ -20,15 +20,16 @@
         .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
         .back-link:hover { text-decoration: underline; }
 
-        /* Filtros */
-        .filtros-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; }
-        .filtro-btn { background: white; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
-        .filtro-btn.active, .filtro-btn:hover { background: #0f172a; color: white; border-color: #0f172a; }
+        /* Barra de Búsqueda estilo Kyte */
+        .search-container { margin-bottom: 20px; }
+        .search-input { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: white; transition: border-color 0.2s; }
+        .search-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
 
         /* Grid de Productos */
         .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         .producto-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #e2e8f0; }
-                /* Contenedor y ajuste perfecto de la imagen */
+        
+        /* Contenedor y ajuste perfecto de la imagen (tanto grandes como chicas) */
         .producto-img-container { 
             width: 100%; 
             height: 190px; 
@@ -38,15 +39,15 @@
             justify-content: center; 
             overflow: hidden; 
             position: relative; 
-            padding: 10px; /* Margen interno para que la foto no pegue con los bordes */
+            padding: 10px; 
         }
         
         .producto-img-container img { 
             max-width: 100%; 
             max-height: 100%; 
-            object-fit: contain; /* Cambiado a contain para que la silla se vea completa sin recortarse */
+            object-fit: contain; 
         }
-.producto-sin-foto { color: #94a3b8; font-size: 12px; }
+        .producto-sin-foto { color: #94a3b8; font-size: 12px; }
 
         .producto-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
         .producto-nombre { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
@@ -59,25 +60,21 @@
 <body>
 
     <div class="header-catalogo">
-        <h1>🧪 Catálogo Dinámico - Hebron</h1>
-        <p>Inventario sincronizado en tiempo real con la base de datos</p>
+        <h1>Hebron Casa de Eventos</h1>
+        <p>Catálogo Digital Sincronizado</p>
     </div>
 
     <div class="container">
-        <a href="admin.html" class="back-link">← Volver a la página principal</a>
+        <a href="admin.html" class="back-link">← Volver al panel</a>
 
-        <!-- Botones de Categoría (Opcional si deseas filtrar después) -->
-        <div class="filtros-container">
-            <button class="filtro-btn active">Todos</button>
-            <button class="filtro-btn">Mobiliario</button>
-            <button class="filtro-btn">Toldos</button>
-            <button class="filtro-btn">Paquetes</button>
+        <!-- Buscador en tiempo real -->
+        <div class="search-container">
+            <input type="text" id="inputBuscar" class="search-input" placeholder="Buscar productos..." onkeyup="filtrarCatalogo()">
         </div>
 
-        <!-- Contenedor donde se cargarán los productos de Supabase -->
+        <!-- Contenedor de Productos -->
         <div id="grid-catalogo" class="productos-grid">
-            <!-- Cargando dinámicamente -->
-            <p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">Cargando productos desde la base de datos...</p>
+            <p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">Cargando catálogo...</p>
         </div>
     </div>
 
@@ -86,31 +83,40 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        document.addEventListener('DOMContentLoaded', cargarCatalogoPublico);
+        let listaProductosGlobal = [];
 
-        async function cargarCatalogoPublico() {
+        document.addEventListener('DOMContentLoaded', cargarDatos);
+
+        async function cargarDatos() {
             const { data, error } = await supabaseClient
                 .from('productos')
                 .select('*')
                 .order('created_at', { ascending: false });
 
             const grid = document.getElementById('grid-catalogo');
-            grid.innerHTML = '';
 
             if (error) {
-                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al cargar el catálogo: ${error.message}</p>`;
+                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al cargar: ${error.message}</p>`;
                 return;
             }
 
-            if (!data || data.length === 0) {
-                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">No hay productos disponibles en el catálogo actualmente.</p>`;
+            listaProductosGlobal = data || [];
+            renderizarProductos(listaProductosGlobal);
+        }
+
+        function renderizarProductos(productos) {
+            const grid = document.getElementById('grid-catalogo');
+            grid.innerHTML = '';
+
+            if (!productos || productos.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">No se encontraron productos.</p>`;
                 return;
             }
 
-            data.forEach(p => {
+            productos.forEach(p => {
                 let imgHtml = p.foto 
                     ? `<img src="${p.foto}" alt="${p.nombre}">` 
-                    : `<span class="producto-sin-foto">Sin imagen disponible</span>`;
+                    : `<span class="producto-sin-foto">Sin imagen</span>`;
                 
                 let precioFormateado = `Q. ${parseFloat(p.precio || 0).toFixed(2)}`;
                 let stockTexto = p.controlar_stock ? `Stock: ${p.stock || 0}` : `Disponible`;
@@ -128,16 +134,23 @@
                                 </div>
                                 <div class="producto-precio">${precioFormateado}</div>
                             </div>
-                            <button onclick="seleccionarProducto('${p.nombre}', ${p.precio})" class="btn-accion">Seleccionar</button>
+                            <button onclick="seleccionar('${p.nombre}', ${p.precio})" class="btn-accion">Seleccionar</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function seleccionarProducto(nombre, precio) {
-            alert(`Has seleccionado: ${nombre} por Q. ${precio.toFixed(2)}`);
-            // Aquí puedes enlazar la lógica para agregar al carrito o realizar el pedido si lo deseas.
+        function filtrarCatalogo() {
+            const texto = document.getElementById('inputBuscar').value.toLowerCase();
+            const filtrados = listaProductosGlobal.filter(p => 
+                p.nombre && p.nombre.toLowerCase().includes(texto)
+            );
+            renderizarProductos(filtrados);
+        }
+
+        function seleccionar(nombre, precio) {
+            alert(`Seleccionado: ${nombre} - Q. ${precio.toFixed(2)}`);
         }
     </script>
 </body>
