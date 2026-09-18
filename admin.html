@@ -25,14 +25,17 @@
         @media (min-width: 768px) { aside { width: 280px; height: 100vh; border-right: 1px solid #1e293b; justify-content: space-between; } }
         
         .sidebar-header { 
-            padding: 20px; 
+            padding: 15px 20px; 
             border-bottom: 1px solid #334155; 
             cursor: pointer; 
-            transition: background 0.2s; 
+            background-color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
-        .sidebar-header:hover { background-color: #1e293b; }
-        .sidebar-header h2 { font-size: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
-        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+        .sidebar-header:hover { background-color: #334155; }
+        .sidebar-header h2 { font-size: 14px; font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 8px; }
+        .sidebar-header span { font-size: 12px; color: #10b981; }
 
         .menu-list { list-style: none; padding: 10px 0; display: flex; flex-wrap: wrap; }
         @media (min-width: 768px) { .menu-list { display: block; overflow-y: auto; flex-grow: 1; padding: 15px 0; } }
@@ -40,6 +43,10 @@
         @media (min-width: 768px) { .menu-item { width: 100%; padding: 12px 20px; gap: 15px; font-size: 14px; } }
         .menu-item:hover, .menu-item.active { background-color: #1e293b; color: #ffffff; border-left: 4px solid #10b981; }
         .menu-badge { background-color: #10b981; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
+        
+        .sidebar-footer-container { display: flex; flex-direction: column; width: 100%; }
+        .btn-regresar-menu { background-color: #334155; padding: 12px 20px; color: #ffffff; font-weight: 500; font-size: 13px; display: flex; justify-content: space-between; align-items: center; border: none; width: 100%; cursor: pointer; text-align: left; border-top: 1px solid #1e293b; }
+        .btn-regresar-menu:hover { background-color: #475569; }
         .sidebar-footer { background-color: #10b981; padding: 15px 20px; color: #ffffff; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; border: none; width: 100%; cursor: pointer; text-align: left; }
 
         /* MAIN CONTENT */
@@ -69,10 +76,13 @@
     <!-- MENÚ LATERAL -->
     <aside>
         <div>
-            <!-- Header interactivo para volver atrás -->
+            <!-- Botón claro y directo para regresar -->
             <div class="sidebar-header" onclick="history.back()">
-                <h2>Hebron casa de eventos <span>&lt;</span></h2>
-                <p>Nube Voladora (Volver)</p>
+                <h2>⬅️ Regresar</h2>
+                <span>Volver</span>
+            </div>
+            <div style="padding: 10px 20px; font-size: 11px; color: #94a3b8; border-bottom: 1px solid #334155;">
+                Hebron casa de eventos - Nube Voladora
             </div>
             <ul class="menu-list">
                 <li><a href="admin.html" class="menu-item active">🏠 Inicio</a></li>
@@ -85,10 +95,16 @@
                 <li><a href="usuarios.html" class="menu-item">👤 Usuarios</a></li>
             </ul>
         </div>
-        <button onclick="handleLogout()" class="sidebar-footer">
-            <span>Logout</span>
-            <span>&gt;</span>
-        </button>
+        <div class="sidebar-footer-container">
+            <button onclick="history.back()" class="btn-regresar-menu">
+                <span>↩️ Volver a la pantalla anterior</span>
+                <span>&gt;</span>
+            </button>
+            <button onclick="handleLogout()" class="sidebar-footer">
+                <span>Logout</span>
+                <span>&gt;</span>
+            </button>
+        </div>
     </aside>
 
     <!-- CONTENIDO DASHBOARD (INICIO) -->
@@ -121,15 +137,46 @@
 
         async function verificarAdmin(event) {
             event.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
-            const pass = document.getElementById('login-pass').value;
+            const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
+            const passInput = document.getElementById('login-pass').value;
 
-            if (email === 'admin@hebron.com' && pass === 'Jeremias2#') {
+            // 1. Administrador Maestro
+            if (emailInput === 'admin@hebron.com' && passInput === 'Jeremias2#') {
                 sessionStorage.setItem('admin_hebron', 'Samuel Siebenhor');
                 document.getElementById('auth-overlay').style.display = 'none';
                 return;
             }
-            alert('Credenciales incorrectas.');
+
+            // 2. Verificación en Supabase para colaboradores (como Mario)
+            try {
+                const { data, error } = await supabaseClient
+                    .from('usuarios')
+                    .select('*')
+                    .eq('correo', emailInput)
+                    .maybeSingle();
+
+                if (error || !data) {
+                    alert('Correo no registrado o error de conexión.');
+                    return;
+                }
+
+                if (String(data.password) !== String(passInput)) {
+                    alert('Contraseña incorrecta.');
+                    return;
+                }
+
+                if (data.estado && data.estado.toLowerCase() === 'baja') {
+                    alert('Este usuario se encuentra dado de baja.');
+                    return;
+                }
+
+                sessionStorage.setItem('admin_hebron', data.nombre || 'Colaborador');
+                document.getElementById('auth-overlay').style.display = 'none';
+
+            } catch (err) {
+                console.error(err);
+                alert('Error al verificar credenciales.');
+            }
         }
 
         function handleLogout() {
