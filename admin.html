@@ -16,26 +16,23 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: #1e293b; display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px;
         }
-        .auth-card { background: #253342; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; color: white; text-align: center; }
+        .auth-card { background: #253342; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; color: white; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
         .auth-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: white; outline: none; }
-        .auth-btn { width: 100%; padding: 12px; background-color: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .auth-btn { width: 100%; padding: 12px; background-color: #10b981; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 10px; transition: background 0.2s; }
+        .auth-btn:hover { background-color: #059669; }
+        .auth-back-btn { width: 100%; padding: 10px; background-color: transparent; color: #94a3b8; border: 1px solid #334155; border-radius: 8px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .auth-back-btn:hover { background-color: #1e293b; color: white; border-color: #475569; }
 
         /* MENU LATERAL */
         aside { width: 100%; background-color: #253342; color: #ffffff; display: flex; flex-direction: column; border-bottom: 1px solid #1e293b; }
         @media (min-width: 768px) { aside { width: 280px; height: 100vh; border-right: 1px solid #1e293b; justify-content: space-between; } }
         
         .sidebar-header { 
-            padding: 15px 20px; 
+            padding: 20px; 
             border-bottom: 1px solid #334155; 
-            cursor: pointer; 
-            background-color: #1e293b;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
-        .sidebar-header:hover { background-color: #334155; }
-        .sidebar-header h2 { font-size: 14px; font-weight: 600; color: #ffffff; display: flex; align-items: center; gap: 8px; }
-        .sidebar-header span { font-size: 12px; color: #10b981; }
+        .sidebar-header h2 { font-size: 15px; font-weight: 600; color: #ffffff; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
 
         .menu-list { list-style: none; padding: 10px 0; display: flex; flex-wrap: wrap; }
         @media (min-width: 768px) { .menu-list { display: block; overflow-y: auto; flex-grow: 1; padding: 15px 0; } }
@@ -44,10 +41,8 @@
         .menu-item:hover, .menu-item.active { background-color: #1e293b; color: #ffffff; border-left: 4px solid #10b981; }
         .menu-badge { background-color: #10b981; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; }
         
-        .sidebar-footer-container { display: flex; flex-direction: column; width: 100%; }
-        .btn-regresar-menu { background-color: #334155; padding: 12px 20px; color: #ffffff; font-weight: 500; font-size: 13px; display: flex; justify-content: space-between; align-items: center; border: none; width: 100%; cursor: pointer; text-align: left; border-top: 1px solid #1e293b; }
-        .btn-regresar-menu:hover { background-color: #475569; }
         .sidebar-footer { background-color: #10b981; padding: 15px 20px; color: #ffffff; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; border: none; width: 100%; cursor: pointer; text-align: left; }
+        .sidebar-footer:hover { background-color: #059669; }
 
         /* MAIN CONTENT */
         main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; }
@@ -64,11 +59,12 @@
     <div id="auth-overlay">
         <div class="auth-card">
             <h2>Acceso Restringido</h2>
-            <p>Hebron Casa de Eventos - Panel Admin</p>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Hebron Casa de Eventos - Panel Admin</p>
             <form onsubmit="verificarAdmin(event)">
                 <input type="email" id="login-email" placeholder="Correo electrónico" required class="auth-input">
                 <input type="password" id="login-pass" placeholder="Contraseña" required class="auth-input">
                 <button type="submit" class="auth-btn">Ingresar al Panel</button>
+                <button type="button" onclick="history.back()" class="auth-back-btn">⬅️ Regresar a la página anterior</button>
             </form>
         </div>
     </div>
@@ -76,35 +72,26 @@
     <!-- MENÚ LATERAL -->
     <aside>
         <div>
-            <!-- Botón claro y directo para regresar -->
-            <div class="sidebar-header" onclick="history.back()">
-                <h2>⬅️ Regresar</h2>
-                <span>Volver</span>
-            </div>
-            <div style="padding: 10px 20px; font-size: 11px; color: #94a3b8; border-bottom: 1px solid #334155;">
-                Hebron casa de eventos - Nube Voladora
+            <div class="sidebar-header">
+                <h2>Hebron Casa de Eventos</h2>
+                <p>Panel de Administración</p>
             </div>
             <ul class="menu-list">
                 <li><a href="admin.html" class="menu-item active">🏠 Inicio</a></li>
                 <li><a href="vender.html" class="menu-item">🛒 Vender</a></li>
                 <li><a href="pedidos.html" class="menu-item">📦 Pedidos <span class="menu-badge">1</span></a></li>
                 <li><a href="productos.html" class="menu-item">🗂️ Productos</a></li>
+                <li><a href="catalogo.html" class="menu-item">📖 Catálogo</a></li>
                 <li><a href="finanzas.html" class="menu-item">💰 Finanzas</a></li>
                 <li><a href="clientes.html" class="menu-item">👥 Clientes</a></li>
                 <li><a href="transacciones.html" class="menu-item">💳 Transacciones</a></li>
                 <li><a href="usuarios.html" class="menu-item">👤 Usuarios</a></li>
             </ul>
         </div>
-        <div class="sidebar-footer-container">
-            <button onclick="history.back()" class="btn-regresar-menu">
-                <span>↩️ Volver a la pantalla anterior</span>
-                <span>&gt;</span>
-            </button>
-            <button onclick="handleLogout()" class="sidebar-footer">
-                <span>Logout</span>
-                <span>&gt;</span>
-            </button>
-        </div>
+        <button onclick="handleLogout()" class="sidebar-footer">
+            <span>Logout</span>
+            <span>&gt;</span>
+        </button>
     </aside>
 
     <!-- CONTENIDO DASHBOARD (INICIO) -->
