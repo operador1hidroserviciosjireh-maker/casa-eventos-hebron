@@ -465,7 +465,6 @@
                 fecha: new Date().toISOString()
             };
 
-            // Guardar en tabla de Supabase (asegúrate de tener una tabla llamada 'pedidos')
             const { error } = await supabaseClient
                 .from('pedidos')
                 .insert([datosUltimoPedido]);
@@ -476,7 +475,6 @@
 
             cerrarModalDatosCliente();
             
-            // Mostrar pantalla de éxito / progreso
             let fechaStr = new Date().toLocaleString();
             document.getElementById('lblFechaPedido').innerText = fechaStr;
             document.getElementById('lblPlazoRetiro').innerText = formaEntrega.includes('Retirada') ? 'Especificar en WhatsApp' : 'Entrega programada para evento';
