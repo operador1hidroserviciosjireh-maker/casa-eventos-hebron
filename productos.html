@@ -180,10 +180,10 @@
                         </div>
 
                         <div id="seccion-stock-activo">
-                            <!-- Stock actual convertido a text con inputMode numérico para evitar ceros automáticos y color verde -->
+                            <!-- Stock actual limpio sin cero inicial -->
                             <div class="stock-display-box">
                                 <span style="display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px;">Stock actual</span>
-                                <input type="text" inputmode="numeric" id="p-stock" value="0" class="stock-number-input" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                <input type="text" inputmode="numeric" id="p-stock" value="" placeholder="0" class="stock-number-input" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             </div>
 
                             <div class="config-row" onclick="alert('Historial de movimientos: Se registrarán las entradas y salidas de este producto automáticamente.')" style="cursor: pointer;">
@@ -191,7 +191,7 @@
                                 <span style="color: #cbd5e1;">&gt;</span>
                             </div>
 
-                            <!-- Stock Mínimo cambiado a text con inputMode numérico -->
+                            <!-- Stock Mínimo con su ID correcto p-stock-minimo -->
                             <div class="config-row">
                                 <span>Stock Mínimo para alertas</span>
                                 <input type="text" inputmode="numeric" id="p-stock-minimo" value="10" style="width: 75px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-weight: 600; outline: none; background: #fff; color: #334155;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
