@@ -161,18 +161,24 @@
 
                 <div class="form-section-title" style="margin-top: 5px;">Forma de entrega</div>
                 <label class="delivery-option">
-                    <input type="radio" name="formaEntrega" value="Entrega en lugar de evento" checked>
+                    <input type="radio" name="formaEntrega" value="Entrega en lugar de evento" checked onchange="toggleCampoDireccion()">
                     <div>
                         <div class="delivery-option-title">Entrega en lugar de evento</div>
                         <div class="delivery-option-sub">Precio según distancia o a convenir</div>
                     </div>
                 </label>
                 <label class="delivery-option">
-                    <input type="radio" name="formaEntrega" value="Retirada en local">
+                    <input type="radio" name="formaEntrega" value="Retirada en local" onchange="toggleCampoDireccion()">
                     <div>
                         <div class="delivery-option-title">Retirada en local</div>
                     </div>
                 </label>
+
+                <!-- Campo dinámico para la dirección del evento -->
+                <div id="seccionDireccionEvento" style="margin-top: 10px;">
+                    <div class="form-section-title">Dirección de entrega del evento</div>
+                    <input type="text" id="txtDireccionEvento" class="form-input" placeholder="Ej. Km 30.5 Carretera a San Elena Barillas...">
+                </div>
 
                 <div class="form-section-title" style="margin-top: 5px;">Observación</div>
                 <textarea id="txtObservacion" class="textarea-obs" placeholder="Observaciones opcionales..." maxlength="200"></textarea>
@@ -346,10 +352,21 @@
             }
             document.getElementById('deliveryTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
             document.getElementById('deliveryModal').classList.add('active');
+            toggleCampoDireccion(); // Asegura el estado inicial correcto al abrir
         }
 
         function cerrarModalEntrega() {
             document.getElementById('deliveryModal').classList.remove('active');
+        }
+
+        function toggleCampoDireccion() {
+            let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
+            let seccionDir = document.getElementById('seccionDireccionEvento');
+            if (formaEntrega === 'Entrega en lugar de evento') {
+                seccionDir.style.display = 'block';
+            } else {
+                seccionDir.style.display = 'none';
+            }
         }
 
         function vaciarCarrito() {
@@ -364,10 +381,16 @@
             let telefono = document.getElementById('txtTelefonoCliente').value.trim();
             let metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
             let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
+            let direccionEvento = document.getElementById('txtDireccionEvento').value.trim();
             let observacion = document.getElementById('txtObservacion').value.trim();
 
             if (!nombre || !telefono) {
                 alert('Por favor ingresa tu nombre y teléfono.');
+                return;
+            }
+
+            if (formaEntrega === 'Entrega en lugar de evento' && !direccionEvento) {
+                alert('Por favor ingresa la dirección de entrega del evento.');
                 return;
             }
 
@@ -380,7 +403,6 @@
                 productosArray.push(`${item.cantidad}x ${item.nombre}`);
             }
 
-            // Guardar o actualizar cliente en Supabase opcionalmente (si tienes tabla de clientes)
             try {
                 await supabaseClient.from('clientes').upsert([
                     { nombre: nombre, telefono: telefono }
@@ -400,6 +422,10 @@
             mensaje += `\n💳 *Método de pago:* ${metodoPago}`;
             mensaje += `\n🚚 *Forma de entrega:* ${formaEntrega}`;
             
+            if (formaEntrega === 'Entrega en lugar de evento' && direccionEvento) {
+                mensaje += `\n📍 *Dirección del evento:* ${direccionEvento}`;
+            }
+
             if (observacion) {
                 mensaje += `\n📝 *Observación:* ${observacion}`;
             }
@@ -417,4 +443,3 @@
     </script>
 </body>
 </html>
-
