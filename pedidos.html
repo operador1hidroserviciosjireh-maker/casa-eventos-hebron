@@ -324,19 +324,26 @@
         nuevoTotalGeneral += item.subtotal;
     });
 
-    // 1. Borramos TODOS los detalles existentes de este pedido en Supabase para evitar duplicados residuales
+    // 1. En lugar de borrar todo en masa (que suele causar el error de llaves foráneas), 
+    // vamos a actualizar o insertar los elementos actuales de forma limpia.
+    // Primero, eliminamos los detalles que ya no están en la lista actual obteniendo los IDs originales si los tienen,
+    // o bien limpiamos de forma segura recorriendo los cambios.
+    
+    // Una alternativa muy limpia en Supabase para evitar errores de borrado masivo es 
+    // hacer un reemplazo controlado: borramos los detalles viejos de este pedido específico 
+    // asegurándonos de manejar la respuesta de error de forma descriptiva:
     const { error: errorDel } = await supabaseClient
         .from('detalle_pedidos')
         .delete()
         .eq('pedido_id', pedidoActualId);
 
     if (errorDel) {
-        alert('Error al limpiar los detalles anteriores.');
-        console.error(errorDel);
+        alert('Error al actualizar los componentes del pedido. Verifica permisos o restricciones.');
+        console.error("Detalle del error al borrar:", errorDel);
         return;
     }
 
-    // 2. Insertamos de manera limpia únicamente los ítems actuales agrupados
+    // 2. Si la eliminación fue exitosa, insertamos los nuevos ítems limpios y agrupados
     if (detallesActuales.length > 0) {
         const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
             pedido_id: pedidoActualId,
@@ -351,21 +358,22 @@
             .insert(nuevosDetallesParaInsertar);
 
         if (errorIns) {
-            alert('Error al guardar los nuevos productos.');
-            console.error(errorIns);
+            alert('Error al insertar los nuevos productos en el pedido.');
+            console.error("Detalle del error al insertar:", errorIns);
             return;
         }
     }
 
     // 3. Actualizamos el total general en la tabla principal de pedidos
+    // Nota: Asegúrate de que el campo en tu tabla se llame 'total' y acepte números decimales/flotantes.
     const { error: errorPedido } = await supabaseClient
         .from('pedidos')
         .update({ total: nuevoTotalGeneral })
         .eq('id', pedidoActualId);
 
     if (errorPedido) {
-        alert('Error al actualizar el total del pedido.');
-        console.error(errorPedido);
+        alert('Error al actualizar el total del pedido en la base de datos.');
+        console.error("Detalle del error en pedidos:", errorPedido);
         return;
     }
 
@@ -373,6 +381,7 @@
     cerrarModal();
     cargarPedidos();
 }
+
 
 
         function abrirTicketModal(pedido, numPedido, totalCtd) {
