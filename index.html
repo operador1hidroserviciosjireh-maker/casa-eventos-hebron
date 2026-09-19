@@ -65,7 +65,14 @@
       line-height: 1.2;
     }
 
-    /* Botón Acceder (Dashboard) al lado del logo */
+    /* Contenedor para botones de Acceder y Pruebas en el Header */
+    .nav-admin-buttons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Botón Acceder (Dashboard) */
     .btn-dashboard-nav {
       background-color: #0f172a;
       color: white;
@@ -80,6 +87,20 @@
 
     .btn-dashboard-nav:hover {
       background-color: #334155;
+    }
+
+    /* Botón En Construcción al lado de Acceder */
+    .btn-construction-nav {
+      background-color: #64748b;
+      color: #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: not-allowed;
+      opacity: 0.9;
+      white-space: nowrap;
     }
 
     .nav-links {
@@ -155,8 +176,6 @@
     }
 
     .btn-catalog { background-color: #22c55e; }
-    /* Estilo para el botón de catálogo alternativo (pruebas) */
-    .btn-catalog-alt { background-color: #64748b; }
     .btn-call { background-color: #16a34a; }
     .btn-map { background-color: #0284c7; }
 
@@ -347,6 +366,7 @@
       .nav-container { flex-direction: column; gap: 12px; text-align: center; }
       .nav-left { flex-direction: column; gap: 10px; }
       .brand-logo { flex-direction: column; gap: 8px; }
+      .nav-admin-buttons { justify-content: center; }
       .nav-links { flex-wrap: wrap; justify-content: center; }
       .service-card-img { height: 220px; }
       .map-container { height: 300px; }
@@ -376,8 +396,12 @@
             <small style="color: #64748b;">Km. 30.5 Carretera a Santa Elena Barillas Villa Canales, Guatemala</small>
           </div>
         </a>
-        <!-- Botón Acceder al Dashboard al lado derecho del logo -->
-        <a href="admin.html" class="btn-dashboard-nav">Acceder</a>
+        
+        <!-- Botones de Acceso y Pruebas al lado derecho del logo -->
+        <div class="nav-admin-buttons">
+          <a href="admin.html" class="btn-dashboard-nav">Acceder</a>
+          <button disabled class="btn-construction-nav">🛠️ En construcción</button>
+        </div>
       </div>
 
       <div class="nav-links">
@@ -398,9 +422,6 @@
       <p>El lugar ideal en Guatemala para tus actividades espirituales, celebraciones familiares, bodas, 15 años, convivencia y renta de mobiliario.</p>
       
       <div class="btn-group">
-        <!-- Botón Catálogo Alternativo para Pruebas (Lado izquierdo) -->
-        <a href="catalogo-2.html" class="btn-main btn-catalog-alt">🧪 Catálogo Alternativo (Pruebas)</a>
-        
         <!-- Botón Catálogo Oficial Principal -->
         <a href="https://hebron-casa-de-eventos.kyte.site" target="_blank" class="btn-main btn-catalog">Ver Catálogo, Pedidos</a>
         
