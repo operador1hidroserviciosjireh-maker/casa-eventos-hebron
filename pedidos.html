@@ -317,62 +317,63 @@
         }
 
         async function guardarCambiosPedido() {
-            if (!pedidoActualId) return;
+    if (!pedidoActualId) return;
 
-            let nuevoTotalGeneral = 0;
-            detallesActuales.forEach(item => {
-                nuevoTotalGeneral += item.cantidad * item.precio_unitario;
-            });
+    let nuevoTotalGeneral = 0;
+    detallesActuales.forEach(item => {
+        nuevoTotalGeneral += item.subtotal;
+    });
 
-            // Borramos todos los detalles anteriores para evitar duplicidades acumuladas
-            const { error: errorDel } = await supabaseClient
-                .from('detalle_pedidos')
-                .delete()
-                .eq('pedido_id', pedidoActualId);
+    // 1. Borramos TODOS los detalles existentes de este pedido en Supabase para evitar duplicados residuales
+    const { error: errorDel } = await supabaseClient
+        .from('detalle_pedidos')
+        .delete()
+        .eq('pedido_id', pedidoActualId);
 
-            if (errorDel) {
-                alert('Error al actualizar los detalles.');
-                console.error(errorDel);
-                return;
-            }
+    if (errorDel) {
+        alert('Error al limpiar los detalles anteriores.');
+        console.error(errorDel);
+        return;
+    }
 
-            // Insertamos los datos limpios y actualizados
-            if (detallesActuales.length > 0) {
-                const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
-                    pedido_id: pedidoActualId,
-                    producto_nombre: item.producto_nombre,
-                    cantidad: item.cantidad,
-                    precio_unitario: item.precio_unitario,
-                    subtotal: item.cantidad * item.precio_unitario
-                }));
+    // 2. Insertamos de manera limpia únicamente los ítems actuales agrupados
+    if (detallesActuales.length > 0) {
+        const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
+            pedido_id: pedidoActualId,
+            producto_nombre: item.producto_nombre,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio_unitario,
+            subtotal: item.subtotal
+        }));
 
-                const { error: errorIns } = await supabaseClient
-                    .from('detalle_pedidos')
-                    .insert(nuevosDetallesParaInsertar);
+        const { error: errorIns } = await supabaseClient
+            .from('detalle_pedidos')
+            .insert(nuevosDetallesParaInsertar);
 
-                if (errorIns) {
-                    alert('Error al guardar los nuevos productos.');
-                    console.error(errorIns);
-                    return;
-                }
-            }
-
-            // Actualizamos el total general en la tabla principal de pedidos
-            const { error: errorPedido } = await supabaseClient
-                .from('pedidos')
-                .update({ total: nuevoTotalGeneral })
-                .eq('id', pedidoActualId);
-
-            if (errorPedido) {
-                alert('Error al actualizar el total.');
-                console.error(errorPedido);
-                return;
-            }
-
-            alert('¡Pedido actualizado con éxito!');
-            cerrarModal();
-            cargarPedidos();
+        if (errorIns) {
+            alert('Error al guardar los nuevos productos.');
+            console.error(errorIns);
+            return;
         }
+    }
+
+    // 3. Actualizamos el total general en la tabla principal de pedidos
+    const { error: errorPedido } = await supabaseClient
+        .from('pedidos')
+        .update({ total: nuevoTotalGeneral })
+        .eq('id', pedidoActualId);
+
+    if (errorPedido) {
+        alert('Error al actualizar el total del pedido.');
+        console.error(errorPedido);
+        return;
+    }
+
+    alert('¡Pedido actualizado con éxito!');
+    cerrarModal();
+    cargarPedidos();
+}
+
 
         function abrirTicketModal(pedido, numPedido, totalCtd) {
             const fechaFormateada = new Date(pedido.created_at).toLocaleString();
