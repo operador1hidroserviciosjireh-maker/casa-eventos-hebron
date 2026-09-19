@@ -14,8 +14,10 @@
         .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
         .card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 14px; vertical-align: top; }
         th { font-weight: 600; color: #64748b; background: #f8fafc; }
+        .cliente-info { font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .meta-info { font-size: 12px; color: #64748b; }
     </style>
 </head>
 <body>
@@ -29,9 +31,9 @@
             <table id="tablaPedidos">
                 <thead>
                     <tr>
-                        <th>ID / Fecha</th>
-                        <th>Detalle</th>
-                        <th>Estado</th>
+                        <th>Cliente / Fecha</th>
+                        <th>Detalle de Productos</th>
+                        <th>Total / Estado</th>
                     </tr>
                 </thead>
                 <tbody id="cuerpoPedidos">
@@ -49,15 +51,24 @@
         document.addEventListener('DOMContentLoaded', cargarPedidos);
 
         async function cargarPedidos() {
-            // Nota: Si aún no creas una tabla 'pedidos' en Supabase, puedes crearla posteriormente con columnas id, detalle, estado, created_at.
+            // Realizamos la consulta trayendo los pedidos y uniéndolos con sus detalles correspondientes
             const { data, error } = await supabaseClient
                 .from('pedidos')
-                .select('*')
+                .select(`
+                    *,
+                    detalle_pedidos (
+                        producto_nombre,
+                        cantidad,
+                        precio_unitario,
+                        subtotal
+                    )
+                `)
                 .order('created_at', { ascending: false });
 
             const tbody = document.getElementById('cuerpoPedidos');
             if (error) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #64748b;">Módulo listo. (Crea una tabla llamada 'pedidos' en Supabase cuando desees almacenar el registro automático).</td></tr>`;
+                console.error(error);
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #e11d48;">Error al cargar los pedidos.</td></tr>`;
                 return;
             }
 
@@ -68,11 +79,32 @@
 
             tbody.innerHTML = '';
             data.forEach(p => {
+                // Formatear la lista de productos del detalle
+                let detalleHtml = '';
+                if (p.detalle_pedidos && p.detalle_pedidos.length > 0) {
+                    detalleHtml = p.detalle_pedidos.map(item => 
+                        `<div>• ${item.cantidad}x ${item.producto_nombre} (Q. ${item.subtotal.toFixed(2)})</div>`
+                    ).join('');
+                } else {
+                    detalleHtml = '<span style="color: #94a3b8;">Sin detalle</span>';
+                }
+
+                // Formatear fecha bonita
+                const fecha = new Date(p.created_at).toLocaleString();
+
                 tbody.innerHTML += `
                     <tr>
-                        <td>${p.id}</td>
-                        <td>${p.detalle || 'Sin detalle'}</td>
-                        <td><span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 12px;">${p.estado || 'Pendiente'}</span></td>
+                        <td>
+                            <div class="cliente-info">${p.nombre_cliente || 'Cliente'}</div>
+                            <div class="meta-info">Tel: ${p.cliente_telefono || 'N/A'}</div>
+                            <div class="meta-info">${fecha}</div>
+                        </td>
+                        <td>${detalleHtml}</td>
+                        <td>
+                            <div style="font-weight: 600; color: #059669; margin-bottom: 4px;">Q. ${p.total ? p.total.toFixed(2) : '0.00'}</div>
+                            <span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">${p.estado || 'Pendiente'}</span>
+                            <div class="meta-info" style="margin-top: 4px;">Pago: ${p.metodo_pago || 'N/A'}</div>
+                        </td>
                     </tr>
                 `;
             });
