@@ -66,7 +66,6 @@
         .ticket-btn-action { background: transparent; border: none; color: white; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 6px; border-radius: 6px; }
         .ticket-btn-action:hover { background: rgba(255,255,255,0.1); }
 
-        /* REGLAS CSS DE IMPRESIÓN (Optimizado para 1 sola hoja sin botones) */
         @media print {
             body * { visibility: hidden; }
             #modalTicket, #modalTicket *, .ticket-modal-content, .ticket-modal-content * { visibility: visible; }
@@ -125,7 +124,7 @@
 
         let pedidoActualId = null;
         let detallesActuales = [];
-        let pedidoSeleccionadoActual = null; // Guardar el objeto completo para WhatsApp/Email
+        let pedidoSeleccionadoActual = null;
 
         document.addEventListener('DOMContentLoaded', cargarPedidos);
 
@@ -200,6 +199,7 @@
                     itemsHtml = '<p style="color: #94a3b8; font-size: 13px;">Sin items registrados.</p>';
                 }
 
+                // Cálculo exacto del total basado en los productos agrupados
                 const totalReal = itemsAgrupados.reduce((acc, curr) => acc + curr.subtotal, 0);
 
                 contenedor.innerHTML += `
@@ -374,24 +374,28 @@
         }
 
         function abrirTicketModal(pedido, numPedido, totalCtd) {
-            pedidoSeleccionadoActual = pedido; // Guardamos para usar en WhatsApp/Email
+            pedidoSeleccionadoActual = pedido;
             const fechaFormateada = new Date(pedido.created_at).toLocaleString();
             const itemsAgrupados = agruparDetalles(pedido.detalle_pedidos || []);
             let itemsTicketHtml = '';
+            let totalCalculadoRecibo = 0;
 
             if (itemsAgrupados.length > 0) {
-                itemsTicketHtml = itemsAgrupados.map(item => `
-                    <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-weight: 600; color: #1e293b; font-size: 13px;">${item.producto_nombre}</div>
-                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Q. ${item.precio_unitario.toFixed(2)}</div>
+                itemsTicketHtml = itemsAgrupados.map(item => {
+                    totalCalculadoRecibo += item.subtotal;
+                    return `
+                        <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: #1e293b; font-size: 13px;">${item.producto_nombre}</div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Q. ${item.precio_unitario.toFixed(2)}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 600; color: #0f172a; font-size: 13px;">Q. ${item.subtotal.toFixed(2)}</div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${item.cantidad}x</div>
+                            </div>
                         </div>
-                        <div style="text-align: right;">
-                            <div style="font-weight: 600; color: #0f172a; font-size: 13px;">Q. ${item.subtotal.toFixed(2)}</div>
-                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${item.cantidad}x</div>
-                        </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             const contenido = `
@@ -416,7 +420,7 @@
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 2px solid #1e293b; padding-top: 10px; font-size: 16px; font-weight: 700; color: #0f172a;">
                     <span>Total:</span>
-                    <span>Q. ${pedido.total ? pedido.total.toFixed(2) : '0.00'}</span>
+                    <span>Q. ${totalCalculadoRecibo.toFixed(2)}</span>
                 </div>
             `;
 
@@ -428,7 +432,6 @@
             document.getElementById('modalTicket').style.display = 'none';
         }
 
-        // --- NUEVA FUNCIÓN COMPARTIR / ENVIAR POR WHATSAPP (Formato Texto Directo) ---
         function compartirWhatsApp() {
             if (!pedidoSeleccionadoActual) return;
 
@@ -436,32 +439,36 @@
             let mensaje = `Hola *${nombreCliente}*, tu pedido se ha recibido. En un momento uno de nuestros asesores se pondrá en contacto contigo:\n\n`;
 
             const itemsAgrupados = agruparDetalles(pedidoSeleccionadoActual.detalle_pedidos || []);
+            let totalMensaje = 0;
             itemsAgrupados.forEach(item => {
+                totalMensaje += item.subtotal;
                 mensaje += `• ${item.cantidad}x ${item.producto_nombre} (Q. ${item.subtotal.toFixed(2)})\n`;
             });
 
-            const totalGeneral = pedidoSeleccionadoActual.total ? pedidoSeleccionadoActual.total.toFixed(2) : '0.00';
-            mensaje += `\n*Total productos: Q. ${totalGeneral}*`;
+            mensaje += `\n*Total productos: Q. ${totalMensaje.toFixed(2)}*`;
             mensaje += `\n💳 Método de pago: ${pedidoSeleccionadoActual.metodo_pago || 'Efectivo'}`;
             mensaje += `\n🚚 Forma de entrega: ${pedidoSeleccionadoActual.forma_entrega || 'Entrega'}`;
             mensaje += `\n📍 Dirección del evento: ${pedidoSeleccionadoActual.direccion_evento || 'N/A'}`;
             mensaje += `\n📝 Observación: ${pedidoSeleccionadoActual.observacion || 'Ninguna'}`;
 
-            // Limpiar teléfono por si trae guiones o espacios
+            // Limpiar teléfono y asegurar código de país 502
             let telefono = pedidoSeleccionadoActual.cliente_telefono ? pedidoSeleccionadoActual.cliente_telefono.replace(/\D/g, '') : '';
+            if (telefono && !telefono.startsWith('502')) {
+                telefono = '502' + telefono;
+            }
             
             const urlWhatsApp = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
             window.open(urlWhatsApp, '_blank');
         }
 
-        // --- FUNCIÓN ENVIAR CORREO ELECTRONICO ---
         function enviarCorreoRecibo() {
             if (!pedidoSeleccionadoActual) return;
             const nombreCliente = pedidoSeleccionadoActual.nombre_cliente || "Cliente";
-            const totalGeneral = pedidoSeleccionadoActual.total ? pedidoSeleccionadoActual.total.toFixed(2) : '0.00';
+            const itemsAgrupados = agruparDetalles(pedidoSeleccionadoActual.detalle_pedidos || []);
+            const totalCorreo = itemsAgrupados.reduce((acc, curr) => acc + curr.subtotal, 0);
 
             const subject = encodeURIComponent("Detalle de su pedido - Hebron Casa de Eventos");
-            const body = encodeURIComponent(`Hola ${nombreCliente},\n\nTu pedido en Hebron Casa de Eventos ha sido recibido por un total de Q. ${totalGeneral}.\n\nPronto nos pondremos en contacto contigo.\n\n¡Gracias!`);
+            const body = encodeURIComponent(`Hola ${nombreCliente},\n\nTu pedido en Hebron Casa de Eventos ha sido recibido por un total de Q. ${totalCorreo.toFixed(2)}.\n\nPronto nos pondremos en contacto contigo.\n\n¡Gracias!`);
 
             window.location.href = `mailto:?subject=${subject}&body=${body}`;
         }
