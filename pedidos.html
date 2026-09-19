@@ -10,30 +10,40 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #334155; }
         .header { background-color: #253342; color: white; padding: 20px; text-align: center; }
-        .container { padding: 20px; max-width: 1000px; margin: 0 auto; width: 100%; flex-grow: 1; }
+        .container { padding: 15px; max-width: 1000px; margin: 0 auto; width: 100%; flex-grow: 1; }
         .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
-        .card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 14px; vertical-align: top; }
+        .card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 13px; vertical-align: top; }
         th { font-weight: 600; color: #64748b; background: #f8fafc; }
-        .cliente-info { font-weight: 600; color: #1e293b; margin-bottom: 4px; }
-        .meta-info { font-size: 12px; color: #64748b; }
-        .btn-edit { background: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 500; margin-top: 8px; }
+        .cliente-info { font-weight: 600; color: #1e293b; margin-bottom: 2px; }
+        .meta-info { font-size: 11px; color: #64748b; }
+        
+        /* Contenedor con scroll para que no ocupe toda la pantalla verticalmente */
+        .productos-scroll {
+            max-height: 120px;
+            overflow-y: auto;
+            border: 1px solid #f1f5f9;
+            background: #fafafa;
+            padding: 6px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .btn-edit { background: #0ea5e9; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 500; width: 100%; text-align: center; }
         .btn-edit:hover { background: #0284c7; }
 
         /* Estilos del Modal */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 25px; border-radius: 10px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; }
-        .modal-header { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-        .item-controls { display: flex; align-items: center; gap: 8px; }
-        .item-controls input { width: 50px; text-align: center; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; }
-        .btn-danger { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
-        .btn-danger:hover { background: #dc2626; }
-        .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
-        .btn-secondary { background: #64748b; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; }
-        .btn-success { background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; }
-        .btn-success:hover { background: #059669; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+        .item-controls { display: flex; align-items: center; gap: 6px; }
+        .item-controls input { width: 45px; text-align: center; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; }
+        .btn-danger { background: #ef4444; color: white; border: none; padding: 4px 7px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .modal-footer { margin-top: 15px; display: flex; justify-content: flex-end; gap: 8px; }
+        .btn-secondary { background: #64748b; color: white; border: none; padding: 7px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+        .btn-success { background: #10b981; color: white; border: none; padding: 7px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -44,7 +54,7 @@
         <a href="admin.html" class="back-link">← Volver al panel</a>
         <div class="card">
             <h2>Historial de Pedidos</h2>
-            <table id="tablaPedidos">
+            <table>
                 <thead>
                     <tr>
                         <th>Cliente / Fecha</th>
@@ -63,10 +73,8 @@
     <div id="modalEditar" class="modal">
         <div class="modal-content">
             <div class="modal-header" id="modalTitulo">Editar Pedido</div>
-            <div id="listaProductosModal">
-                <!-- Se cargan dinámicamente -->
-            </div>
-            <div style="margin-top: 15px; font-weight: 600; text-align: right;" id="modalTotalTexto">
+            <div id="listaProductosModal"></div>
+            <div style="margin-top: 12px; font-weight: 600; text-align: right; font-size: 14px;" id="modalTotalTexto">
                 Nuevo Total: Q. 0.00
             </div>
             <div class="modal-footer">
@@ -117,11 +125,13 @@
             data.forEach(p => {
                 let detalleHtml = '';
                 if (p.detalle_pedidos && p.detalle_pedidos.length > 0) {
-                    detalleHtml = p.detalle_pedidos.map(item => 
-                        `<div>• ${item.cantidad}x ${item.producto_nombre} (Q. ${item.subtotal.toFixed(2)})</div>`
+                    // Metemos la lista dentro de un div con scroll compacto
+                    let itemsList = p.detalle_pedidos.map(item => 
+                        `<div style="margin-bottom: 3px;">• ${item.cantidad}x ${item.producto_nombre} <span style="color:#64748b;">(Q.${item.subtotal.toFixed(2)})</span></div>`
                     ).join('');
+                    detalleHtml = `<div class="productos-scroll">${itemsList}</div>`;
                 } else {
-                    detalleHtml = '<span style="color: #94a3b8;">Sin detalle</span>';
+                    detalleHtml = '<div style="color: #94a3b8; margin-bottom: 8px;">Sin detalle</div>';
                 }
 
                 const fecha = new Date(p.created_at).toLocaleString();
@@ -135,12 +145,12 @@
                         </td>
                         <td>
                             ${detalleHtml}
-                            <button class="btn-edit" onclick='abrirModalEditar(${JSON.stringify(p)})'>Editar Pedido</button>
+                            <button class="btn-edit" onclick='abrirModalEditar(${JSON.stringify(p)})'>Editar</button>
                         </td>
                         <td>
-                            <div style="font-weight: 600; color: #059669; margin-bottom: 4px;">Q. ${p.total ? p.total.toFixed(2) : '0.00'}</div>
-                            <span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">${p.estado || 'Pendiente'}</span>
-                            <div class="meta-info" style="margin-top: 4px;">Pago: ${p.metodo_pago || 'N/A'}</div>
+                            <div style="font-weight: 600; color: #059669; margin-bottom: 2px;">Q. ${p.total ? p.total.toFixed(2) : '0.00'}</div>
+                            <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 500;">${p.estado || 'Pendiente'}</span>
+                            <div class="meta-info" style="margin-top: 3px;">Pago: ${p.metodo_pago || 'N/A'}</div>
                         </td>
                     </tr>
                 `;
@@ -151,7 +161,7 @@
             pedidoActualId = pedido.id;
             detallesActuales = JSON.parse(JSON.stringify(pedido.detalle_pedidos || []));
             
-            document.getElementById('modalTitulo').innerText = `Editar Pedido de: ${pedido.nombre_cliente || 'Cliente'}`;
+            document.getElementById('modalTitulo').innerText = `Editar: ${pedido.nombre_cliente || 'Cliente'}`;
             renderizarItemsModal();
             document.getElementById('modalEditar').style.display = 'flex';
         }
@@ -164,7 +174,7 @@
         function renderizarItemsModal() {
             const contenedor = document.getElementById('listaProductosModal');
             if (detallesActuales.length === 0) {
-                contenedor.innerHTML = '<p style="color: #64748b; font-size: 13px; text-align: center; padding: 10px;">No hay productos en este pedido.</p>';
+                contenedor.innerHTML = '<p style="color: #64748b; font-size: 12px; text-align: center; padding: 10px;">No hay productos en este pedido.</p>';
                 document.getElementById('modalTotalTexto').innerText = 'Nuevo Total: Q. 0.00';
                 return;
             }
@@ -179,11 +189,11 @@
                     <div class="item-row">
                         <div>
                             <strong>${item.producto_nombre}</strong><br>
-                            <span style="font-size: 11px; color: #64748b;">Precio u: Q. ${item.precio_unitario.toFixed(2)}</span>
+                            <span style="font-size: 10px; color: #64748b;">Q. ${item.precio_unitario.toFixed(2)} c/u</span>
                         </div>
                         <div class="item-controls">
                             <input type="number" min="1" value="${item.cantidad}" onchange="cambiarCantidad(${index}, this.value)">
-                            <span>Q. ${subtotal.toFixed(2)}</span>
+                            <span style="font-size: 12px; font-weight: 500;">Q.${subtotal.toFixed(2)}</span>
                             <button class="btn-danger" onclick="eliminarItemModal(${index})">X</button>
                         </div>
                     </div>
@@ -211,25 +221,22 @@
         async function guardarCambiosPedido() {
             if (!pedidoActualId) return;
 
-            // 1. Calcular el nuevo total general
             let nuevoTotalGeneral = 0;
             detallesActuales.forEach(item => {
                 nuevoTotalGeneral += item.cantidad * item.precio_unitario;
             });
 
-            // 2. Eliminar los detalles antiguos en Supabase para este pedido y reinsertar los actualizados
             const { error: errorDel } = await supabaseClient
                 .from('detalle_pedidos')
                 .delete()
                 .eq('pedido_id', pedidoActualId);
 
             if (errorDel) {
-                alert('Error al actualizar los detalles del pedido.');
+                alert('Error al actualizar los detalles.');
                 console.error(errorDel);
                 return;
             }
 
-            // Si quedaron productos, los insertamos de nuevo
             if (detallesActuales.length > 0) {
                 const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
                     pedido_id: pedidoActualId,
@@ -250,21 +257,20 @@
                 }
             }
 
-            // 3. Actualizar el total general en la tabla 'pedidos'
             const { error: errorPedido } = await supabaseClient
                 .from('pedidos')
                 .update({ total: nuevoTotalGeneral })
                 .eq('id', pedidoActualId);
 
             if (errorPedido) {
-                alert('Error al actualizar el total del pedido.');
+                alert('Error al actualizar el total.');
                 console.error(errorPedido);
                 return;
             }
 
             alert('¡Pedido actualizado con éxito!');
             cerrarModal();
-            cargarPedidos(); // Recargar la tabla principal
+            cargarPedidos();
         }
     </script>
 </body>
