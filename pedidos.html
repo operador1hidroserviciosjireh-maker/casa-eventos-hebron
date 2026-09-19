@@ -127,6 +127,7 @@
         let pedidoActualId = null;
         let detallesActuales = [];
         let pedidoSeleccionadoActual = null;
+        let listaPedidosGlobal = []; // Almacenaremos los pedidos cargados para acceso seguro
 
         document.addEventListener('DOMContentLoaded', cargarPedidos);
 
@@ -176,7 +177,9 @@
                 return;
             }
 
+            listaPedidosGlobal = data; // Guardamos en memoria global de forma segura
             contenedor.innerHTML = '';
+
             data.forEach((p, indexCard) => {
                 const fecha = new Date(p.created_at).toLocaleString();
                 const numeroPedido = data.length - indexCard;
@@ -243,8 +246,8 @@
                         </div>
 
                         <div class="card-footer">
-                            <button class="btn-action" onclick='abrirModalEditar(${JSON.stringify(p)})'>Editar Pedido</button>
-                            <button id="btn-confirmar-${p.id}" class="btn-confirm" ${esConfirmado ? 'disabled' : ''} onclick='confirmarPedidoYBloquear("${p.id}", ${JSON.stringify(p)}, ${numeroPedido}, ${totalCtdItems})'>
+                            <button class="btn-action" onclick='abrirModalEditarPorId("${p.id}")'>Editar Pedido</button>
+                            <button id="btn-confirmar-${p.id}" class="btn-confirm" ${esConfirmado ? 'disabled' : ''} onclick='confirmarPedidoYBloquear("${p.id}", ${numeroPedido}, ${totalCtdItems})'>
                                 ${esConfirmado ? 'Pedido Confirmado' : 'Confirmar Pedido'}
                             </button>
                         </div>
@@ -253,7 +256,7 @@
             });
         }
 
-        async function confirmarPedidoYBloquear(pedidoId, pedidoObj, numPedido, totalCtd) {
+        async function confirmarPedidoYBloquear(pedidoId, numPedido, totalCtd) {
             // Actualizar estado en la base de datos a 'Confirmado'
             const { error } = await supabaseClient
                 .from('pedidos')
@@ -265,10 +268,13 @@
                 return;
             }
 
-            // Actualizar el estado en el objeto local en memoria
-            pedidoObj.estado = 'Confirmado';
+            // Buscar el objeto del pedido en la lista global de manera limpia y segura
+            const pedidoObj = listaPedidosGlobal.find(p => p.id === pedidoId);
+            if (pedidoObj) {
+                pedidoObj.estado = 'Confirmado';
+            }
 
-            // Cambiar visualmente el botón y la etiqueta de estado
+            // Cambiar visualmente el botón de inmediato
             const btn = document.getElementById(`btn-confirmar-${pedidoId}`);
             if (btn) {
                 btn.innerText = 'Pedido Confirmado';
@@ -281,11 +287,17 @@
                 pill.classList.add('confirmed');
             }
 
-            // Recargar para sincronizar totalmente con la base de datos de forma limpia
-            await cargarPedidos();
-
             // Abrir automáticamente el ticket para las acciones de PDF/WhatsApp
-            abrirTicketModal(pedidoObj, numPedido, totalCtd);
+            if (pedidoObj) {
+                abrirTicketModal(pedidoObj, numPedido, totalCtd);
+            }
+        }
+
+        function abrirModalEditarPorId(pedidoId) {
+            const pedido = listaPedidosGlobal.find(p => p.id === pedidoId);
+            if (pedido) {
+                abrirModalEditar(pedido);
+            }
         }
 
         function cambiarTab(tabElement, targetId) {
