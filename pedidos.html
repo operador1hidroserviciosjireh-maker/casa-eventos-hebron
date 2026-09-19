@@ -18,6 +18,22 @@
         th { font-weight: 600; color: #64748b; background: #f8fafc; }
         .cliente-info { font-weight: 600; color: #1e293b; margin-bottom: 4px; }
         .meta-info { font-size: 12px; color: #64748b; }
+        .btn-edit { background: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 500; margin-top: 8px; }
+        .btn-edit:hover { background: #0284c7; }
+
+        /* Estilos del Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 25px; border-radius: 10px; width: 90%; max-width: 550px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { font-size: 18px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .item-controls { display: flex; align-items: center; gap: 8px; }
+        .item-controls input { width: 50px; text-align: center; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; }
+        .btn-danger { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .btn-danger:hover { background: #dc2626; }
+        .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-secondary { background: #64748b; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; }
+        .btn-success { background: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; }
+        .btn-success:hover { background: #059669; }
     </style>
 </head>
 <body>
@@ -43,20 +59,40 @@
         </div>
     </div>
 
+    <!-- Modal para Editar Pedido -->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitulo">Editar Pedido</div>
+            <div id="listaProductosModal">
+                <!-- Se cargan dinámicamente -->
+            </div>
+            <div style="margin-top: 15px; font-weight: 600; text-align: right;" id="modalTotalTexto">
+                Nuevo Total: Q. 0.00
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-success" onclick="guardarCambiosPedido()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        let pedidoActualId = null;
+        let detallesActuales = [];
+
         document.addEventListener('DOMContentLoaded', cargarPedidos);
 
         async function cargarPedidos() {
-            // Realizamos la consulta trayendo los pedidos y uniéndolos con sus detalles correspondientes
             const { data, error } = await supabaseClient
                 .from('pedidos')
                 .select(`
                     *,
                     detalle_pedidos (
+                        id,
                         producto_nombre,
                         cantidad,
                         precio_unitario,
@@ -79,7 +115,6 @@
 
             tbody.innerHTML = '';
             data.forEach(p => {
-                // Formatear la lista de productos del detalle
                 let detalleHtml = '';
                 if (p.detalle_pedidos && p.detalle_pedidos.length > 0) {
                     detalleHtml = p.detalle_pedidos.map(item => 
@@ -89,7 +124,6 @@
                     detalleHtml = '<span style="color: #94a3b8;">Sin detalle</span>';
                 }
 
-                // Formatear fecha bonita
                 const fecha = new Date(p.created_at).toLocaleString();
 
                 tbody.innerHTML += `
@@ -99,7 +133,10 @@
                             <div class="meta-info">Tel: ${p.cliente_telefono || 'N/A'}</div>
                             <div class="meta-info">${fecha}</div>
                         </td>
-                        <td>${detalleHtml}</td>
+                        <td>
+                            ${detalleHtml}
+                            <button class="btn-edit" onclick='abrirModalEditar(${JSON.stringify(p)})'>Editar Pedido</button>
+                        </td>
                         <td>
                             <div style="font-weight: 600; color: #059669; margin-bottom: 4px;">Q. ${p.total ? p.total.toFixed(2) : '0.00'}</div>
                             <span style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 500;">${p.estado || 'Pendiente'}</span>
@@ -108,6 +145,126 @@
                     </tr>
                 `;
             });
+        }
+
+        function abrirModalEditar(pedido) {
+            pedidoActualId = pedido.id;
+            detallesActuales = JSON.parse(JSON.stringify(pedido.detalle_pedidos || []));
+            
+            document.getElementById('modalTitulo').innerText = `Editar Pedido de: ${pedido.nombre_cliente || 'Cliente'}`;
+            renderizarItemsModal();
+            document.getElementById('modalEditar').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+            pedidoActualId = null;
+        }
+
+        function renderizarItemsModal() {
+            const contenedor = document.getElementById('listaProductosModal');
+            if (detallesActuales.length === 0) {
+                contenedor.innerHTML = '<p style="color: #64748b; font-size: 13px; text-align: center; padding: 10px;">No hay productos en este pedido.</p>';
+                document.getElementById('modalTotalTexto').innerText = 'Nuevo Total: Q. 0.00';
+                return;
+            }
+
+            let html = '';
+            let nuevoTotal = 0;
+
+            detallesActuales.forEach((item, index) => {
+                const subtotal = item.cantidad * item.precio_unitario;
+                nuevoTotal += subtotal;
+                html += `
+                    <div class="item-row">
+                        <div>
+                            <strong>${item.producto_nombre}</strong><br>
+                            <span style="font-size: 11px; color: #64748b;">Precio u: Q. ${item.precio_unitario.toFixed(2)}</span>
+                        </div>
+                        <div class="item-controls">
+                            <input type="number" min="1" value="${item.cantidad}" onchange="cambiarCantidad(${index}, this.value)">
+                            <span>Q. ${subtotal.toFixed(2)}</span>
+                            <button class="btn-danger" onclick="eliminarItemModal(${index})">X</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            contenedor.innerHTML = html;
+            document.getElementById('modalTotalTexto').innerText = `Nuevo Total: Q. ${nuevoTotal.toFixed(2)}`;
+        }
+
+        function cambiarCantidad(index, nuevaCantidad) {
+            const cant = parseInt(nuevaCantidad);
+            if (cant > 0) {
+                detallesActuales[index].cantidad = cant;
+                detallesActuales[index].subtotal = cant * detallesActuales[index].precio_unitario;
+                renderizarItemsModal();
+            }
+        }
+
+        function eliminarItemModal(index) {
+            detallesActuales.splice(index, 1);
+            renderizarItemsModal();
+        }
+
+        async function guardarCambiosPedido() {
+            if (!pedidoActualId) return;
+
+            // 1. Calcular el nuevo total general
+            let nuevoTotalGeneral = 0;
+            detallesActuales.forEach(item => {
+                nuevoTotalGeneral += item.cantidad * item.precio_unitario;
+            });
+
+            // 2. Eliminar los detalles antiguos en Supabase para este pedido y reinsertar los actualizados
+            const { error: errorDel } = await supabaseClient
+                .from('detalle_pedidos')
+                .delete()
+                .eq('pedido_id', pedidoActualId);
+
+            if (errorDel) {
+                alert('Error al actualizar los detalles del pedido.');
+                console.error(errorDel);
+                return;
+            }
+
+            // Si quedaron productos, los insertamos de nuevo
+            if (detallesActuales.length > 0) {
+                const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
+                    pedido_id: pedidoActualId,
+                    producto_nombre: item.producto_nombre,
+                    cantidad: item.cantidad,
+                    precio_unitario: item.precio_unitario,
+                    subtotal: item.cantidad * item.precio_unitario
+                }));
+
+                const { error: errorIns } = await supabaseClient
+                    .from('detalle_pedidos')
+                    .insert(nuevosDetallesParaInsertar);
+
+                if (errorIns) {
+                    alert('Error al guardar los nuevos productos.');
+                    console.error(errorIns);
+                    return;
+                }
+            }
+
+            // 3. Actualizar el total general en la tabla 'pedidos'
+            const { error: errorPedido } = await supabaseClient
+                .from('pedidos')
+                .update({ total: nuevoTotalGeneral })
+                .eq('id', pedidoActualId);
+
+            if (errorPedido) {
+                alert('Error al actualizar el total del pedido.');
+                console.error(errorPedido);
+                return;
+            }
+
+            alert('¡Pedido actualizado con éxito!');
+            cerrarModal();
+            cargarPedidos(); // Recargar la tabla principal
         }
     </script>
 </body>
