@@ -127,7 +127,7 @@
         let pedidoActualId = null;
         let detallesActuales = [];
         let pedidoSeleccionadoActual = null;
-        let listaPedidosGlobal = []; // Almacenaremos los pedidos cargados para acceso seguro
+        let listaPedidosGlobal = [];
 
         document.addEventListener('DOMContentLoaded', cargarPedidos);
 
@@ -177,7 +177,7 @@
                 return;
             }
 
-            listaPedidosGlobal = data; // Guardamos en memoria global de forma segura
+            listaPedidosGlobal = data;
             contenedor.innerHTML = '';
 
             data.forEach((p, indexCard) => {
@@ -257,24 +257,27 @@
         }
 
         async function confirmarPedidoYBloquear(pedidoId, numPedido, totalCtd) {
-            // Actualizar estado en la base de datos a 'Confirmado'
-            const { error } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('pedidos')
                 .update({ estado: 'Confirmado' })
-                .eq('id', pedidoId);
+                .eq('id', pedidoId)
+                .select();
 
             if (error) {
                 alert('Error al confirmar el pedido en la base de datos: ' + error.message);
                 return;
             }
 
-            // Buscar el objeto del pedido en la lista global de manera limpia y segura
+            if (!data || data.length === 0) {
+                alert('Aviso: La base de datos no actualizó ningún registro. Verifica las políticas RLS en Supabase.');
+                return;
+            }
+
             const pedidoObj = listaPedidosGlobal.find(p => p.id === pedidoId);
             if (pedidoObj) {
                 pedidoObj.estado = 'Confirmado';
             }
 
-            // Cambiar visualmente el botón de inmediato
             const btn = document.getElementById(`btn-confirmar-${pedidoId}`);
             if (btn) {
                 btn.innerText = 'Pedido Confirmado';
@@ -287,7 +290,6 @@
                 pill.classList.add('confirmed');
             }
 
-            // Abrir automáticamente el ticket para las acciones de PDF/WhatsApp
             if (pedidoObj) {
                 abrirTicketModal(pedidoObj, numPedido, totalCtd);
             }
