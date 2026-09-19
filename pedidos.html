@@ -3,70 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pedidos - Hebron Casa de Eventos</title>
+    <title>Gestión de Pedidos - Hebron</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #334155; }
-        .header { background-color: #253342; color: white; padding: 20px; text-align: center; }
-        .container { padding: 15px; max-width: 1000px; margin: 0 auto; width: 100%; flex-grow: 1; }
-        .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
-        .card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 500px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 13px; vertical-align: top; }
-        th { font-weight: 600; color: #64748b; background: #f8fafc; }
-        .cliente-info { font-weight: 600; color: #1e293b; margin-bottom: 2px; }
-        .meta-info { font-size: 11px; color: #64748b; }
+        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #1e293b; }
+        .header { background-color: #253342; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 18px; }
+        .back-link { color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 500; }
         
-        /* Contenedor con scroll para que no ocupe toda la pantalla verticalmente */
-        .productos-scroll {
-            max-height: 120px;
-            overflow-y: auto;
-            border: 1px solid #f1f5f9;
-            background: #fafafa;
-            padding: 6px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-        }
+        .container { padding: 15px; max-width: 700px; margin: 0 auto; width: 100%; flex-grow: 1; }
 
-        .btn-edit { background: #0ea5e9; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 500; width: 100%; text-align: center; }
-        .btn-edit:hover { background: #0284c7; }
+        /* Tarjeta Estilo Ticket */
+        .order-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; border: 1px solid #e2e8f0; overflow: hidden; }
+        
+        .order-top { padding: 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; }
+        .order-title { font-size: 13px; color: #64748b; font-weight: 500; }
+        .order-total { font-size: 24px; font-weight: 700; color: #0f172a; margin-top: 2px; }
+        
+        .badge-catalog { background: #f1f5f9; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; color: #475569; }
 
-        /* Estilos del Modal */
+        .order-meta-row { padding: 12px 15px; display: flex; gap: 10px; align-items: center; background: #fafafa; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
+        .status-pill { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .info-pill { background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+
+        /* Pestañas */
+        .tabs { display: flex; border-bottom: 1px solid #e2e8f0; background: #fff; }
+        .tab { flex: 1; text-align: center; padding: 12px; font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { color: #0d9488; border-bottom-color: #0d9488; }
+
+        /* Contenido de pestañas */
+        .tab-content { padding: 15px; display: none; min-height: 120px; }
+        .tab-content.active { display: block; }
+
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+        .item-row:last-child { border-bottom: none; }
+        .item-name { font-weight: 500; color: #334155; }
+        .item-price { color: #64748b; font-size: 13px; }
+
+        .section-text { font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 6px; }
+
+        /* Botón de Editar dentro de la tarjeta */
+        .card-footer { padding: 12px 15px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 8px; }
+        .btn-action { background: #0ea5e9; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .btn-action:hover { background: #0284c7; }
+
+        /* Estilos Modal de Edición */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
-        .modal-content { background: white; padding: 20px; border-radius: 10px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .modal-header { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
-        .item-controls { display: flex; align-items: center; gap: 6px; }
-        .item-controls input { width: 45px; text-align: center; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 12px; }
-        .btn-danger { background: #ef4444; color: white; border: none; padding: 4px 7px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .modal-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+        .modal-controls { display: flex; align-items: center; gap: 6px; }
+        .modal-controls input { width: 45px; text-align: center; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; }
+        .btn-danger { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
         .modal-footer { margin-top: 15px; display: flex; justify-content: flex-end; gap: 8px; }
-        .btn-secondary { background: #64748b; color: white; border: none; padding: 7px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-        .btn-success { background: #10b981; color: white; border: none; padding: 7px 12px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .btn-secondary { background: #64748b; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .btn-success { background: #10b981; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Gestión de Pedidos</h1>
-    </div>
-    <div class="container">
+        <h1>Pedidos Hebrón</h1>
         <a href="admin.html" class="back-link">← Volver al panel</a>
-        <div class="card">
-            <h2>Historial de Pedidos</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Cliente / Fecha</th>
-                        <th>Detalle de Productos</th>
-                        <th>Total / Estado</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpoPedidos">
-                    <tr><td colspan="3" style="text-align: center; color: #64748b;">Cargando pedidos...</td></tr>
-                </tbody>
-            </table>
-        </div>
+    </div>
+
+    <div class="container" id="contenedorPedidos">
+        <p style="text-align: center; color: #64748b; margin-top: 20px;">Cargando pedidos...</p>
     </div>
 
     <!-- Modal para Editar Pedido -->
@@ -109,52 +112,100 @@
                 `)
                 .order('created_at', { ascending: false });
 
-            const tbody = document.getElementById('cuerpoPedidos');
+            const contenedor = document.getElementById('contenedorPedidos');
             if (error) {
                 console.error(error);
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #e11d48;">Error al cargar los pedidos.</td></tr>`;
+                contenedor.innerHTML = `<p style="text-align: center; color: #e11d48;">Error al cargar los pedidos.</p>`;
                 return;
             }
 
             if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #64748b;">No hay pedidos registrados todavía.</td></tr>`;
+                contenedor.innerHTML = `<p style="text-align: center; color: #64748b;">No hay pedidos registrados todavía.</p>`;
                 return;
             }
 
-            tbody.innerHTML = '';
-            data.forEach(p => {
-                let detalleHtml = '';
+            contenedor.innerHTML = '';
+            data.forEach((p, indexCard) => {
+                const fecha = new Date(p.created_at).toLocaleString();
+                const total = p.total ? p.total.toFixed(2) : '0.00';
+
+                // Generar lista de items
+                let itemsHtml = '';
                 if (p.detalle_pedidos && p.detalle_pedidos.length > 0) {
-                    // Metemos la lista dentro de un div con scroll compacto
-                    let itemsList = p.detalle_pedidos.map(item => 
-                        `<div style="margin-bottom: 3px;">• ${item.cantidad}x ${item.producto_nombre} <span style="color:#64748b;">(Q.${item.subtotal.toFixed(2)})</span></div>`
-                    ).join('');
-                    detalleHtml = `<div class="productos-scroll">${itemsList}</div>`;
+                    itemsHtml = p.detalle_pedidos.map(item => `
+                        <div class="item-row">
+                            <div>
+                                <strong style="color: #0f172a;">${item.cantidad} x</strong> 
+                                <span class="item-name">${item.producto_nombre}</span>
+                            </div>
+                            <span class="item-price">Q. ${item.subtotal.toFixed(2)}</span>
+                        </div>
+                    `).join('');
                 } else {
-                    detalleHtml = '<div style="color: #94a3b8; margin-bottom: 8px;">Sin detalle</div>';
+                    itemsHtml = '<p style="color: #94a3b8; font-size: 13px;">Sin items registrados.</p>';
                 }
 
-                const fecha = new Date(p.created_at).toLocaleString();
+                contenedor.innerHTML += `
+                    <div class="order-card">
+                        <div class="order-top">
+                            <div>
+                                <div class="order-title">${fecha}</div>
+                                <div class="order-total">${total} Q</div>
+                            </div>
+                            <span class="badge-catalog">#${indexCard + 1} Catálogo</span>
+                        </div>
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td>
-                            <div class="cliente-info">${p.nombre_cliente || 'Cliente'}</div>
-                            <div class="meta-info">Tel: ${p.cliente_telefono || 'N/A'}</div>
-                            <div class="meta-info">${fecha}</div>
-                        </td>
-                        <td>
-                            ${detalleHtml}
-                            <button class="btn-edit" onclick='abrirModalEditar(${JSON.stringify(p)})'>Editar</button>
-                        </td>
-                        <td>
-                            <div style="font-weight: 600; color: #059669; margin-bottom: 2px;">Q. ${p.total ? p.total.toFixed(2) : '0.00'}</div>
-                            <span style="background: #e2e8f0; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 500;">${p.estado || 'Pendiente'}</span>
-                            <div class="meta-info" style="margin-top: 3px;">Pago: ${p.metodo_pago || 'N/A'}</div>
-                        </td>
-                    </tr>
+                        <div class="order-meta-row">
+                            <div class="status-pill">⏱ ${p.estado || 'Pendiente'}</div>
+                            <div class="info-pill">💵 ${p.metodo_pago || 'Efectivo'}</div>
+                            <div class="info-pill">📦 ${p.forma_entrega || 'Entrega'}</div>
+                        </div>
+
+                        <!-- Pestañas -->
+                        <div class="tabs">
+                            <div class="tab active" onclick="cambiarTab(this, 'items-${p.id}')">ITEMS</div>
+                            <div class="tab" onclick="cambiarTab(this, 'detalles-${p.id}')">DETALLES</div>
+                            <div class="tab" onclick="cambiarTab(this, 'cliente-${p.id}')">CLIENTE</div>
+                        </div>
+
+                        <!-- Contenido Pestaña Items -->
+                        <div id="items-${p.id}" class="tab-content active">
+                            ${itemsHtml}
+                        </div>
+
+                        <!-- Contenido Pestaña Detalles -->
+                        <div id="detalles-${p.id}" class="tab-content" style="display:none;">
+                            <div class="section-text"><strong>Dirección:</strong> ${p.direccion_evento || 'No especificada'}</div>
+                            <div class="section-text"><strong>Observación:</strong> ${p.observacion || 'Ninguna'}</div>
+                        </div>
+
+                        <!-- Contenido Pestaña Cliente -->
+                        <div id="cliente-${p.id}" class="tab-content" style="display:none;">
+                            <div class="section-text"><strong>Nombre:</strong> ${p.nombre_cliente || 'No registrado'}</div>
+                            <div class="section-text"><strong>Teléfono:</strong> ${p.cliente_telefono || 'N/A'}</div>
+                        </div>
+
+                        <div class="card-footer">
+                            <button class="btn-action" onclick='abrirModalEditar(${JSON.stringify(p)})'>Editar Pedido</button>
+                        </div>
+                    </div>
                 `;
             });
+        }
+
+        // Función para alternar entre pestañas en cada tarjeta
+        function cambiarTab(tabElement, targetId) {
+            const card = tabElement.closest('.order-card');
+            card.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            card.querySelectorAll('.tab-content').forEach(c => {
+                c.style.display = 'none';
+                c.classList.remove('active');
+            });
+
+            tabElement.classList.add('active');
+            const target = document.getElementById(targetId);
+            target.style.display = 'block';
+            target.classList.add('active');
         }
 
         function abrirModalEditar(pedido) {
@@ -174,7 +225,7 @@
         function renderizarItemsModal() {
             const contenedor = document.getElementById('listaProductosModal');
             if (detallesActuales.length === 0) {
-                contenedor.innerHTML = '<p style="color: #64748b; font-size: 12px; text-align: center; padding: 10px;">No hay productos en este pedido.</p>';
+                contenedor.innerHTML = '<p style="color: #64748b; font-size: 12px; text-align: center; padding: 10px;">No hay productos.</p>';
                 document.getElementById('modalTotalTexto').innerText = 'Nuevo Total: Q. 0.00';
                 return;
             }
@@ -186,12 +237,12 @@
                 const subtotal = item.cantidad * item.precio_unitario;
                 nuevoTotal += subtotal;
                 html += `
-                    <div class="item-row">
+                    <div class="modal-item-row">
                         <div>
                             <strong>${item.producto_nombre}</strong><br>
                             <span style="font-size: 10px; color: #64748b;">Q. ${item.precio_unitario.toFixed(2)} c/u</span>
                         </div>
-                        <div class="item-controls">
+                        <div class="modal-controls">
                             <input type="number" min="1" value="${item.cantidad}" onchange="cambiarCantidad(${index}, this.value)">
                             <span style="font-size: 12px; font-weight: 500;">Q.${subtotal.toFixed(2)}</span>
                             <button class="btn-danger" onclick="eliminarItemModal(${index})">X</button>
@@ -257,16 +308,10 @@
                 }
             }
 
-            const { error: errorPedido } = await supabaseClient
+            const { error: errorPedido } = await SupabaseClient = await supabaseClient
                 .from('pedidos')
                 .update({ total: nuevoTotalGeneral })
                 .eq('id', pedidoActualId);
-
-            if (errorPedido) {
-                alert('Error al actualizar el total.');
-                console.error(errorPedido);
-                return;
-            }
 
             alert('¡Pedido actualizado con éxito!');
             cerrarModal();
