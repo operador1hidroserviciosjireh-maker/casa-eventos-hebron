@@ -129,7 +129,6 @@
                 const fecha = new Date(p.created_at).toLocaleString();
                 const total = p.total ? p.total.toFixed(2) : '0.00';
 
-                // Generar lista de items
                 let itemsHtml = '';
                 if (p.detalle_pedidos && p.detalle_pedidos.length > 0) {
                     itemsHtml = p.detalle_pedidos.map(item => `
@@ -161,25 +160,21 @@
                             <div class="info-pill">📦 ${p.forma_entrega || 'Entrega'}</div>
                         </div>
 
-                        <!-- Pestañas -->
                         <div class="tabs">
                             <div class="tab active" onclick="cambiarTab(this, 'items-${p.id}')">ITEMS</div>
                             <div class="tab" onclick="cambiarTab(this, 'detalles-${p.id}')">DETALLES</div>
                             <div class="tab" onclick="cambiarTab(this, 'cliente-${p.id}')">CLIENTE</div>
                         </div>
 
-                        <!-- Contenido Pestaña Items -->
                         <div id="items-${p.id}" class="tab-content active">
                             ${itemsHtml}
                         </div>
 
-                        <!-- Contenido Pestaña Detalles -->
                         <div id="detalles-${p.id}" class="tab-content" style="display:none;">
                             <div class="section-text"><strong>Dirección:</strong> ${p.direccion_evento || 'No especificada'}</div>
                             <div class="section-text"><strong>Observación:</strong> ${p.observacion || 'Ninguna'}</div>
                         </div>
 
-                        <!-- Contenido Pestaña Cliente -->
                         <div id="cliente-${p.id}" class="tab-content" style="display:none;">
                             <div class="section-text"><strong>Nombre:</strong> ${p.nombre_cliente || 'No registrado'}</div>
                             <div class="section-text"><strong>Teléfono:</strong> ${p.cliente_telefono || 'N/A'}</div>
@@ -193,7 +188,6 @@
             });
         }
 
-        // Función para alternar entre pestañas en cada tarjeta
         function cambiarTab(tabElement, targetId) {
             const card = tabElement.closest('.order-card');
             card.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -308,10 +302,16 @@
                 }
             }
 
-            const { error: errorPedido } = await SupabaseClient = await supabaseClient
+            const { error: errorPedido } = await supabaseClient
                 .from('pedidos')
                 .update({ total: nuevoTotalGeneral })
                 .eq('id', pedidoActualId);
+
+            if (errorPedido) {
+                alert('Error al actualizar el total.');
+                console.error(errorPedido);
+                return;
+            }
 
             alert('¡Pedido actualizado con éxito!');
             cerrarModal();
