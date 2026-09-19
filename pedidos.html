@@ -261,11 +261,14 @@
                 .eq('id', pedidoId);
 
             if (error) {
-                alert('Error al confirmar el pedido en la base de datos.');
+                alert('Error al confirmar el pedido en la base de datos: ' + error.message);
                 return;
             }
 
-            // Cambiar visualmente el botón y la etiqueta sin necesidad de recargar toda la página
+            // Actualizar el estado en el objeto local en memoria
+            pedidoObj.estado = 'Confirmado';
+
+            // Cambiar visualmente el botón y la etiqueta de estado
             const btn = document.getElementById(`btn-confirmar-${pedidoId}`);
             if (btn) {
                 btn.innerText = 'Pedido Confirmado';
@@ -278,7 +281,10 @@
                 pill.classList.add('confirmed');
             }
 
-            // Abrir automáticamente el ticket para las acciones de PDF/WhatsApp si se desea
+            // Recargar para sincronizar totalmente con la base de datos de forma limpia
+            await cargarPedidos();
+
+            // Abrir automáticamente el ticket para las acciones de PDF/WhatsApp
             abrirTicketModal(pedidoObj, numPedido, totalCtd);
         }
 
