@@ -15,7 +15,6 @@
         
         .container { padding: 15px; max-width: 700px; margin: 0 auto; width: 100%; flex-grow: 1; }
 
-        /* Tarjeta Estilo Ticket */
         .order-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; border: 1px solid #e2e8f0; overflow: hidden; }
         
         .order-top { padding: 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; }
@@ -28,12 +27,10 @@
         .status-pill { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
         .info-pill { background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
 
-        /* Pestañas */
         .tabs { display: flex; border-bottom: 1px solid #e2e8f0; background: #fff; }
         .tab { flex: 1; text-align: center; padding: 12px; font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; }
         .tab.active { color: #0d9488; border-bottom-color: #0d9488; }
 
-        /* Contenido de pestañas */
         .tab-content { padding: 15px; display: none; min-height: 120px; }
         .tab-content.active { display: block; }
 
@@ -44,14 +41,12 @@
 
         .section-text { font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 6px; }
 
-        /* Botones de Acción dentro de la tarjeta */
         .card-footer { padding: 12px 15px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 8px; }
         .btn-action { background: #0ea5e9; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
         .btn-action:hover { background: #0284c7; }
         .btn-confirm { background: #10b981; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
         .btn-confirm:hover { background: #059669; }
 
-        /* Estilos Modal de Edición */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
         .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .modal-header { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
@@ -63,7 +58,6 @@
         .btn-secondary { background: #64748b; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         .btn-success { background: #10b981; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
 
-        /* Modal Ticket / Recibo */
         .ticket-modal-content { background: white; width: 100%; max-width: 480px; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; }
         .ticket-top-bar { background: #e2e8f0; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; color: #334155; }
         .ticket-body { padding: 20px; overflow-y: auto; flex-grow: 1; }
@@ -83,7 +77,6 @@
         <p style="text-align: center; color: #64748b; margin-top: 20px;">Cargando pedidos...</p>
     </div>
 
-    <!-- Modal para Editar Pedido -->
     <div id="modalEditar" class="modal">
         <div class="modal-content">
             <div class="modal-header" id="modalTitulo">Editar Pedido</div>
@@ -98,7 +91,6 @@
         </div>
     </div>
 
-    <!-- Modal para Ver Ticket / Recibo -->
     <div id="modalTicket" class="modal">
         <div class="ticket-modal-content">
             <div class="ticket-top-bar">
@@ -106,9 +98,7 @@
                 <span>Editar mi recibo</span>
                 <span></span>
             </div>
-            <div class="ticket-body" id="contenidoTicketRecibo">
-                <!-- Se inyecta el ticket dinámicamente -->
-            </div>
+            <div class="ticket-body" id="contenidoTicketRecibo"></div>
             <div class="ticket-footer-actions">
                 <button class="ticket-btn-action" onclick="alert('Generando PDF...')">📄<span>PDF</span></button>
                 <button class="ticket-btn-action" onclick="alert('Abriendo correo...')">✉️<span>Email</span></button>
@@ -127,6 +117,26 @@
         let detallesActuales = [];
 
         document.addEventListener('DOMContentLoaded', cargarPedidos);
+
+        // Función auxiliar para agrupar items repetidos por nombre de producto
+        function agruparDetalles(detalles) {
+            const agrupados = {};
+            detalles.forEach(item => {
+                const nombre = item.producto_nombre;
+                if (agrupados[nombre]) {
+                    agrupados[nombre].cantidad += item.cantidad;
+                    agrupados[nombre].subtotal += item.subtotal;
+                } else {
+                    agrupados[nombre] = {
+                        producto_nombre: nombre,
+                        cantidad: item.cantidad,
+                        precio_unitario: item.precio_unitario,
+                        subtotal: item.subtotal
+                    };
+                }
+            });
+            return Object.values(agrupados);
+        }
 
         async function cargarPedidos() {
             const { data, error } = await supabaseClient
@@ -158,13 +168,15 @@
             contenedor.innerHTML = '';
             data.forEach((p, indexCard) => {
                 const fecha = new Date(p.created_at).toLocaleString();
-                const total = p.total ? p.total.toFixed(2) : '0.00';
                 const numeroPedido = data.length - indexCard;
 
+                // Agrupamos los items para mostrarlos limpios y sin duplicados visuales
+                const itemsAgrupados = agruparDetalles(p.detalle_pedidos || []);
                 let itemsHtml = '';
                 let totalCtdItems = 0;
-                if (p.detalle_pedidos && p.detalle_pedidos.length > 0) {
-                    itemsHtml = p.detalle_pedidos.map(item => {
+
+                if (itemsAgrupados.length > 0) {
+                    itemsHtml = itemsAgrupados.map(item => {
                         totalCtdItems += item.cantidad;
                         return `
                             <div class="item-row">
@@ -180,14 +192,17 @@
                     itemsHtml = '<p style="color: #94a3b8; font-size: 13px;">Sin items registrados.</p>';
                 }
 
+                // Recalculamos el total real basado en los agrupados por seguridad
+                const totalReal = itemsAgrupados.reduce((acc, curr) => acc + curr.subtotal, 0);
+
                 contenedor.innerHTML += `
                     <div class="order-card" id="card-${p.id}">
                         <div class="order-top">
                             <div>
                                 <div class="order-title">${fecha}</div>
-                                <div class="order-total">${total} Q</div>
+                                <div class="order-total">${totalReal.toFixed(2)} Q</div>
                             </div>
-                            <span class="badge-catalog">#${numeroPedido} Pedido</span>
+                            <span class="badge-catalog">Pedido #${numeroPedido}</span>
                         </div>
 
                         <div class="order-meta-row">
@@ -241,7 +256,8 @@
 
         function abrirModalEditar(pedido) {
             pedidoActualId = pedido.id;
-            detallesActuales = JSON.parse(JSON.stringify(pedido.detalle_pedidos || []));
+            // Agrupamos al abrir el modal para que no salgan filas duplicadas
+            detallesActuales = agruparDetalles(pedido.detalle_pedidos || []);
             
             document.getElementById('modalTitulo').innerText = `Editar: ${pedido.nombre_cliente || 'Cliente'}`;
             renderizarItemsModal();
@@ -308,6 +324,7 @@
                 nuevoTotalGeneral += item.cantidad * item.precio_unitario;
             });
 
+            // Borramos todos los detalles anteriores para evitar duplicidades acumuladas
             const { error: errorDel } = await supabaseClient
                 .from('detalle_pedidos')
                 .delete()
@@ -319,6 +336,7 @@
                 return;
             }
 
+            // Insertamos los datos limpios y actualizados
             if (detallesActuales.length > 0) {
                 const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
                     pedido_id: pedidoActualId,
@@ -339,6 +357,7 @@
                 }
             }
 
+            // Actualizamos el total general en la tabla principal de pedidos
             const { error: errorPedido } = await supabaseClient
                 .from('pedidos')
                 .update({ total: nuevoTotalGeneral })
@@ -357,10 +376,11 @@
 
         function abrirTicketModal(pedido, numPedido, totalCtd) {
             const fechaFormateada = new Date(pedido.created_at).toLocaleString();
+            const itemsAgrupados = agruparDetalles(pedido.detalle_pedidos || []);
             let itemsTicketHtml = '';
 
-            if (pedido.detalle_pedidos && pedido.detalle_pedidos.length > 0) {
-                itemsTicketHtml = pedido.detalle_pedidos.map(item => `
+            if (itemsAgrupados.length > 0) {
+                itemsTicketHtml = itemsAgrupados.map(item => `
                     <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-weight: 600; color: #1e293b; font-size: 13px;">${item.producto_nombre}</div>
@@ -382,11 +402,11 @@
                     
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-bottom: 2px solid #1e293b; padding-bottom: 5px;">
                         <span style="font-size: 12px; color: #64748b; font-weight: 500;">${fechaFormateada}</span>
-                        <span style="font-weight: 700; font-size: 14px; color: #0f172a;">#${numPedido} Pedido</span>
+                        <span style="font-weight: 700; font-size: 14px; color: #0f172a;">Pedido #${numPedido}</span>
                     </div>
 
                     <div style="text-align: left; font-size: 12px; color: #475569; margin-top: 10px; font-weight: 600;">
-                        ${pedido.detalle_pedidos ? pedido.detalle_pedidos.length : 0} items (Ctd.: ${totalCtd})
+                        ${itemsAgrupados.length} items (Ctd.: ${totalCtd})
                     </div>
                 </div>
 
