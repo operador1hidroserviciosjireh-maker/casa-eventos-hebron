@@ -377,63 +377,98 @@
         }
 
         async function enviarPedidoWhatsApp() {
-            let nombre = document.getElementById('txtNombreCliente').value.trim();
-            let telefono = document.getElementById('txtTelefonoCliente').value.trim();
-            let metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
-            let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
-            let direccionEvento = document.getElementById('txtDireccionEvento').value.trim();
-            let observacion = document.getElementById('txtObservacion').value.trim();
+    let nombre = document.getElementById('txtNombreCliente').value.trim();
+    let telefono = document.getElementById('txtTelefonoCliente').value.trim();
+    let metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
+    let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
+    let direccionEvento = document.getElementById('txtDireccionEvento').value.trim();
+    let observacion = document.getElementById('txtObservacion').value.trim();
 
-            if (!nombre || !telefono) {
-                alert('Por favor ingresa tu nombre y teléfono.');
-                return;
+    if (!nombre || !telefono) {
+        alert('Por favor ingresa tu nombre y teléfono.');
+        return;
+    }
+
+    if (formaEntrega === 'Entrega en lugar de evento' && !direccionEvento) {
+        alert('Por favor ingresa la dirección de entrega del evento.');
+        return;
+    }
+
+    let precioTotal = 0;
+    let itemsParaGuardar = [];
+    
+    for (let id in carrito) {
+        let item = carrito[id];
+        let subtotal = item.precio * item.cantidad;
+        precioTotal += subtotal;
+        itemsParaGuardar.push({
+            producto_nombre: item.nombre,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio,
+            subtotal: subtotal
+        });
+    }
+
+    try {
+        // 1. Guardar o actualizar al cliente
+        await supabaseClient.from('clientes').upsert([
+            { nombre: nombre, telefono: telefono }
+        ], { onConflict: 'telefono' });
+
+        // 2. Insertar la cabecera del pedido
+        let { data: pedidoData, error: pedidoError } = await supabaseClient.from('pedidos').insert([
+            {
+                cliente_telefono: telefono,
+                nombre_cliente: nombre,
+                metodo_pago: metodoPago,
+                forma_entrega: formaEntrega,
+                direccion_evento: direccionEvento || null,
+                observacion: observacion || null,
+                total: precioTotal
             }
+        ]).select().single();
 
-            if (formaEntrega === 'Entrega en lugar de evento' && !direccionEvento) {
-                alert('Por favor ingresa la dirección de entrega del evento.');
-                return;
-            }
+        if (pedidoError) throw pedidoError;
 
-            let precioTotal = 0;
-            let productosArray = [];
-            for (let id in carrito) {
-                let item = carrito[id];
-                let subtotal = item.precio * item.cantidad;
-                precioTotal += subtotal;
-                productosArray.push(`${item.cantidad}x ${item.nombre}`);
-            }
-
-            try {
-                await supabaseClient.from('clientes').upsert([
-                    { nombre: nombre, telefono: telefono }
-                ], { onConflict: 'telefono' });
-            } catch (e) {
-                console.log('Nota: Tabla clientes opcional no detectada aún o error menor.');
-            }
-
-            let mensaje = `Hola, mi nombre es *${nombre}* (${telefono}). Me gustaría realizar el siguiente pedido:\n\n`;
-            for (let id in carrito) {
-                let item = carrito[id];
-                let subtotal = item.precio * item.cantidad;
-                mensaje += `• ${item.cantidad}x ${item.nombre} (Q. ${subtotal.toFixed(2)})\n`;
-            }
-
-            mensaje += `\n*Total productos: Q. ${precioTotal.toFixed(2)}*`;
-            mensaje += `\n💳 *Método de pago:* ${metodoPago}`;
-            mensaje += `\n🚚 *Forma de entrega:* ${formaEntrega}`;
-            
-            if (formaEntrega === 'Entrega en lugar de evento' && direccionEvento) {
-                mensaje += `\n📍 *Dirección del evento:* ${direccionEvento}`;
-            }
-
-            if (observacion) {
-                mensaje += `\n📝 *Observación:* ${observacion}`;
-            }
-
-            let numeroWhatsApp = "50250390762";
-            let url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
+        // 3. Insertar el detalle de los productos comprados vinculados al pedido
+        if (pedidoData && pedidoData.id) {
+            let itemsConIdPedido = itemsParaGuardar.map(item => ({
+                ...item,
+                pedido_id: pedidoData.id
+            }));
+            await supabaseClient.from('detalle_pedidos').insert(itemsConIdPedido);
         }
+
+    } catch (e) {
+        console.error('Error al guardar el pedido en la base de datos:', e);
+        // Opcional: puedes decidir si detienes el flujo o permites que de todas formas abra WhatsApp
+    }
+
+    // Construcción del mensaje de WhatsApp (igual que antes)
+    let mensaje = `Hola, mi nombre es *${nombre}* (${telefono}). Me gustaría realizar el siguiente pedido:\n\n`;
+    for (let id in carrito) {
+        let item = carrito[id];
+        let subtotal = item.precio * item.cantidad;
+        mensaje += `• ${item.cantidad}x ${item.nombre} (Q. ${subtotal.toFixed(2)})\n`;
+    }
+
+    mensaje += `\n*Total productos: Q. ${precioTotal.toFixed(2)}*`;
+    mensaje += `\n💳 *Método de pago:* ${metodoPago}`;
+    mensaje += `\n🚚 *Forma de entrega:* ${formaEntrega}`;
+    
+    if (formaEntrega === 'Entrega en lugar de evento' && direccionEvento) {
+        mensaje += `\n📍 *Dirección del evento:* ${direccionEvento}`;
+    }
+
+    if (observacion) {
+        mensaje += `\n📝 *Observación:* ${observacion}`;
+    }
+
+    let numeroWhatsApp = "50250390762";
+    let url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+}
+
 
         function filtrarCatalogo() {
             const texto = document.getElementById('inputBuscar').value.toLowerCase();
