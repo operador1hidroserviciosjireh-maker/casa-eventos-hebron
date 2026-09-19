@@ -65,6 +65,16 @@
         .ticket-footer-actions { display: grid; grid-template-columns: repeat(4, 1fr); background: #1e293b; padding: 10px; gap: 5px; text-align: center; }
         .ticket-btn-action { background: transparent; border: none; color: white; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 6px; border-radius: 6px; }
         .ticket-btn-action:hover { background: rgba(255,255,255,0.1); }
+
+        /* REGLAS CSS DE IMPRESIÓN (Optimizado para 1 sola hoja sin botones) */
+        @media print {
+            body * { visibility: hidden; }
+            #modalTicket, #modalTicket *, .ticket-modal-content, .ticket-modal-content * { visibility: visible; }
+            #modalTicket { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white !important; display: block !important; padding: 0 !important; }
+            .ticket-modal-content { box-shadow: none; max-width: 100% !important; height: auto !important; max-height: none !important; margin: 0; }
+            .ticket-top-bar, .ticket-footer-actions { display: none !important; }
+            .ticket-body { padding: 10px !important; }
+        }
     </style>
 </head>
 <body>
@@ -100,10 +110,10 @@
             </div>
             <div class="ticket-body" id="contenidoTicketRecibo"></div>
             <div class="ticket-footer-actions">
-                <button class="ticket-btn-action" onclick="alert('Generando PDF...')">📄<span>PDF</span></button>
-                <button class="ticket-btn-action" onclick="alert('Abriendo correo...')">✉️<span>Email</span></button>
+                <button class="ticket-btn-action" onclick="window.print()">📄<span>PDF</span></button>
+                <button class="ticket-btn-action" onclick="enviarCorreoRecibo()">✉️<span>Email</span></button>
                 <button class="ticket-btn-action" onclick="window.print()">🖨️<span>Imprimir</span></button>
-                <button class="ticket-btn-action" onclick="compartirTicket()">🔗<span>Compartir</span></button>
+                <button class="ticket-btn-action" onclick="compartirWhatsApp()">🔗<span>Compartir</span></button>
             </div>
         </div>
     </div>
@@ -115,10 +125,10 @@
 
         let pedidoActualId = null;
         let detallesActuales = [];
+        let pedidoSeleccionadoActual = null; // Guardar el objeto completo para WhatsApp/Email
 
         document.addEventListener('DOMContentLoaded', cargarPedidos);
 
-        // Función auxiliar para agrupar items repetidos por nombre de producto
         function agruparDetalles(detalles) {
             const agrupados = {};
             detalles.forEach(item => {
@@ -169,8 +179,6 @@
             data.forEach((p, indexCard) => {
                 const fecha = new Date(p.created_at).toLocaleString();
                 const numeroPedido = data.length - indexCard;
-
-                // Agrupamos los items para mostrarlos limpios y sin duplicados visuales
                 const itemsAgrupados = agruparDetalles(p.detalle_pedidos || []);
                 let itemsHtml = '';
                 let totalCtdItems = 0;
@@ -192,7 +200,6 @@
                     itemsHtml = '<p style="color: #94a3b8; font-size: 13px;">Sin items registrados.</p>';
                 }
 
-                // Recalculamos el total real basado en los agrupados por seguridad
                 const totalReal = itemsAgrupados.reduce((acc, curr) => acc + curr.subtotal, 0);
 
                 contenedor.innerHTML += `
@@ -256,9 +263,7 @@
 
         function abrirModalEditar(pedido) {
             pedidoActualId = pedido.id;
-            // Agrupamos al abrir el modal para que no salgan filas duplicadas
             detallesActuales = agruparDetalles(pedido.detalle_pedidos || []);
-            
             document.getElementById('modalTitulo').innerText = `Editar: ${pedido.nombre_cliente || 'Cliente'}`;
             renderizarItemsModal();
             document.getElementById('modalEditar').style.display = 'flex';
@@ -317,74 +322,59 @@
         }
 
         async function guardarCambiosPedido() {
-    if (!pedidoActualId) return;
+            if (!pedidoActualId) return;
 
-    let nuevoTotalGeneral = 0;
-    detallesActuales.forEach(item => {
-        nuevoTotalGeneral += item.subtotal;
-    });
+            let nuevoTotalGeneral = 0;
+            detallesActuales.forEach(item => {
+                nuevoTotalGeneral += item.subtotal;
+            });
 
-    // 1. En lugar de borrar todo en masa (que suele causar el error de llaves foráneas), 
-    // vamos a actualizar o insertar los elementos actuales de forma limpia.
-    // Primero, eliminamos los detalles que ya no están en la lista actual obteniendo los IDs originales si los tienen,
-    // o bien limpiamos de forma segura recorriendo los cambios.
-    
-    // Una alternativa muy limpia en Supabase para evitar errores de borrado masivo es 
-    // hacer un reemplazo controlado: borramos los detalles viejos de este pedido específico 
-    // asegurándonos de manejar la respuesta de error de forma descriptiva:
-    const { error: errorDel } = await supabaseClient
-        .from('detalle_pedidos')
-        .delete()
-        .eq('pedido_id', pedidoActualId);
+            const { error: errorDel } = await supabaseClient
+                .from('detalle_pedidos')
+                .delete()
+                .eq('pedido_id', pedidoActualId);
 
-    if (errorDel) {
-        alert('Error al actualizar los componentes del pedido. Verifica permisos o restricciones.');
-        console.error("Detalle del error al borrar:", errorDel);
-        return;
-    }
+            if (errorDel) {
+                alert('Error al actualizar los componentes del pedido.');
+                return;
+            }
 
-    // 2. Si la eliminación fue exitosa, insertamos los nuevos ítems limpios y agrupados
-    if (detallesActuales.length > 0) {
-        const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
-            pedido_id: pedidoActualId,
-            producto_nombre: item.producto_nombre,
-            cantidad: item.cantidad,
-            precio_unitario: item.precio_unitario,
-            subtotal: item.subtotal
-        }));
+            if (detallesActuales.length > 0) {
+                const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
+                    pedido_id: pedidoActualId,
+                    producto_nombre: item.producto_nombre,
+                    cantidad: item.cantidad,
+                    precio_unitario: item.precio_unitario,
+                    subtotal: item.subtotal
+                }));
 
-        const { error: errorIns } = await supabaseClient
-            .from('detalle_pedidos')
-            .insert(nuevosDetallesParaInsertar);
+                const { error: errorIns } = await supabaseClient
+                    .from('detalle_pedidos')
+                    .insert(nuevosDetallesParaInsertar);
 
-        if (errorIns) {
-            alert('Error al insertar los nuevos productos en el pedido.');
-            console.error("Detalle del error al insertar:", errorIns);
-            return;
+                if (errorIns) {
+                    alert('Error al insertar los nuevos productos.');
+                    return;
+                }
+            }
+
+            const { error: errorPedido } = await supabaseClient
+                .from('pedidos')
+                .update({ total: nuevoTotalGeneral })
+                .eq('id', pedidoActualId);
+
+            if (errorPedido) {
+                alert('Error al actualizar el total del pedido.');
+                return;
+            }
+
+            alert('¡Pedido actualizado con éxito!');
+            cerrarModal();
+            cargarPedidos();
         }
-    }
-
-    // 3. Actualizamos el total general en la tabla principal de pedidos
-    // Nota: Asegúrate de que el campo en tu tabla se llame 'total' y acepte números decimales/flotantes.
-    const { error: errorPedido } = await supabaseClient
-        .from('pedidos')
-        .update({ total: nuevoTotalGeneral })
-        .eq('id', pedidoActualId);
-
-    if (errorPedido) {
-        alert('Error al actualizar el total del pedido en la base de datos.');
-        console.error("Detalle del error en pedidos:", errorPedido);
-        return;
-    }
-
-    alert('¡Pedido actualizado con éxito!');
-    cerrarModal();
-    cargarPedidos();
-}
-
-
 
         function abrirTicketModal(pedido, numPedido, totalCtd) {
+            pedidoSeleccionadoActual = pedido; // Guardamos para usar en WhatsApp/Email
             const fechaFormateada = new Date(pedido.created_at).toLocaleString();
             const itemsAgrupados = agruparDetalles(pedido.detalle_pedidos || []);
             let itemsTicketHtml = '';
@@ -438,16 +428,42 @@
             document.getElementById('modalTicket').style.display = 'none';
         }
 
-        function compartirTicket() {
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Ticket de Pedido - Hebron',
-                    text: 'Aquí tienes los detalles de tu pedido en Hebron casa de eventos.',
-                    url: window.location.href,
-                }).catch(() => {});
-            } else {
-                alert('La función de compartir no está soportada en este navegador.');
-            }
+        // --- NUEVA FUNCIÓN COMPARTIR / ENVIAR POR WHATSAPP (Formato Texto Directo) ---
+        function compartirWhatsApp() {
+            if (!pedidoSeleccionadoActual) return;
+
+            const nombreCliente = pedidoSeleccionadoActual.nombre_cliente || "Cliente";
+            let mensaje = `Hola *${nombreCliente}*, tu pedido se ha recibido. En un momento uno de nuestros asesores se pondrá en contacto contigo:\n\n`;
+
+            const itemsAgrupados = agruparDetalles(pedidoSeleccionadoActual.detalle_pedidos || []);
+            itemsAgrupados.forEach(item => {
+                mensaje += `• ${item.cantidad}x ${item.producto_nombre} (Q. ${item.subtotal.toFixed(2)})\n`;
+            });
+
+            const totalGeneral = pedidoSeleccionadoActual.total ? pedidoSeleccionadoActual.total.toFixed(2) : '0.00';
+            mensaje += `\n*Total productos: Q. ${totalGeneral}*`;
+            mensaje += `\n💳 Método de pago: ${pedidoSeleccionadoActual.metodo_pago || 'Efectivo'}`;
+            mensaje += `\n🚚 Forma de entrega: ${pedidoSeleccionadoActual.forma_entrega || 'Entrega'}`;
+            mensaje += `\n📍 Dirección del evento: ${pedidoSeleccionadoActual.direccion_evento || 'N/A'}`;
+            mensaje += `\n📝 Observación: ${pedidoSeleccionadoActual.observacion || 'Ninguna'}`;
+
+            // Limpiar teléfono por si trae guiones o espacios
+            let telefono = pedidoSeleccionadoActual.cliente_telefono ? pedidoSeleccionadoActual.cliente_telefono.replace(/\D/g, '') : '';
+            
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWhatsApp, '_blank');
+        }
+
+        // --- FUNCIÓN ENVIAR CORREO ELECTRONICO ---
+        function enviarCorreoRecibo() {
+            if (!pedidoSeleccionadoActual) return;
+            const nombreCliente = pedidoSeleccionadoActual.nombre_cliente || "Cliente";
+            const totalGeneral = pedidoSeleccionadoActual.total ? pedidoSeleccionadoActual.total.toFixed(2) : '0.00';
+
+            const subject = encodeURIComponent("Detalle de su pedido - Hebron Casa de Eventos");
+            const body = encodeURIComponent(`Hola ${nombreCliente},\n\nTu pedido en Hebron Casa de Eventos ha sido recibido por un total de Q. ${totalGeneral}.\n\nPronto nos pondremos en contacto contigo.\n\n¡Gracias!`);
+
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
         }
     </script>
 </body>
