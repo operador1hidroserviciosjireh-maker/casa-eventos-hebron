@@ -3,53 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Venta - Hebron Casa de Eventos</title>
+    <title>Vender - Hebron Casa de Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #334155; padding-bottom: 90px; }
-        
-        .header-catalogo { background-color: #253342; color: white; padding: 25px 20px; text-align: center; }
-        .header-catalogo h1 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-        .header-catalogo p { font-size: 12px; color: #94a3b8; }
+        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #1e293b; padding-bottom: 90px; }
 
-        .container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; flex-grow: 1; }
-        
-        .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
-        .back-link:hover { text-decoration: underline; }
+        /* Header superior estilo POS */
+        .pos-header { background-color: #ffffff; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
+        .pos-header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-icon { font-size: 20px; cursor: pointer; color: #334155; }
+        .pos-title { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .btn-add-client { background-color: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
-        /* Buscador */
-        .search-container { margin-bottom: 20px; }
-        .search-input { width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: white; }
-        .search-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15); }
+        /* Barra de herramientas secundaria */
+        .pos-toolbar { background: #ffffff; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; gap: 10px; }
+        .pos-search-input { flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+        .tool-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 14px; color: #334155; }
 
-        /* Grid de Productos */
-        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .producto-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid #e2e8f0; }
-        
-        .producto-img-container { width: 100%; height: 190px; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; padding: 10px; }
+        .container { padding: 15px; max-width: 1200px; margin: 0 auto; width: 100%; flex-grow: 1; }
+
+        /* Grid de Productos estilo oscuro con imagen */
+        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        @media (min-width: 768px) { .productos-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; } }
+
+        .producto-card { background: #253342; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.1s; }
+        .producto-card:active { transform: scale(0.98); }
+
+        .badge-qty-floating { position: absolute; top: 10px; right: 10px; background-color: #10b981; color: white; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        .producto-img-container { width: 100%; height: 130px; background: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; }
+        @media (min-width: 768px) { .producto-img-container { height: 160px; } }
         .producto-img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
         .producto-sin-foto { color: #94a3b8; font-size: 12px; }
 
-        .producto-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
-        .producto-nombre { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
-        .producto-precio { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 12px; }
+        .producto-info { padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; }
+        .producto-nombre { font-size: 13px; font-weight: 600; color: #ffffff; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .producto-precio { font-size: 14px; font-weight: 700; color: #ffffff; }
 
-        /* Controles de cantidad */
-        .card-actions { display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1; }
-        .btn-qty { background: #fff; border: none; padding: 10px 14px; font-size: 16px; font-weight: bold; cursor: pointer; color: #334155; transition: background 0.2s; }
-        .btn-qty:hover { background: #e2e8f0; }
-        .qty-input { width: 50px; text-align: center; border: none; background: transparent; font-size: 14px; font-weight: 600; color: #1e293b; outline: none; }
-        
-        .btn-add-initial { background-color: #10b981; color: white; border: none; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center; }
-        .btn-add-initial:hover { background-color: #059669; }
-
-        /* Barra Inferior Flotante del Carrito */
-        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #253342; color: white; padding: 15px 20px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.15); z-index: 1000; }
+        /* Barra Inferior Flotante de Total */
+        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #10b981; color: white; padding: 14px 20px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.15); z-index: 1000; cursor: pointer; }
         .cart-bar.active { display: flex; }
-        .cart-bar-info { font-size: 15px; font-weight: 600; }
-        .cart-bar-btn { background-color: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .cart-bar-text { font-size: 16px; font-weight: 700; }
+        .cart-bar-arrow { font-size: 18px; font-weight: bold; }
 
         /* Modales */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; }
@@ -64,144 +61,132 @@
         .cart-item-title { font-size: 14px; font-weight: 600; color: #1e293b; }
         .cart-item-price { font-size: 13px; color: #64748b; }
         .cart-item-controls { display: flex; align-items: center; background: #f1f5f9; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; }
-        
+        .btn-qty { background: #fff; border: none; padding: 6px 12px; font-size: 14px; font-weight: bold; cursor: pointer; color: #334155; }
+        .qty-input { width: 45px; text-align: center; border: none; background: transparent; font-size: 14px; font-weight: 600; color: #1e293b; outline: none; }
+
         .modal-footer { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
         .modal-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 15px; }
         .btn-checkout { background-color: #10b981; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; }
         .btn-checkout:hover { background-color: #059669; }
 
-        /* Estilos pantalla de Checkout */
-        .form-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 6px; }
-        .form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 12px; background: white; }
-        .textarea-obs { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: none; height: 70px; outline: none; margin-bottom: 12px; }
-        .delivery-option { border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 10px; background: #fff; }
-        .delivery-option input { margin-top: 3px; }
-        .delivery-option-title { font-size: 13px; font-weight: 700; color: #1e293b; }
-        .delivery-option-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+        .form-section-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 5px; }
+        .form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; background: white; }
+        .textarea-obs { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: none; height: 60px; outline: none; margin-bottom: 10px; }
+        .delivery-option { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; background: #fff; font-size: 13px; font-weight: 600; color: #1e293b; }
     </style>
 </head>
 <body>
 
-    <div class="header-catalogo">
-        <h1>Módulo de Ventas Internas</h1>
-        <p>Hebron Casa de Eventos</p>
+    <!-- Header POS superior -->
+    <div class="pos-header">
+        <div class="pos-header-left">
+            <span class="menu-icon" onclick="window.location.href='admin.html'">☰</span>
+            <span class="pos-title">Vender</span>
+        </div>
+        <button class="btn-add-client" onclick="abrirModalClienteNuevo()">👤+ Cliente</button>
+    </div>
+
+    <!-- Barra de búsqueda y herramientas -->
+    <div class="pos-toolbar">
+        <input type="text" id="inputBuscar" class="pos-search-input" placeholder="Buscar productos..." onkeyup="filtrarCatalogo()">
+        <button class="tool-btn" onclick="limpiarTodo()" title="Limpiar venta">🗑️</button>
     </div>
 
     <div class="container">
-        <a href="admin.html" class="back-link">← Volver al panel de administración</a>
-
-        <div class="search-container">
-            <input type="text" id="inputBuscar" class="search-input" placeholder="Buscar productos..." onkeyup="filtrarCatalogo()">
-        </div>
-
         <div id="grid-catalogo" class="productos-grid">
             <p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">Cargando catálogo...</p>
         </div>
     </div>
 
-    <!-- Barra Inferior Flotante -->
-    <div id="cartBar" class="cart-bar">
-        <div class="cart-bar-info" id="cartBarInfo">0 artículos • Q. 0.00</div>
-        <button class="cart-bar-btn" onclick="abrirModalCarrito()">Ver pedido actual</button>
+    <!-- Barra Inferior Flotante Estilo Referencia -->
+    <div id="cartBar" class="cart-bar" onclick="abrirModalCarrito()">
+        <div class="cart-bar-text" id="cartBarText">4 items = 105.00 Q</div>
+        <div class="cart-bar-arrow">&gt;</div>
     </div>
 
-    <!-- Modal del Carrito -->
+    <!-- Modal del Carrito / Resumen -->
     <div id="cartModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Resumen del Pedido</h2>
+                <h2>Artículos en la Venta</h2>
                 <button class="close-modal" onclick="cerrarModalCarrito()">&times;</button>
             </div>
             <div id="cartItemsContainer" style="overflow-y: auto; max-height: 35vh;"></div>
             <div class="modal-footer">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <button onclick="vaciarCarrito()" style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; font-weight:600;">Vaciar carrito</button>
-                    <button onclick="cerrarModalCarrito()" style="background:none; border:none; color:#10b981; font-size:13px; cursor:pointer; font-weight:700;">Agregar más productos &gt;</button>
+                    <button onclick="vaciarCarrito()" style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; font-weight:600;">Vaciar todo</button>
+                    <button onclick="cerrarModalCarrito()" style="background:none; border:none; color:#10b981; font-size:13px; cursor:pointer; font-weight:700;">Seguir agregando &gt;</button>
                 </div>
                 <div class="modal-total">
                     <span>Total:</span>
                     <span id="modalTotalPrecio">Q. 0.00</span>
                 </div>
-                <button class="btn-checkout" onclick="abrirModalEntrega()">Seleccionar Cliente y Finalizar</button>
+                <button class="btn-checkout" onclick="abrirModalCheckout()">Continuar con Cliente y Pago</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Selección de Cliente y Datos -->
-    <div id="deliveryModal" class="modal-overlay">
+    <!-- Modal de Checkout / Datos Finales -->
+    <div id="checkoutModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Registrar Venta</h2>
-                <button class="close-modal" onclick="cerrarModalEntrega()">&times;</button>
+                <h2>Finalizar Venta</h2>
+                <button class="close-modal" onclick="cerrarModalCheckout()">&times;</button>
             </div>
             
             <div style="overflow-y: auto; max-height: 55vh; padding-right: 2px;">
-                
-                <!-- Sección de Clientes -->
-                <div class="form-section-title">Cliente</div>
-                <select id="selectCliente" class="form-select" onchange="seleccionarClienteExistente()">
-                    <option value="">-- Seleccionar cliente registrado --</option>
+                <div class="form-section-title">Seleccionar Cliente Registrado</div>
+                <select id="selectCliente" class="form-select" onchange="rellenarClienteSeleccionado()">
+                    <option value="">-- Seleccionar cliente --</option>
                 </select>
 
-                <div style="font-size: 12px; color: #64748b; margin-top: -6px; margin-bottom: 10px; font-weight: 500;">
-                    O ingresa un cliente nuevo:
+                <div class="form-section-title">O Datos del Cliente</div>
+                <input type="text" id="txtNombreCliente" class="form-input" placeholder="Nombre completo">
+                <input type="tel" id="txtTelefonoCliente" class="form-input" placeholder="Teléfono / WhatsApp">
+
+                <div class="form-section-title">Método de Pago</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                    <label class="delivery-option"><input type="radio" name="metodoPago" value="Efectivo" checked> Efectivo</label>
+                    <label class="delivery-option"><input type="radio" name="metodoPago" value="Transferencia"> Transferencia</label>
                 </div>
 
-                <input type="text" id="txtNombreCliente" class="form-input" placeholder="Nombre y Apellido del cliente">
-                <input type="tel" id="txtTelefonoCliente" class="form-input" placeholder="Teléfono / WhatsApp del cliente">
-
-                <div class="form-section-title" style="margin-top: 5px;">Método de Pago</div>
-                <label class="delivery-option">
-                    <input type="radio" name="metodoPago" value="Efectivo" checked>
-                    <div><div class="delivery-option-title">Efectivo</div></div>
-                </label>
-                <label class="delivery-option">
-                    <input type="radio" name="metodoPago" value="Transferencia">
-                    <div><div class="delivery-option-title">Transferencia bancaria</div></div>
-                </label>
-
-                <div class="form-section-title" style="margin-top: 5px;">Forma de entrega</div>
-                <label class="delivery-option">
-                    <input type="radio" name="formaEntrega" value="Entrega en lugar de evento" checked onchange="toggleCampoDireccion()">
-                    <div>
-                        <div class="delivery-option-title">Entrega en lugar de evento</div>
-                    </div>
-                </label>
-                <label class="delivery-option">
-                    <input type="radio" name="formaEntrega" value="Retirada en local" onchange="toggleCampoDireccion()">
-                    <div>
-                        <div class="delivery-option-title">Retirada en local</div>
-                    </div>
-                </label>
-
-                <div id="seccionDireccionEvento" style="margin-top: 10px;">
-                    <div class="form-section-title">Dirección de entrega del evento</div>
-                    <input type="text" id="txtDireccionEvento" class="form-input" placeholder="Ej. Km 30.5 Carretera a San Elena Barillas...">
+                <div class="form-section-title">Forma de Entrega</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                    <label class="delivery-option"><input type="radio" name="formaEntrega" value="Entrega en lugar de evento" checked onchange="toggleDir()"> Evento</label>
+                    <label class="delivery-option"><input type="radio" name="formaEntrega" value="Retirada en local" onchange="toggleDir()"> Local</label>
                 </div>
 
-                <div class="form-section-title" style="margin-top: 5px;">Observación interna</div>
-                <textarea id="txtObservacion" class="textarea-obs" placeholder="Notas del pedido..." maxlength="200"></textarea>
+                <div id="seccionDireccion">
+                    <div class="form-section-title">Dirección de Entrega</div>
+                    <input type="text" id="txtDireccionEvento" class="form-input" placeholder="Ubicación o dirección...">
+                </div>
+
+                <div class="form-section-title">Observaciones</div>
+                <textarea id="txtObservacion" class="textarea-obs" placeholder="Notas internas..."></textarea>
             </div>
 
             <div class="modal-footer" style="margin-top: 15px;">
                 <div class="modal-total" style="margin-bottom: 10px;">
                     <span>Total a cobrar:</span>
-                    <span id="deliveryTotalPrecio">Q. 0.00</span>
+                    <span id="checkoutTotalPrecio">Q. 0.00</span>
                 </div>
-                <button class="btn-checkout" onclick="guardarVentaInterna()">Guardar Venta en el Sistema</button>
+                <button class="btn-checkout" onclick="guardarVentaDefinitiva()">Registrar y Guardar Venta</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Confirmación de Éxito -->
-    <div id="successModal" class="modal-overlay">
-        <div class="modal-content" style="text-align: center; padding: 30px 20px;">
-            <div style="font-size: 50px; margin-bottom: 15px;">✅</div>
-            <h2 style="font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 15px;">¡Venta Registrada!</h2>
-            <p style="font-size: 15px; color: #475569; line-height: 1.5; margin-bottom: 25px;">
-                El pedido ha sido guardado correctamente en la base de datos y ya aparece en la sección de Pedidos.
-            </p>
-            <button class="btn-checkout" onclick="irAPedidos()">Ir a la sección de Pedidos</button>
+    <!-- Modal Cliente Nuevo Rápido -->
+    <div id="clientModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Agregar Nuevo Cliente</h2>
+                <button class="close-modal" onclick="cerrarModalClienteNuevo()">&times;</button>
+            </div>
+            <div style="padding-top: 5px;">
+                <input type="text" id="nuevoNombreCliente" class="form-input" placeholder="Nombre del cliente">
+                <input type="tel" id="nuevoTelefonoCliente" class="form-input" placeholder="Teléfono / WhatsApp">
+                <button class="btn-checkout" style="margin-top: 10px;" onclick="guardarNuevoClienteExpress()">Guardar Cliente</button>
+            </div>
         </div>
     </div>
 
@@ -212,7 +197,7 @@
 
         let listaProductosGlobal = [];
         let listaClientesGlobal = [];
-        let carrito = {}; 
+        let carrito = {};
 
         document.addEventListener('DOMContentLoaded', () => {
             cargarProductos();
@@ -220,49 +205,22 @@
         });
 
         async function cargarProductos() {
-            const { data, error } = await supabaseClient
-                .from('productos')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            const grid = document.getElementById('grid-catalogo');
-            if (error) {
-                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #ef4444;">Error al cargar productos: ${error.message}</p>`;
-                return;
+            const { data, error } = await supabaseClient.from('productos').select('*').order('created_at', { ascending: false });
+            if (!error && data) {
+                listaProductosGlobal = data;
+                renderizarProductos(listaProductosGlobal);
             }
-
-            listaProductosGlobal = data || [];
-            renderizarProductos(listaProductosGlobal);
         }
 
         async function cargarClientes() {
-            const { data, error } = await supabaseClient
-                .from('clientes')
-                .select('*')
-                .order('nombre', { ascending: true });
-
+            const { data, error } = await supabaseClient.from('clientes').select('*').order('nombre', { ascending: true });
             if (!error && data) {
                 listaClientesGlobal = data;
                 const select = document.getElementById('selectCliente');
-                select.innerHTML = '<option value="">-- Seleccionar cliente registrado --</option>';
+                select.innerHTML = '<option value="">-- Seleccionar cliente --</option>';
                 data.forEach(c => {
                     select.innerHTML += `<option value="${c.telefono}">${c.nombre} (${c.telefono})</option>`;
                 });
-            }
-        }
-
-        function seleccionarClienteExistente() {
-            const telefonoSeleccionado = document.getElementById('selectCliente').value;
-            if (!telefonoSeleccionado) {
-                document.getElementById('txtNombreCliente').value = '';
-                document.getElementById('txtTelefonoCliente').value = '';
-                return;
-            }
-
-            const clienteEncontrado = listaClientesGlobal.find(c => c.telefono === telefonoSeleccionado);
-            if (clienteEncontrado) {
-                document.getElementById('txtNombreCliente').value = clienteEncontrado.nombre || '';
-                document.getElementById('txtTelefonoCliente').value = clienteEncontrado.telefono || '';
             }
         }
 
@@ -271,76 +229,49 @@
             grid.innerHTML = '';
 
             if (!productos || productos.length === 0) {
-                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">No se encontraron productos.</p>`;
+                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">No hay productos disponibles.</p>`;
                 return;
             }
 
             productos.forEach(p => {
-                let imgHtml = p.foto ? `<img src="${p.foto}" alt="${p.nombre}">` : `<span class="producto-sin-foto">Sin imagen</span>`;
-                let precioFormateado = `Q. ${parseFloat(p.precio || 0).toFixed(2)}`;
-                let stockTexto = p.controlar_stock ? `Stock: ${p.stock || 0}` : `Disponible`;
                 let idProd = p.id || p.nombre;
-                let cantidadEnCarrito = carrito[idProd] ? carrito[idProd].cantidad : 0;
-
-                let actionHtml = cantidadEnCarrito === 0 
-                    ? `<button onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, 1)" class="btn-add-initial">+ Agregar</button>`
-                    : `<div class="card-actions">
-                         <button class="btn-qty" onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, -1)">-</button>
-                         <input type="number" min="0" class="qty-input" value="${cantidadEnCarrito}" onchange="fijarCantidadDirecta('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, this.value)">
-                         <button class="btn-qty" onclick="cambiarCantidad('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio}, 1)">+</button>
-                       </div>`;
+                let enCarrito = carrito[idProd] ? carrito[idProd].cantidad : 0;
+                let badgeHtml = enCarrito > 0 ? `<div class="badge-qty-floating">${enCarrito}</div>` : '';
+                let imgHtml = p.foto ? `<img src="${p.foto}" alt="${p.nombre}">` : `<span class="producto-sin-foto">Sin imagen</span>`;
 
                 grid.innerHTML += `
-                    <div class="producto-card">
+                    <div class="producto-card" onclick="agregarAlCarritoDirecto('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio})">
+                        ${badgeHtml}
                         <div class="producto-img-container">${imgHtml}</div>
                         <div class="producto-info">
-                            <div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                    <h3 class="producto-nombre">${p.nombre}</h3>
-                                    <span style="font-size: 11px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; color: #475569;">${stockTexto}</span>
-                                </div>
-                                <div class="producto-precio">${precioFormateado}</div>
-                            </div>
-                            <div>${actionHtml}</div>
+                            <h3 class="producto-nombre">${p.nombre}</h3>
+                            <div class="producto-precio">Q. ${parseFloat(p.precio || 0).toFixed(2)}</div>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function cambiarCantidad(id, nombre, precio, delta) {
+        function agregarAlCarritoDirecto(id, nombre, precio) {
             if (!carrito[id]) {
-                if (delta > 0) carrito[id] = { nombre, precio, cantidad: delta };
+                carrito[id] = { nombre, precio, cantidad: 1 };
             } else {
-                carrito[id].cantidad += delta;
-                if (carrito[id].cantidad <= 0) delete carrito[id];
+                carrito[id].cantidad += 1;
             }
             renderizarProductos(listaProductosGlobal);
-            actualizarBarraCarrito();
+            actualizarBarraFlotante();
         }
 
-        function fijarCantidadDirecta(id, nombre, precio, valor) {
-            let cantidad = parseInt(valor);
-            if (isNaN(cantidad) || cantidad <= 0) {
-                delete carrito[id];
-            } else {
-                if (!carrito[id]) carrito[id] = { nombre, precio, cantidad };
-                else carrito[id].cantidad = cantidad;
-            }
-            renderizarProductos(listaProductosGlobal);
-            actualizarBarraCarrito();
-        }
-
-        function actualizarBarraCarrito() {
+        function actualizarBarraFlotante() {
             let totalArticulos = 0, precioTotal = 0;
             for (let id in carrito) {
                 totalArticulos += carrito[id].cantidad;
                 precioTotal += carrito[id].precio * carrito[id].cantidad;
             }
             const cartBar = document.getElementById('cartBar');
-            const cartBarInfo = document.getElementById('cartBarInfo');
+            const cartBarText = document.getElementById('cartBarText');
             if (totalArticulos > 0) {
-                cartBarInfo.innerText = `${totalArticulos} artículos • Q. ${precioTotal.toFixed(2)}`;
+                cartBarText.innerText = `${totalArticulos} items = ${precioTotal.toFixed(2)} Q`;
                 cartBar.classList.add('active');
             } else {
                 cartBar.classList.remove('active');
@@ -363,13 +294,10 @@
                             <div class="cart-item-title">${item.nombre}</div>
                             <div class="cart-item-price">Q. ${item.precio.toFixed(2)} c/u</div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <div class="cart-item-controls">
-                                <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, -1); abrirModalCarrito();">-</button>
-                                <input type="number" min="0" class="qty-input" style="width: 45px;" value="${item.cantidad}" onchange="fijarCantidadDirecta('${id}', '${item.nombre}', ${item.precio}, this.value); abrirModalCarrito();">
-                                <button class="btn-qty" style="padding: 4px 10px; font-size: 14px;" onclick="cambiarCantidad('${id}', '${item.nombre}', ${item.precio}, 1); abrirModalCarrito();">+</button>
-                            </div>
-                            <button onclick="eliminarItemCarrito('${id}')" style="background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer; padding: 2px 5px;" title="Eliminar">&times;</button>
+                        <div class="cart-item-controls">
+                            <button class="btn-qty" onclick="cambiarCantidadItem('${id}', -1)">-</button>
+                            <input type="text" class="qty-input" value="${item.cantidad}" readonly>
+                            <button class="btn-qty" onclick="cambiarCantidadItem('${id}', 1)">+</button>
                         </div>
                     </div>
                 `;
@@ -379,129 +307,112 @@
             document.getElementById('cartModal').classList.add('active');
         }
 
-        function eliminarItemCarrito(id) {
-            delete carrito[id];
+        function cambiarCantidadItem(id, delta) {
+            if (carrito[id]) {
+                carrito[id].cantidad += delta;
+                if (carrito[id].cantidad <= 0) delete carrito[id];
+            }
             renderizarProductos(listaProductosGlobal);
-            actualizarBarraCarrito();
+            actualizarBarraFlotante();
             abrirModalCarrito();
         }
 
-        function cerrarModalCarrito() {
-            document.getElementById('cartModal').classList.remove('active');
-        }
+        function cerrarModalCarrito() { document.getElementById('cartModal').classList.remove('active'); }
+        function vaciarCarrito() { carrito = {}; renderizarProductos(listaProductosGlobal); actualizarBarraFlotante(); cerrarModalCarrito(); }
+        function limpiarTodo() { vaciarCarrito(); }
 
-        function abrirModalEntrega() {
+        function abrirModalCheckout() {
             cerrarModalCarrito();
-            let precioTotal = 0;
-            for (let id in carrito) {
-                precioTotal += carrito[id].precio * carrito[id].cantidad;
+            let total = 0;
+            for (let id in carrito) total += carrito[id].precio * carrito[id].cantidad;
+            document.getElementById('checkoutTotalPrecio').innerText = `Q. ${total.toFixed(2)}`;
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+        function cerrarModalCheckout() { document.getElementById('checkoutModal').classList.remove('active'); }
+
+        function rellenarClienteSeleccionado() {
+            let tel = document.getElementById('selectCliente').value;
+            let cli = listaClientesGlobal.find(c => c.telefono === tel);
+            if (cli) {
+                document.getElementById('txtNombreCliente').value = cli.nombre || '';
+                document.getElementById('txtTelefonoCliente').value = cli.telefono || '';
             }
-            document.getElementById('deliveryTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
-            document.getElementById('deliveryModal').classList.add('active');
-            toggleCampoDireccion();
         }
 
-        function cerrarModalEntrega() {
-            document.getElementById('deliveryModal').classList.remove('active');
-        }
+        function abrirModalClienteNuevo() { document.getElementById('clientModal').classList.add('active'); }
+        function cerrarModalClienteNuevo() { document.getElementById('clientModal').classList.remove('active'); }
 
-        function toggleCampoDireccion() {
-            let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
-            let seccionDir = document.getElementById('seccionDireccionEvento');
-            if (formaEntrega === 'Entrega en lugar de evento') {
-                seccionDir.style.display = 'block';
+        async function guardarNuevoClienteExpress() {
+            let nombre = document.getElementById('nuevoNombreCliente').value.trim();
+            let telefono = document.getElementById('nuevoTelefonoCliente').value.trim();
+            if (!nombre || !telefono) { alert('Completa los datos del cliente.'); return; }
+
+            const { error } = await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
+            if (!error) {
+                alert('Cliente guardado con éxito.');
+                cerrarModalClienteNuevo();
+                cargarClientes();
             } else {
-                seccionDir.style.display = 'none';
+                alert('Error al guardar cliente: ' + error.message);
             }
         }
 
-        function vaciarCarrito() {
-            carrito = {};
-            renderizarProductos(listaProductosGlobal);
-            actualizarBarraCarrito();
-            cerrarModalCarrito();
+        function toggleDir() {
+            let entrega = document.querySelector('input[name="formaEntrega"]:checked').value;
+            document.getElementById('seccionDireccion').style.display = entrega === 'Entrega en lugar de evento' ? 'block' : 'none';
         }
 
-        async function guardarVentaInterna() {
+        async function guardarVentaDefinitiva() {
             let nombre = document.getElementById('txtNombreCliente').value.trim();
             let telefono = document.getElementById('txtTelefonoCliente').value.trim();
             let metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
             let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
-            let direccionEvento = document.getElementById('txtDireccionEvento').value.trim();
+            let direccion = document.getElementById('txtDireccionEvento').value.trim();
             let observacion = document.getElementById('txtObservacion').value.trim();
 
-            if (!nombre || !telefono) {
-                alert('Por favor selecciona o ingresa el nombre y teléfono del cliente.');
-                return;
-            }
+            if (!nombre || !telefono) { alert('Indica el nombre y teléfono del cliente.'); return; }
 
-            if (formaEntrega === 'Entrega en lugar de evento' && !direccionEvento) {
-                alert('Por favor ingresa la dirección de entrega del evento.');
-                return;
-            }
-
-            let precioTotal = 0;
-            let itemsParaGuardar = [];
-            
+            let total = 0;
+            let items = [];
             for (let id in carrito) {
-                let item = carrito[id];
-                let subtotal = item.precio * item.cantidad;
-                precioTotal += subtotal;
-                itemsParaGuardar.push({
-                    producto_nombre: item.nombre,
-                    cantidad: item.cantidad,
-                    precio_unitario: item.precio,
-                    subtotal: subtotal
-                });
+                let it = carrito[id];
+                let sub = it.precio * it.cantidad;
+                total += sub;
+                items.push({ producto_nombre: it.nombre, cantidad: it.cantidad, precio_unitario: it.precio, subtotal: sub });
             }
 
             try {
-                // 1. Guardar o actualizar el cliente en la tabla clientes
-                await supabaseClient.from('clientes').upsert([
-                    { nombre: nombre, telefono: telefono }
-                ], { onConflict: 'telefono' });
+                await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
 
-                // 2. Insertar el pedido en la tabla pedidos con estado inicial 'Pendiente' (o 'Confirmado' según prefieras)
-                let { data: pedidoData, error: pedidoError } = await supabaseClient.from('pedidos').insert([
-                    {
-                        cliente_telefono: telefono,
-                        nombre_cliente: nombre,
-                        metodo_pago: metodoPago,
-                        forma_entrega: formaEntrega,
-                        direccion_evento: direccionEvento || null,
-                        observacion: observacion || null,
-                        total: precioTotal,
-                        estado: 'Pendiente'
-                    }
-                ]).select().single();
+                let { data: pedido, err } = await supabaseClient.from('pedidos').insert([{
+                    cliente_telefono: telefono,
+                    nombre_cliente: nombre,
+                    metodo_pago: metodoPago,
+                    forma_entrega: formaEntrega,
+                    direccion_evento: direccion || null,
+                    observacion: observacion || null,
+                    total: total,
+                    estado: 'Pendiente'
+                }]).select().single();
 
-                if (pedidoError) throw pedidoError;
+                if (err) throw err;
 
-                // 3. Insertar el detalle de los productos en detalle_pedidos
-                if (pedidoData && pedidoData.id) {
-                    let itemsConIdPedido = itemsParaGuardar.map(item => ({
-                        ...item,
-                        pedido_id: pedidoData.id
-                    }));
-                    await supabaseClient.from('detalle_pedidos').insert(itemsConIdPedido);
+                if (pedido && pedido.id) {
+                    let detalle = items.map(i => ({ ...i, pedido_id: pedido.id }));
+                    await supabaseClient.from('detalle_pedidos').insert(detalle);
                 }
 
-                cerrarModalEntrega();
-                document.getElementById('successModal').classList.add('active');
+                alert('¡Venta registrada con éxito!');
+                window.location.href = 'pedidos.html';
 
             } catch (e) {
-                console.error('Error al guardar la venta:', e);
-                alert('Error al registrar la venta: ' + e.message);
+                alert('Error al registrar venta: ' + e.message);
             }
         }
 
-        function irAPedidos() {
-            window.location.href = 'pedidos.html';
-        }
-
         function filtrarCatalogo() {
-            const texto = document.getElementById('inputBuscar').value.toLowerCase();
-            const filtrados = listaProductosGlobal.filter(p => p.nombre && p.nombre.toLowerCase().includes(texto));
+            let txt = document.getElementById('inputBuscar').value.toLowerCase();
+            let filtrados = listaProductosGlobal.filter(p => p.nombre.toLowerCase().includes(txt));
             renderizarProductos(filtrados);
         }
     </script>
