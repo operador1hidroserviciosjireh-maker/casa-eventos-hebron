@@ -10,21 +10,18 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #1e293b; padding-bottom: 90px; }
 
-        /* Header superior estilo POS */
         .pos-header { background-color: #ffffff; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
         .pos-header-left { display: flex; align-items: center; gap: 15px; }
         .menu-icon { font-size: 20px; cursor: pointer; color: #334155; }
         .pos-title { font-size: 18px; font-weight: 700; color: #1e293b; }
         .btn-add-client { background-color: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
-        /* Barra de herramientas secundaria */
         .pos-toolbar { background: #ffffff; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; gap: 10px; }
         .pos-search-input { flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
         .tool-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 14px; color: #334155; }
 
         .container { padding: 15px; max-width: 1200px; margin: 0 auto; width: 100%; flex-grow: 1; }
 
-        /* Grid de Productos estilo oscuro con imagen */
         .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
         @media (min-width: 768px) { .productos-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; } }
 
@@ -43,13 +40,11 @@
         .producto-stock { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
         .producto-precio { font-size: 14px; font-weight: 700; color: #ffffff; }
 
-        /* Barra Inferior Flotante de Total */
         .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #10b981; color: white; padding: 14px 20px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.15); z-index: 1000; cursor: pointer; }
         .cart-bar.active { display: flex; }
         .cart-bar-text { font-size: 16px; font-weight: 700; }
         .cart-bar-arrow { font-size: 18px; font-weight: bold; }
 
-        /* Modales */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: white; width: 100%; max-width: 600px; max-height: 85vh; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
@@ -78,7 +73,6 @@
 </head>
 <body>
 
-    <!-- Header POS superior -->
     <div class="pos-header">
         <div class="pos-header-left">
             <span class="menu-icon" onclick="window.location.href='admin.html'">☰</span>
@@ -87,7 +81,6 @@
         <button class="btn-add-client" onclick="abrirModalClienteNuevo()">👤+ Cliente</button>
     </div>
 
-    <!-- Barra de búsqueda y herramientas -->
     <div class="pos-toolbar">
         <input type="text" id="inputBuscar" class="pos-search-input" placeholder="Buscar productos..." onkeyup="filtrarCatalogo()">
         <button class="tool-btn" onclick="limpiarTodo()" title="Limpiar venta">🗑️</button>
@@ -99,13 +92,11 @@
         </div>
     </div>
 
-    <!-- Barra Inferior Flotante Estilo Referencia -->
     <div id="cartBar" class="cart-bar" onclick="abrirModalCarrito()">
         <div class="cart-bar-text" id="cartBarText">0 items = 0.00 Q</div>
         <div class="cart-bar-arrow">&gt;</div>
     </div>
 
-    <!-- Modal del Carrito / Resumen -->
     <div id="cartModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -127,7 +118,6 @@
         </div>
     </div>
 
-    <!-- Modal de Checkout / Datos Finales -->
     <div id="checkoutModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -176,7 +166,6 @@
         </div>
     </div>
 
-    <!-- Modal Cliente Nuevo Rápido -->
     <div id="clientModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -353,8 +342,8 @@
             let telefono = document.getElementById('nuevoTelefonoCliente').value.trim();
             if (!nombre || !telefono) { alert('Completa los datos del cliente.'); return; }
 
-            // CORREGIDO: Se usa .insert sin el parámetro onConflict
-            const { error } = await supabaseClient.from('clientes').insert([{ nombre, telefono }]);
+            // CORREGIDO: Se utiliza upsert con onConflict para actualizar el nombre si el teléfono ya existe
+            const { error } = await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
             if (!error) {
                 alert('Cliente guardado con éxito.');
                 cerrarModalClienteNuevo();
@@ -389,8 +378,8 @@
             }
 
             try {
-                // CORREGIDO: Se usa .insert sin el parámetro onConflict
-                await supabaseClient.from('clientes').insert([{ nombre, telefono }]);
+                // CORREGIDO: Se utiliza upsert para registrar o actualizar automáticamente al cliente al hacer la venta
+                await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
 
                 let { data: pedido, err } = await supabaseClient.from('pedidos').insert([{
                     cliente_telefono: telefono,
