@@ -3,52 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Pedidos - Hebron</title>
+    <title>Pedidos - Hebrón Casa de Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #1e293b; }
-        .header { background-color: #253342; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .header { background-color: #253342; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .header h1 { font-size: 18px; }
         .back-link { color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 500; }
         
-        .container { padding: 15px; max-width: 700px; margin: 0 auto; width: 100%; flex-grow: 1; }
+        .container { padding: 15px; max-width: 800px; margin: 0 auto; width: 100%; flex-grow: 1; }
 
-        .order-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; border: 1px solid #e2e8f0; overflow: hidden; }
+        /* Lista de pedidos estilo compacto */
+        .order-list-card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid #e2e8f0; padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.1s; }
+        .order-list-card:hover { background: #f8fafc; }
+
+        .order-info { display: flex; flex-direction: column; gap: 4px; }
+        .order-number-row { display: flex; align-items: center; gap: 8px; }
+        .order-number { font-size: 14px; font-weight: 700; color: #0f172a; }
+        .status-badge { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+        .status-badge.confirmed { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+        .status-badge.pending { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+
+        .order-client { font-size: 13px; font-weight: 600; color: #334155; }
+        .order-date { font-size: 11px; color: #64748b; }
+
+        .order-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .order-amount { font-size: 16px; font-weight: 700; color: #0f172a; }
+        .order-action-btns { display: flex; gap: 6px; margin-top: 4px; }
         
-        .order-top { padding: 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; }
-        .order-title { font-size: 13px; color: #64748b; font-weight: 500; }
-        .order-total { font-size: 24px; font-weight: 700; color: #0f172a; margin-top: 2px; }
-        
-        .badge-catalog { background: #f1f5f9; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; color: #475569; }
+        .btn-mini { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; }
+        .btn-mini-confirm { background: #10b981; color: white; }
+        .btn-mini-confirm:disabled { background: #94a3b8; cursor: not-allowed; }
+        .btn-mini-edit { background: #0ea5e9; color: white; }
 
-        .order-meta-row { padding: 12px 15px; display: flex; gap: 10px; align-items: center; background: #fafafa; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap; }
-        .status-pill { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
-        .status-pill.confirmed { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
-        .info-pill { background: #f8fafc; color: #334155; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; }
-
-        .tabs { display: flex; border-bottom: 1px solid #e2e8f0; background: #fff; }
-        .tab { flex: 1; text-align: center; padding: 12px; font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; }
-        .tab.active { color: #0d9488; border-bottom-color: #0d9488; }
-
-        .tab-content { padding: 15px; display: none; min-height: 120px; }
-        .tab-content.active { display: block; }
-
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-        .item-row:last-child { border-bottom: none; }
-        .item-name { font-weight: 500; color: #334155; }
-        .item-price { color: #64748b; font-size: 13px; }
-
-        .section-text { font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 6px; }
-
-        .card-footer { padding: 12px 15px; background: #f8fafc; border-top: 1px solid #f1f5f9; display: flex; justify-content: flex-end; gap: 8px; }
-        .btn-action { background: #0ea5e9; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .btn-action:hover { background: #0284c7; }
-        .btn-confirm { background: #10b981; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .btn-confirm:hover { background: #059669; }
-        .btn-confirm:disabled { background: #94a3b8; color: #f1f5f9; cursor: not-allowed; opacity: 0.9; }
-
+        /* Modales */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
         .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
         .modal-header { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
@@ -88,6 +79,7 @@
         <p style="text-align: center; color: #64748b; margin-top: 20px;">Cargando pedidos...</p>
     </div>
 
+    <!-- Modal Editar Ítems -->
     <div id="modalEditar" class="modal">
         <div class="modal-content">
             <div class="modal-header" id="modalTitulo">Editar Pedido</div>
@@ -102,11 +94,12 @@
         </div>
     </div>
 
+    <!-- Modal Ticket / Recibo -->
     <div id="modalTicket" class="modal">
         <div class="ticket-modal-content">
             <div class="ticket-top-bar">
                 <span onclick="cerrarTicketModal()" style="cursor: pointer; font-size: 16px;">✕</span>
-                <span>Editar mi recibo</span>
+                <span>Detalle del Recibo</span>
                 <span></span>
             </div>
             <div class="ticket-body" id="contenidoTicketRecibo"></div>
@@ -163,7 +156,7 @@
                         subtotal
                     )
                 `)
-                .order('created_at', { ascending: false });
+                .order('created_at', { ascending: true }); // Ordenados del más antiguo al más nuevo para asignar Pedido #1, #2...
 
             const contenedor = document.getElementById('contenedorPedidos');
             if (error) {
@@ -180,118 +173,59 @@
             listaPedidosGlobal = data;
             contenedor.innerHTML = '';
 
-            data.forEach((p, indexCard) => {
+            // Mostramos ordenados del más reciente al más antiguo para visualización, manteniendo su número correlativo correcto
+            data.slice().reverse().forEach((p, indexRev) => {
+                const numeroPedido = data.indexOf(p) + 1;
                 const fecha = new Date(p.created_at).toLocaleString();
-                const numeroPedido = data.length - indexCard;
                 const itemsAgrupados = agruparDetalles(p.detalle_pedidos || []);
-                let itemsHtml = '';
-                let totalCtdItems = 0;
-
-                if (itemsAgrupados.length > 0) {
-                    itemsHtml = itemsAgrupados.map(item => {
-                        totalCtdItems += item.cantidad;
-                        return `
-                            <div class="item-row">
-                                <div>
-                                    <strong style="color: #0f172a;">${item.cantidad} x</strong> 
-                                    <span class="item-name">${item.producto_nombre}</span>
-                                </div>
-                                <span class="item-price">Q. ${item.subtotal.toFixed(2)}</span>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    itemsHtml = '<p style="color: #94a3b8; font-size: 13px;">Sin items registrados.</p>';
-                }
-
                 const totalReal = itemsAgrupados.reduce((acc, curr) => acc + curr.subtotal, 0);
                 const esConfirmado = p.estado === 'Confirmado';
+                let totalCtdItems = itemsAgrupados.reduce((acc, curr) => acc + curr.cantidad, 0);
 
                 contenedor.innerHTML += `
-                    <div class="order-card" id="card-${p.id}">
-                        <div class="order-top">
-                            <div>
-                                <div class="order-title">${fecha}</div>
-                                <div class="order-total">${totalReal.toFixed(2)} Q</div>
+                    <div class="order-list-card" onclick='abrirTicketModalPorId("${p.id}", ${numeroPedido}, ${totalCtdItems})'>
+                        <div class="order-info">
+                            <div class="order-number-row">
+                                <span class="order-number">Pedido #${numeroPedido}</span>
+                                <span class="status-badge ${esConfirmado ? 'confirmed' : 'pending'}">
+                                    ${esConfirmado ? '✓ Confirmado' : '⏱ ' + (p.estado || 'Pendiente')}
+                                </span>
                             </div>
-                            <span class="badge-catalog">Pedido #${numeroPedido}</span>
+                            <div class="order-client">👤 ${p.nombre_cliente || 'Cliente sin nombre'} (${p.cliente_telefono || 'Sin teléfono'})</div>
+                            <div class="order-date">📅 ${fecha} &bull; 💵 ${p.metodo_pago || 'Efectivo'}</div>
                         </div>
-
-                        <div class="order-meta-row">
-                            <div id="status-pill-${p.id}" class="status-pill ${esConfirmado ? 'confirmed' : ''}">
-                                ${esConfirmado ? '✓ Confirmado' : '⏱ ' + (p.estado || 'Pendiente')}
+                        <div class="order-right">
+                            <div class="order-amount">Q. ${totalReal.toFixed(2)}</div>
+                            <div class="order-action-btns" onclick="event.stopPropagation()">
+                                <button class="btn-mini btn-mini-edit" onclick='abrirModalEditarPorId("${p.id}")'>Editar</button>
+                                <button id="btn-conf-${p.id}" class="btn-mini btn-mini-confirm" ${esConfirmado ? 'disabled' : ''} onclick='confirmarPedidoRapido("${p.id}")'>
+                                    ${esConfirmado ? 'Confirmado' : 'Confirmar'}
+                                </button>
                             </div>
-                            <div class="info-pill">💵 ${p.metodo_pago || 'Efectivo'}</div>
-                            <div class="info-pill">📦 ${p.forma_entrega || 'Entrega'}</div>
-                        </div>
-
-                        <div class="tabs">
-                            <div class="tab active" onclick="cambiarTab(this, 'items-${p.id}')">ITEMS</div>
-                            <div class="tab" onclick="cambiarTab(this, 'detalles-${p.id}')">DETALLES</div>
-                            <div class="tab" onclick="cambiarTab(this, 'cliente-${p.id}')">CLIENTE</div>
-                        </div>
-
-                        <div id="items-${p.id}" class="tab-content active">
-                            ${itemsHtml}
-                        </div>
-
-                        <div id="detalles-${p.id}" class="tab-content" style="display:none;">
-                            <div class="section-text"><strong>Dirección:</strong> ${p.direccion_evento || 'No especificada'}</div>
-                            <div class="section-text"><strong>Observación:</strong> ${p.observacion || 'Ninguna'}</div>
-                        </div>
-
-                        <div id="cliente-${p.id}" class="tab-content" style="display:none;">
-                            <div class="section-text"><strong>Nombre:</strong> ${p.nombre_cliente || 'No registrado'}</div>
-                            <div class="section-text"><strong>Teléfono:</strong> ${p.cliente_telefono || 'N/A'}</div>
-                        </div>
-
-                        <div class="card-footer">
-                            <button class="btn-action" onclick='abrirModalEditarPorId("${p.id}")'>Editar Pedido</button>
-                            <button id="btn-confirmar-${p.id}" class="btn-confirm" ${esConfirmado ? 'disabled' : ''} onclick='confirmarPedidoYBloquear("${p.id}", ${numeroPedido}, ${totalCtdItems})'>
-                                ${esConfirmado ? 'Pedido Confirmado' : 'Confirmar Pedido'}
-                            </button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        async function confirmarPedidoYBloquear(pedidoId, numPedido, totalCtd) {
-            const { data, error } = await supabaseClient
+        async function confirmarPedidoRapido(pedidoId) {
+            const { error } = await supabaseClient
                 .from('pedidos')
                 .update({ estado: 'Confirmado' })
-                .eq('id', pedidoId)
-                .select();
+                .eq('id', pedidoId);
 
             if (error) {
-                alert('Error al confirmar el pedido en la base de datos: ' + error.message);
+                alert('Error al confirmar: ' + error.message);
                 return;
             }
 
-            if (!data || data.length === 0) {
-                alert('Aviso: La base de datos no actualizó ningún registro. Verifica las políticas RLS en Supabase.');
-                return;
-            }
+            cargarPedidos(); // Recarga la lista para actualizar los estados
+        }
 
-            const pedidoObj = listaPedidosGlobal.find(p => p.id === pedidoId);
-            if (pedidoObj) {
-                pedidoObj.estado = 'Confirmado';
-            }
-
-            const btn = document.getElementById(`btn-confirmar-${pedidoId}`);
-            if (btn) {
-                btn.innerText = 'Pedido Confirmado';
-                btn.disabled = true;
-            }
-
-            const pill = document.getElementById(`status-pill-${pedidoId}`);
-            if (pill) {
-                pill.innerText = '✓ Confirmado';
-                pill.classList.add('confirmed');
-            }
-
-            if (pedidoObj) {
-                abrirTicketModal(pedidoObj, numPedido, totalCtd);
+        function abrirTicketModalPorId(pedidoId, numPedido, totalCtd) {
+            const pedido = listaPedidosGlobal.find(p => p.id === pedidoId);
+            if (pedido) {
+                abrirTicketModal(pedido, numPedido, totalCtd);
             }
         }
 
@@ -300,20 +234,6 @@
             if (pedido) {
                 abrirModalEditar(pedido);
             }
-        }
-
-        function cambiarTab(tabElement, targetId) {
-            const card = tabElement.closest('.order-card');
-            card.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            card.querySelectorAll('.tab-content').forEach(c => {
-                c.style.display = 'none';
-                c.classList.remove('active');
-            });
-
-            tabElement.classList.add('active');
-            const target = document.getElementById(targetId);
-            target.style.display = 'block';
-            target.classList.add('active');
         }
 
         function abrirModalEditar(pedido) {
@@ -390,7 +310,7 @@
                 .eq('pedido_id', pedidoActualId);
 
             if (errorDel) {
-                alert('Error al actualizar los componentes del pedido.');
+                alert('Error al actualizar los componentes.');
                 return;
             }
 
@@ -408,7 +328,7 @@
                     .insert(nuevosDetallesParaInsertar);
 
                 if (errorIns) {
-                    alert('Error al insertar los nuevos productos.');
+                    alert('Error al insertar nuevos productos.');
                     return;
                 }
             }
@@ -419,7 +339,7 @@
                 .eq('id', pedidoActualId);
 
             if (errorPedido) {
-                alert('Error al actualizar el total del pedido.');
+                alert('Error al actualizar el total.');
                 return;
             }
 
@@ -465,7 +385,7 @@
                     </div>
 
                     <div style="text-align: left; font-size: 12px; color: #475569; margin-top: 10px; font-weight: 600;">
-                        ${itemsAgrupados.length} items (Ctd.: ${totalCtd})
+                        Cliente: ${pedido.nombre_cliente || 'N/A'} (${pedido.cliente_telefono || 'N/A'})
                     </div>
                 </div>
 
