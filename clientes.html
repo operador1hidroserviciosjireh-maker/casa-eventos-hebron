@@ -1,7 +1,30 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+   <!-- Barra de búsqueda superior en Gestión de Clientes -->
+<div style="padding: 15px; background: white; border-bottom: 1px solid #e2e8f0; margin-bottom: 15px;">
+    <input type="text" id="inputBuscarCliente" class="form-input" placeholder="Buscar por nombre o número de teléfono..." onkeyup="filtrarClientesTabla()" style="margin-bottom: 0;">
+</div>
+let listaClientesOriginal = [];
+
+// Dentro de tu función que carga los clientes de Supabase:
+async function cargarClientesAdmin() {
+    const { data, error } = await supabaseClient.from('clientes').select('*').order('nombre', { ascending: true });
+    if (!error && data) {
+        listaClientesOriginal = data;
+        renderizarTablaClientes(data);
+    }
+}
+
+function filtrarClientesTabla() {
+    let texto = document.getElementById('inputBuscarCliente').value.toLowerCase();
+    let filtrados = listaClientesOriginal.filter(c => 
+        (c.nombre && c.nombre.toLowerCase().includes(texto)) || 
+        (c.telefono && c.telefono.toLowerCase().includes(texto))
+    );
+    renderizarTablaClientes(filtrados);
+}
+ <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes - Hebron Casa de Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
