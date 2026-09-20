@@ -120,17 +120,16 @@
             if (sessionStorage.getItem('admin_hebron')) {
                 document.getElementById('auth-overlay').style.display = 'none';
             }
-            // Consultar cuántos pedidos faltan por confirmar al cargar el panel
             actualizarContadorPedidosPendientes();
         });
 
         async function actualizarContadorPedidosPendientes() {
             try {
-                // Cuenta cuántos pedidos NO tienen el estado 'Confirmado'
+                // Cuenta únicamente los pedidos cuyo estado sea estrictamente 'Pendiente'
                 const { count, error } = await supabaseClient
                     .from('pedidos')
                     .select('*', { count: 'exact', head: true })
-                    .neq('estado', 'Confirmado');
+                    .ilike('estado', '%pendiente%');
 
                 if (error) {
                     console.error('Error al contar pedidos pendientes:', error);
@@ -143,7 +142,7 @@
                         badge.style.display = 'inline-flex';
                         badge.innerText = count;
                     } else {
-                        badge.style.display = 'none'; // Se oculta si ya no hay pendientes
+                        badge.style.display = 'none'; // Se oculta automáticamente si ya no hay pendientes reales
                     }
                 }
             } catch (err) {
@@ -160,7 +159,7 @@
             if (emailInput === 'admin@hebron.com' && passInput === 'Jeremias2#') {
                 sessionStorage.setItem('admin_hebron', 'Samuel Siebenhor');
                 document.getElementById('auth-overlay').style.display = 'none';
-                actualizarContadorPedidosPendientes(); // Actualiza tras el login exitoso
+                actualizarContadorPedidosPendientes();
                 return;
             }
 
@@ -189,7 +188,7 @@
 
                 sessionStorage.setItem('admin_hebron', data.nombre || 'Colaborador');
                 document.getElementById('auth-overlay').style.display = 'none';
-                actualizarContadorPedidosPendientes(); // Actualiza tras el login exitoso
+                actualizarContadorPedidosPendientes();
 
             } catch (err) {
                 console.error(err);
