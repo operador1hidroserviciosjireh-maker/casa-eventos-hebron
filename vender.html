@@ -3,190 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vender - Hebron Casa de Eventos</title>
+    <title>Pedidos - Hebrón Casa de Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #1e293b; padding-bottom: 90px; }
+        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; color: #1e293b; }
+        
+        .header { background-color: #253342; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h1 { font-size: 18px; }
+        .back-link { color: #38bdf8; text-decoration: none; font-size: 13px; font-weight: 500; }
+        
+        .container { padding: 15px; max-width: 800px; margin: 0 auto; width: 100%; flex-grow: 1; }
 
-        /* Header superior estilo POS */
-        .pos-header { background-color: #ffffff; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 100; }
-        .pos-header-left { display: flex; align-items: center; gap: 15px; }
-        .menu-icon { font-size: 20px; cursor: pointer; color: #334155; }
-        .pos-title { font-size: 18px; font-weight: 700; color: #1e293b; }
-        .btn-add-client { background-color: #10b981; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        /* Lista de pedidos estilo compacto */
+        .order-list-card { background: white; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); margin-bottom: 12px; border: 1px solid #e2e8f0; padding: 15px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: background 0.1s; }
+        .order-list-card:hover { background: #f8fafc; }
 
-        /* Barra de herramientas secundaria */
-        .pos-toolbar { background: #ffffff; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; gap: 10px; }
-        .pos-search-input { flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
-        .tool-btn { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px; cursor: pointer; font-size: 14px; color: #334155; }
+        .order-info { display: flex; flex-direction: column; gap: 4px; }
+        .order-number-row { display: flex; align-items: center; gap: 8px; }
+        .order-number { font-size: 14px; font-weight: 700; color: #0f172a; }
+        .status-badge { font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+        .status-badge.confirmed { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+        .status-badge.pending { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
 
-        .container { padding: 15px; max-width: 1200px; margin: 0 auto; width: 100%; flex-grow: 1; }
+        .order-client { font-size: 13px; font-weight: 600; color: #334155; }
+        .order-date { font-size: 11px; color: #64748b; }
 
-        /* Grid de Productos estilo oscuro con imagen */
-        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-        @media (min-width: 768px) { .productos-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; } }
-
-        .producto-card { background: #253342; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.1s; }
-        .producto-card:active { transform: scale(0.98); }
-
-        .badge-qty-floating { position: absolute; top: 10px; right: 10px; background-color: #10b981; color: white; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-
-        .producto-img-container { width: 100%; height: 120px; background: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; position: relative; }
-        @media (min-width: 768px) { .producto-img-container { height: 150px; } }
-        .producto-img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .producto-sin-foto { color: #94a3b8; font-size: 12px; }
-
-        .producto-info { padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; }
-        .producto-nombre { font-size: 13px; font-weight: 600; color: #ffffff; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .producto-stock { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
-        .producto-precio { font-size: 14px; font-weight: 700; color: #ffffff; }
-
-        /* Barra Inferior Flotante de Total */
-        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #10b981; color: white; padding: 14px 20px; display: none; justify-content: space-between; align-items: center; box-shadow: 0 -4px 10px rgba(0,0,0,0.15); z-index: 1000; cursor: pointer; }
-        .cart-bar.active { display: flex; }
-        .cart-bar-text { font-size: 16px; font-weight: 700; }
-        .cart-bar-arrow { font-size: 18px; font-weight: bold; }
+        .order-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .order-amount { font-size: 16px; font-weight: 700; color: #0f172a; }
+        .order-action-btns { display: flex; gap: 6px; margin-top: 4px; }
+        
+        .btn-mini { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; border: none; cursor: pointer; }
+        .btn-mini-confirm { background: #10b981; color: white; }
+        .btn-mini-confirm:disabled { background: #94a3b8; cursor: not-allowed; }
+        .btn-mini-edit { background: #0ea5e9; color: white; }
 
         /* Modales */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: flex-end; z-index: 2000; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; width: 100%; max-width: 600px; max-height: 85vh; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 15px; }
-        .modal-header h2 { font-size: 18px; font-weight: 700; color: #1e293b; }
-        .close-modal { background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b; }
-        
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
-        .cart-item-details { flex-grow: 1; padding-right: 10px; }
-        .cart-item-title { font-size: 14px; font-weight: 600; color: #1e293b; }
-        .cart-item-price { font-size: 13px; color: #64748b; }
-        .cart-item-controls { display: flex; align-items: center; background: #f1f5f9; border-radius: 6px; overflow: hidden; border: 1px solid #cbd5e1; }
-        .btn-qty { background: #fff; border: none; padding: 6px 12px; font-size: 14px; font-weight: bold; cursor: pointer; color: #334155; }
-        .qty-input { width: 45px; text-align: center; border: none; background: transparent; font-size: 14px; font-weight: 600; color: #1e293b; outline: none; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; padding: 10px; }
+        .modal-content { background: white; padding: 20px; border-radius: 12px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #1e293b; }
+        .modal-item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+        .modal-controls { display: flex; align-items: center; gap: 6px; }
+        .modal-controls input { width: 45px; text-align: center; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; }
+        .btn-danger { background: #ef4444; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .modal-footer { margin-top: 15px; display: flex; justify-content: flex-end; gap: 8px; }
+        .btn-secondary { background: #64748b; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .btn-success { background: #10b981; color: white; border: none; padding: 7px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
 
-        .modal-footer { margin-top: 20px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
-        .modal-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 15px; }
-        .btn-checkout { background-color: #10b981; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700; width: 100%; cursor: pointer; text-align: center; }
-        .btn-checkout:hover { background-color: #059669; }
+        .ticket-modal-content { background: white; width: 100%; max-width: 480px; border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; }
+        .ticket-top-bar { background: #e2e8f0; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; color: #334155; }
+        .ticket-body { padding: 20px; overflow-y: auto; flex-grow: 1; }
+        .ticket-header-info { text-align: center; margin-bottom: 15px; }
+        .ticket-footer-actions { display: grid; grid-template-columns: repeat(4, 1fr); background: #1e293b; padding: 10px; gap: 5px; text-align: center; }
+        .ticket-btn-action { background: transparent; border: none; color: white; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; padding: 6px; border-radius: 6px; }
+        .ticket-btn-action:hover { background: rgba(255,255,255,0.1); }
 
-        .form-section-title { font-size: 13px; font-weight: 700; color: #1e293b; margin-bottom: 5px; }
-        .form-input, .form-select { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; margin-bottom: 10px; background: white; }
-        .textarea-obs { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; resize: none; height: 60px; outline: none; margin-bottom: 10px; }
-        .delivery-option { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; background: #fff; font-size: 13px; font-weight: 600; color: #1e293b; }
+        @media print {
+            body * { visibility: hidden; }
+            #modalTicket, #modalTicket *, .ticket-modal-content, .ticket-modal-content * { visibility: visible; }
+            #modalTicket { position: absolute; left: 0; top: 0; width: 100%; height: auto; background: white !important; display: block !important; padding: 0 !important; }
+            .ticket-modal-content { box-shadow: none; max-width: 100% !important; height: auto !important; max-height: none !important; margin: 0; }
+            .ticket-top-bar, .ticket-footer-actions { display: none !important; }
+            .ticket-body { padding: 10px !important; }
+        }
     </style>
 </head>
 <body>
-
-    <!-- Header POS superior -->
-    <div class="pos-header">
-        <div class="pos-header-left">
-            <span class="menu-icon" onclick="window.location.href='admin.html'">☰</span>
-            <span class="pos-title">Vender</span>
-        </div>
-        <button class="btn-add-client" onclick="abrirModalClienteNuevo()">👤+ Cliente</button>
+    <div class="header">
+        <h1>Pedidos Hebrón</h1>
+        <a href="admin.html" class="back-link">← Volver al panel</a>
     </div>
 
-    <!-- Barra de búsqueda y herramientas -->
-    <div class="pos-toolbar">
-        <input type="text" id="inputBuscar" class="pos-search-input" placeholder="Buscar productos..." onkeyup="filtrarCatalogo()">
-        <button class="tool-btn" onclick="limpiarTodo()" title="Limpiar venta">🗑️</button>
+    <div class="container" id="contenedorPedidos">
+        <p style="text-align: center; color: #64748b; margin-top: 20px;">Cargando pedidos...</p>
     </div>
 
-    <div class="container">
-        <div id="grid-catalogo" class="productos-grid">
-            <p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">Cargando catálogo...</p>
-        </div>
-    </div>
-
-    <!-- Barra Inferior Flotante Estilo Referencia -->
-    <div id="cartBar" class="cart-bar" onclick="abrirModalCarrito()">
-        <div class="cart-bar-text" id="cartBarText">0 items = 0.00 Q</div>
-        <div class="cart-bar-arrow">&gt;</div>
-    </div>
-
-    <!-- Modal del Carrito / Resumen -->
-    <div id="cartModal" class="modal-overlay">
+    <!-- Modal Editar Ítems -->
+    <div id="modalEditar" class="modal">
         <div class="modal-content">
-            <div class="modal-header">
-                <h2>Artículos en la Venta</h2>
-                <button class="close-modal" onclick="cerrarModalCarrito()">&times;</button>
+            <div class="modal-header" id="modalTitulo">Editar Pedido</div>
+            <div id="listaProductosModal"></div>
+            <div style="margin-top: 12px; font-weight: 600; text-align: right; font-size: 14px;" id="modalTotalTexto">
+                Nuevo Total: Q. 0.00
             </div>
-            <div id="cartItemsContainer" style="overflow-y: auto; max-height: 35vh;"></div>
             <div class="modal-footer">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                    <button onclick="vaciarCarrito()" style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; font-weight:600;">Vaciar todo</button>
-                    <button onclick="cerrarModalCarrito()" style="background:none; border:none; color:#10b981; font-size:13px; cursor:pointer; font-weight:700;">Seguir agregando &gt;</button>
-                </div>
-                <div class="modal-total">
-                    <span>Total:</span>
-                    <span id="modalTotalPrecio">Q. 0.00</span>
-                </div>
-                <button class="btn-checkout" onclick="abrirModalCheckout()">Continuar con Cliente y Pago</button>
+                <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-success" onclick="guardarCambiosPedido()">Guardar Cambios</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal de Checkout / Datos Finales -->
-    <div id="checkoutModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Finalizar Venta</h2>
-                <button class="close-modal" onclick="cerrarModalCheckout()">&times;</button>
+    <!-- Modal Ticket / Recibo -->
+    <div id="modalTicket" class="modal">
+        <div class="ticket-modal-content">
+            <div class="ticket-top-bar">
+                <span onclick="cerrarTicketModal()" style="cursor: pointer; font-size: 16px;">✕</span>
+                <span>Detalle del Recibo</span>
+                <span></span>
             </div>
-            
-            <div style="overflow-y: auto; max-height: 55vh; padding-right: 2px;">
-                <div class="form-section-title">Seleccionar Cliente Registrado</div>
-                <select id="selectCliente" class="form-select" onchange="rellenarClienteSeleccionado()">
-                    <option value="">-- Seleccionar cliente --</option>
-                </select>
-
-                <div class="form-section-title">O Datos del Cliente</div>
-                <input type="text" id="txtNombreCliente" class="form-input" placeholder="Nombre completo">
-                <input type="tel" id="txtTelefonoCliente" class="form-input" placeholder="Teléfono / WhatsApp">
-
-                <div class="form-section-title">Método de Pago</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                    <label class="delivery-option"><input type="radio" name="metodoPago" value="Efectivo" checked> Efectivo</label>
-                    <label class="delivery-option"><input type="radio" name="metodoPago" value="Transferencia"> Transferencia</label>
-                </div>
-
-                <div class="form-section-title">Forma de Entrega</div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                    <label class="delivery-option"><input type="radio" name="formaEntrega" value="Entrega en lugar de evento" checked onchange="toggleDir()"> Evento</label>
-                    <label class="delivery-option"><input type="radio" name="formaEntrega" value="Retirada en local" onchange="toggleDir()"> Local</label>
-                </div>
-
-                <div id="seccionDireccion">
-                    <div class="form-section-title">Dirección de Entrega</div>
-                    <input type="text" id="txtDireccionEvento" class="form-input" placeholder="Ubicación o dirección...">
-                </div>
-
-                <div class="form-section-title">Observaciones</div>
-                <textarea id="txtObservacion" class="textarea-obs" placeholder="Notas internas..."></textarea>
-            </div>
-
-            <div class="modal-footer" style="margin-top: 15px;">
-                <div class="modal-total" style="margin-bottom: 10px;">
-                    <span>Total a cobrar:</span>
-                    <span id="checkoutTotalPrecio">Q. 0.00</span>
-                </div>
-                <button class="btn-checkout" onclick="guardarVentaDefinitiva()">Registrar y Guardar Venta</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Cliente Nuevo Rápido -->
-    <div id="clientModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Agregar Nuevo Cliente</h2>
-                <button class="close-modal" onclick="cerrarModalClienteNuevo()">&times;</button>
-            </div>
-            <div style="padding-top: 5px;">
-                <input type="text" id="nuevoNombreCliente" class="form-input" placeholder="Nombre del cliente">
-                <input type="tel" id="nuevoTelefonoCliente" class="form-input" placeholder="Teléfono / WhatsApp">
-                <button class="btn-checkout" style="margin-top: 10px;" onclick="guardarNuevoClienteExpress()">Guardar Cliente</button>
+            <div class="ticket-body" id="contenidoTicketRecibo"></div>
+            <div class="ticket-footer-actions">
+                <button class="ticket-btn-action" onclick="window.print()">📄<span>PDF</span></button>
+                <button class="ticket-btn-action" onclick="enviarCorreoRecibo()">✉️<span>Email</span></button>
+                <button class="ticket-btn-action" onclick="window.print()">🖨️<span>Imprimir</span></button>
+                <button class="ticket-btn-action" onclick="compartirWhatsApp()">🔗<span>Compartir</span></button>
             </div>
         </div>
     </div>
@@ -196,230 +117,334 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let listaProductosGlobal = [];
-        let listaClientesGlobal = [];
-        let carrito = {};
+        let pedidoActualId = null;
+        let detallesActuales = [];
+        let pedidoSeleccionadoActual = null;
+        let listaPedidosGlobal = [];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            cargarProductos();
-            cargarClientes();
-        });
+        document.addEventListener('DOMContentLoaded', cargarPedidos);
 
-        async function cargarProductos() {
-            const { data, error } = await supabaseClient.from('productos').select('*').order('created_at', { ascending: false });
-            if (!error && data) {
-                listaProductosGlobal = data;
-                renderizarProductos(listaProductosGlobal);
-            }
+        function agruparDetalles(detalles) {
+            const agrupados = {};
+            detalles.forEach(item => {
+                const nombre = item.producto_nombre;
+                if (agrupados[nombre]) {
+                    agrupados[nombre].cantidad += item.cantidad;
+                    agrupados[nombre].subtotal += item.subtotal;
+                } else {
+                    agrupados[nombre] = {
+                        producto_nombre: nombre,
+                        cantidad: item.cantidad,
+                        precio_unitario: item.precio_unitario,
+                        subtotal: item.subtotal
+                    };
+                }
+            });
+            return Object.values(agrupados);
         }
 
-        async function cargarClientes() {
-            const { data, error } = await supabaseClient.from('clientes').select('*').order('nombre', { ascending: true });
-            if (!error && data) {
-                listaClientesGlobal = data;
-                const select = document.getElementById('selectCliente');
-                select.innerHTML = '<option value="">-- Seleccionar cliente --</option>';
-                data.forEach(c => {
-                    select.innerHTML += `<option value="${c.telefono}">${c.nombre} (${c.telefono})</option>`;
-                });
-            }
-        }
+        async function cargarPedidos() {
+            const { data, error } = await supabaseClient
+                .from('pedidos')
+                .select(`
+                    *,
+                    detalle_pedidos (
+                        id,
+                        producto_nombre,
+                        cantidad,
+                        precio_unitario,
+                        subtotal
+                    )
+                `)
+                .order('created_at', { ascending: true }); // Ordenados del más antiguo al más nuevo para asignar Pedido #1, #2...
 
-        function renderizarProductos(productos) {
-            const grid = document.getElementById('grid-catalogo');
-            grid.innerHTML = '';
-
-            if (!productos || productos.length === 0) {
-                grid.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #64748b; padding: 40px;">No hay productos disponibles.</p>`;
+            const contenedor = document.getElementById('contenedorPedidos');
+            if (error) {
+                console.error(error);
+                contenedor.innerHTML = `<p style="text-align: center; color: #e11d48;">Error al cargar los pedidos.</p>`;
                 return;
             }
 
-            productos.forEach(p => {
-                let idProd = p.id || p.nombre;
-                let enCarrito = carrito[idProd] ? carrito[idProd].cantidad : 0;
-                let badgeHtml = enCarrito > 0 ? `<div class="badge-qty-floating">${enCarrito}</div>` : '';
-                let imgHtml = p.foto ? `<img src="${p.foto}" alt="${p.nombre}">` : `<span class="producto-sin-foto">Sin imagen</span>`;
-                
-                let stockTexto = p.controlar_stock ? `Stock: ${p.stock || 0}` : `Disponible`;
+            if (!data || data.length === 0) {
+                contenedor.innerHTML = `<p style="text-align: center; color: #64748b;">No hay pedidos registrados todavía.</p>`;
+                return;
+            }
 
-                grid.innerHTML += `
-                    <div class="producto-card" onclick="agregarAlCarritoDirecto('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio})">
-                        ${badgeHtml}
-                        <div class="producto-img-container">${imgHtml}</div>
-                        <div class="producto-info">
-                            <div>
-                                <h3 class="producto-nombre">${p.nombre}</h3>
-                                <div class="producto-stock">${stockTexto}</div>
+            listaPedidosGlobal = data;
+            contenedor.innerHTML = '';
+
+            // Mostramos ordenados del más reciente al más antiguo para visualización, manteniendo su número correlativo correcto
+            data.slice().reverse().forEach((p, indexRev) => {
+                const numeroPedido = data.indexOf(p) + 1;
+                const fecha = new Date(p.created_at).toLocaleString();
+                const itemsAgrupados = agruparDetalles(p.detalle_pedidos || []);
+                const totalReal = itemsAgrupados.reduce((acc, curr) => acc + curr.subtotal, 0);
+                const esConfirmado = p.estado === 'Confirmado';
+                let totalCtdItems = itemsAgrupados.reduce((acc, curr) => acc + curr.cantidad, 0);
+
+                contenedor.innerHTML += `
+                    <div class="order-list-card" onclick='abrirTicketModalPorId("${p.id}", ${numeroPedido}, ${totalCtdItems})'>
+                        <div class="order-info">
+                            <div class="order-number-row">
+                                <span class="order-number">Pedido #${numeroPedido}</span>
+                                <span class="status-badge ${esConfirmado ? 'confirmed' : 'pending'}">
+                                    ${esConfirmado ? '✓ Confirmado' : '⏱ ' + (p.estado || 'Pendiente')}
+                                </span>
                             </div>
-                            <div class="producto-precio">Q. ${parseFloat(p.precio || 0).toFixed(2)}</div>
+                            <div class="order-client">👤 ${p.nombre_cliente || 'Cliente sin nombre'} (${p.cliente_telefono || 'Sin teléfono'})</div>
+                            <div class="order-date">📅 ${fecha} &bull; 💵 ${p.metodo_pago || 'Efectivo'}</div>
+                        </div>
+                        <div class="order-right">
+                            <div class="order-amount">Q. ${totalReal.toFixed(2)}</div>
+                            <div class="order-action-btns" onclick="event.stopPropagation()">
+                                <button class="btn-mini btn-mini-edit" onclick='abrirModalEditarPorId("${p.id}")'>Editar</button>
+                                <button id="btn-conf-${p.id}" class="btn-mini btn-mini-confirm" ${esConfirmado ? 'disabled' : ''} onclick='confirmarPedidoRapido("${p.id}")'>
+                                    ${esConfirmado ? 'Confirmado' : 'Confirmar'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function agregarAlCarritoDirecto(id, nombre, precio) {
-            if (!carrito[id]) {
-                carrito[id] = { nombre, precio, cantidad: 1 };
-            } else {
-                carrito[id].cantidad += 1;
+        async function confirmarPedidoRapido(pedidoId) {
+            const { error } = await supabaseClient
+                .from('pedidos')
+                .update({ estado: 'Confirmado' })
+                .eq('id', pedidoId);
+
+            if (error) {
+                alert('Error al confirmar: ' + error.message);
+                return;
             }
-            renderizarProductos(listaProductosGlobal);
-            actualizarBarraFlotante();
+
+            cargarPedidos(); // Recarga la lista para actualizar los estados
         }
 
-        function actualizarBarraFlotante() {
-            let totalArticulos = 0, precioTotal = 0;
-            for (let id in carrito) {
-                totalArticulos += carrito[id].cantidad;
-                precioTotal += carrito[id].precio * carrito[id].cantidad;
-            }
-            const cartBar = document.getElementById('cartBar');
-            const cartBarText = document.getElementById('cartBarText');
-            if (totalArticulos > 0) {
-                cartBarText.innerText = `${totalArticulos} items = ${precioTotal.toFixed(2)} Q`;
-                cartBar.classList.add('active');
-            } else {
-                cartBar.classList.remove('active');
+        function abrirTicketModalPorId(pedidoId, numPedido, totalCtd) {
+            const pedido = listaPedidosGlobal.find(p => p.id === pedidoId);
+            if (pedido) {
+                abrirTicketModal(pedido, numPedido, totalCtd);
             }
         }
 
-        function abrirModalCarrito() {
-            const container = document.getElementById('cartItemsContainer');
-            container.innerHTML = '';
-            let precioTotal = 0;
+        function abrirModalEditarPorId(pedidoId) {
+            const pedido = listaPedidosGlobal.find(p => p.id === pedidoId);
+            if (pedido) {
+                abrirModalEditar(pedido);
+            }
+        }
 
-            for (let id in carrito) {
-                let item = carrito[id];
-                let subtotal = item.precio * item.cantidad;
-                precioTotal += subtotal;
+        function abrirModalEditar(pedido) {
+            pedidoActualId = pedido.id;
+            detallesActuales = agruparDetalles(pedido.detalle_pedidos || []);
+            document.getElementById('modalTitulo').innerText = `Editar: ${pedido.nombre_cliente || 'Cliente'}`;
+            renderizarItemsModal();
+            document.getElementById('modalEditar').style.display = 'flex';
+        }
 
-                container.innerHTML += `
-                    <div class="cart-item">
-                        <div class="cart-item-details">
-                            <div class="cart-item-title">${item.nombre}</div>
-                            <div class="cart-item-price">Q. ${item.precio.toFixed(2)} c/u &bull; <strong style="color: #0f172a;">Subtotal: Q. ${subtotal.toFixed(2)}</strong></div>
+        function cerrarModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+            pedidoActualId = null;
+        }
+
+        function renderizarItemsModal() {
+            const contenedor = document.getElementById('listaProductosModal');
+            if (detallesActuales.length === 0) {
+                contenedor.innerHTML = '<p style="color: #64748b; font-size: 12px; text-align: center; padding: 10px;">No hay productos.</p>';
+                document.getElementById('modalTotalTexto').innerText = 'Nuevo Total: Q. 0.00';
+                return;
+            }
+
+            let html = '';
+            let nuevoTotal = 0;
+
+            detallesActuales.forEach((item, index) => {
+                const subtotal = item.cantidad * item.precio_unitario;
+                nuevoTotal += subtotal;
+                html += `
+                    <div class="modal-item-row">
+                        <div>
+                            <strong>${item.producto_nombre}</strong><br>
+                            <span style="font-size: 10px; color: #64748b;">Q. ${item.precio_unitario.toFixed(2)} c/u</span>
                         </div>
-                        <div class="cart-item-controls">
-                            <button class="btn-qty" onclick="cambiarCantidadItem('${id}', -1)">-</button>
-                            <input type="text" class="qty-input" value="${item.cantidad}" readonly>
-                            <button class="btn-qty" onclick="cambiarCantidadItem('${id}', 1)">+</button>
+                        <div class="modal-controls">
+                            <input type="number" min="1" value="${item.cantidad}" onchange="cambiarCantidad(${index}, this.value)">
+                            <span style="font-size: 12px; font-weight: 500;">Q.${subtotal.toFixed(2)}</span>
+                            <button class="btn-danger" onclick="eliminarItemModal(${index})">X</button>
                         </div>
                     </div>
                 `;
-            }
+            });
 
-            document.getElementById('modalTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
-            document.getElementById('cartModal').classList.add('active');
+            contenedor.innerHTML = html;
+            document.getElementById('modalTotalTexto').innerText = `Nuevo Total: Q. ${nuevoTotal.toFixed(2)}`;
         }
 
-        function cambiarCantidadItem(id, delta) {
-            if (carrito[id]) {
-                carrito[id].cantidad += delta;
-                if (carrito[id].cantidad <= 0) delete carrito[id];
-            }
-            renderizarProductos(listaProductosGlobal);
-            actualizarBarraFlotante();
-            abrirModalCarrito();
-        }
-
-        function cerrarModalCarrito() { document.getElementById('cartModal').classList.remove('active'); }
-        function vaciarCarrito() { carrito = {}; renderizarProductos(listaProductosGlobal); actualizarBarraFlotante(); cerrarModalCarrito(); }
-        function limpiarTodo() { vaciarCarrito(); }
-
-        function abrirModalCheckout() {
-            cerrarModalCarrito();
-            let total = 0;
-            for (let id in carrito) total += carrito[id].precio * carrito[id].cantidad;
-            document.getElementById('checkoutTotalPrecio').innerText = `Q. ${total.toFixed(2)}`;
-            document.getElementById('checkoutModal').classList.add('active');
-        }
-        function cerrarModalCheckout() { document.getElementById('checkoutModal').classList.remove('active'); }
-
-        function rellenarClienteSeleccionado() {
-            let tel = document.getElementById('selectCliente').value;
-            let cli = listaClientesGlobal.find(c => c.telefono === tel);
-            if (cli) {
-                document.getElementById('txtNombreCliente').value = cli.nombre || '';
-                document.getElementById('txtTelefonoCliente').value = cli.telefono || '';
+        function cambiarCantidad(index, nuevaCantidad) {
+            const cant = parseInt(nuevaCantidad);
+            if (cant > 0) {
+                detallesActuales[index].cantidad = cant;
+                detallesActuales[index].subtotal = cant * detallesActuales[index].precio_unitario;
+                renderizarItemsModal();
             }
         }
 
-        function abrirModalClienteNuevo() { document.getElementById('clientModal').classList.add('active'); }
-        function cerrarModalClienteNuevo() { document.getElementById('clientModal').classList.remove('active'); }
-
-        async function guardarNuevoClienteExpress() {
-            let nombre = document.getElementById('nuevoNombreCliente').value.trim();
-            let telefono = document.getElementById('nuevoTelefonoCliente').value.trim();
-            if (!nombre || !telefono) { alert('Completa los datos del cliente.'); return; }
-
-            const { error } = await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
-            if (!error) {
-                alert('Cliente guardado con éxito.');
-                cerrarModalClienteNuevo();
-                cargarClientes();
-            } else {
-                alert('Error al guardar cliente: ' + error.message);
-            }
+        function eliminarItemModal(index) {
+            detallesActuales.splice(index, 1);
+            renderizarItemsModal();
         }
 
-        function toggleDir() {
-            let entrega = document.querySelector('input[name="formaEntrega"]:checked').value;
-            document.getElementById('seccionDireccion').style.display = entrega === 'Entrega en lugar de evento' ? 'block' : 'none';
-        }
+        async function guardarCambiosPedido() {
+            if (!pedidoActualId) return;
 
-        async function guardarVentaDefinitiva() {
-            let nombre = document.getElementById('txtNombreCliente').value.trim();
-            let telefono = document.getElementById('txtTelefonoCliente').value.trim();
-            let metodoPago = document.querySelector('input[name="metodoPago"]:checked').value;
-            let formaEntrega = document.querySelector('input[name="formaEntrega"]:checked').value;
-            let direccion = document.getElementById('txtDireccionEvento').value.trim();
-            let observacion = document.getElementById('txtObservacion').value.trim();
+            let nuevoTotalGeneral = 0;
+            detallesActuales.forEach(item => {
+                nuevoTotalGeneral += item.subtotal;
+            });
 
-            if (!nombre || !telefono) { alert('Indica el nombre y teléfono del cliente.'); return; }
+            const { error: errorDel } = await supabaseClient
+                .from('detalle_pedidos')
+                .delete()
+                .eq('pedido_id', pedidoActualId);
 
-            let total = 0;
-            let items = [];
-            for (let id in carrito) {
-                let it = carrito[id];
-                let sub = it.precio * it.cantidad;
-                total += sub;
-                items.push({ producto_nombre: it.nombre, cantidad: it.cantidad, precio_unitario: it.precio, subtotal: sub });
+            if (errorDel) {
+                alert('Error al actualizar los componentes.');
+                return;
             }
 
-            try {
-                await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
+            if (detallesActuales.length > 0) {
+                const nuevosDetallesParaInsertar = detallesActuales.map(item => ({
+                    pedido_id: pedidoActualId,
+                    producto_nombre: item.producto_nombre,
+                    cantidad: item.cantidad,
+                    precio_unitario: item.precio_unitario,
+                    subtotal: item.subtotal
+                }));
 
-                let { data: pedido, err } = await supabaseClient.from('pedidos').insert([{
-                    cliente_telefono: telefono,
-                    nombre_cliente: nombre,
-                    metodo_pago: metodoPago,
-                    forma_entrega: formaEntrega,
-                    direccion_evento: direccion || null,
-                    observacion: observacion || null,
-                    total: total,
-                    estado: 'Pendiente'
-                }]).select().single();
+                const { error: errorIns } = await supabaseClient
+                    .from('detalle_pedidos')
+                    .insert(nuevosDetallesParaInsertar);
 
-                if (err) throw err;
-
-                if (pedido && pedido.id) {
-                    let detalle = items.map(i => ({ ...i, pedido_id: pedido.id }));
-                    await supabaseClient.from('detalle_pedidos').insert(detalle);
+                if (errorIns) {
+                    alert('Error al insertar nuevos productos.');
+                    return;
                 }
-
-                alert('¡Venta registrada con éxito!');
-                window.location.href = 'pedidos.html';
-
-            } catch (e) {
-                alert('Error al registrar venta: ' + e.message);
             }
+
+            const { error: errorPedido } = await supabaseClient
+                .from('pedidos')
+                .update({ total: nuevoTotalGeneral })
+                .eq('id', pedidoActualId);
+
+            if (errorPedido) {
+                alert('Error al actualizar el total.');
+                return;
+            }
+
+            alert('¡Pedido actualizado con éxito!');
+            cerrarModal();
+            cargarPedidos();
         }
 
-        function filtrarCatalogo() {
-            let txt = document.getElementById('inputBuscar').value.toLowerCase();
-            let filtrados = listaProductosGlobal.filter(p => p.nombre.toLowerCase().includes(txt));
-            renderizarProductos(filtrados);
+        function abrirTicketModal(pedido, numPedido, totalCtd) {
+            pedidoSeleccionadoActual = pedido;
+            const fechaFormateada = new Date(pedido.created_at).toLocaleString();
+            const itemsAgrupados = agruparDetalles(pedido.detalle_pedidos || []);
+            let itemsTicketHtml = '';
+            let totalCalculadoRecibo = 0;
+
+            if (itemsAgrupados.length > 0) {
+                itemsTicketHtml = itemsAgrupados.map(item => {
+                    totalCalculadoRecibo += item.subtotal;
+                    return `
+                        <div style="padding: 10px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600; color: #1e293b; font-size: 13px;">${item.producto_nombre}</div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Q. ${item.precio_unitario.toFixed(2)}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 600; color: #0f172a; font-size: 13px;">Q. ${item.subtotal.toFixed(2)}</div>
+                                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">${item.cantidad}x</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            const contenido = `
+                <div class="ticket-header-info">
+                    <div style="font-weight: 700; font-size: 16px; color: #0f172a;">Hebron casa de eventos</div>
+                    <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Km 30.5 Carretera A San Elena Barillas Villacanales</div>
+                    <div style="font-size: 11px; color: #64748b;">Guatemala • +502-5-039-0762</div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; border-bottom: 2px solid #1e293b; padding-bottom: 5px;">
+                        <span style="font-size: 12px; color: #64748b; font-weight: 500;">${fechaFormateada}</span>
+                        <span style="font-weight: 700; font-size: 14px; color: #0f172a;">Pedido #${numPedido}</span>
+                    </div>
+
+                    <div style="text-align: left; font-size: 12px; color: #475569; margin-top: 10px; font-weight: 600;">
+                        Cliente: ${pedido.nombre_cliente || 'N/A'} (${pedido.cliente_telefono || 'N/A'})
+                    </div>
+                </div>
+
+                <div style="margin-top: 5px;">
+                    ${itemsTicketHtml}
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 2px solid #1e293b; padding-top: 10px; font-size: 16px; font-weight: 700; color: #0f172a;">
+                    <span>Total:</span>
+                    <span>Q. ${totalCalculadoRecibo.toFixed(2)}</span>
+                </div>
+            `;
+
+            document.getElementById('contenidoTicketRecibo').innerHTML = contenido;
+            document.getElementById('modalTicket').style.display = 'flex';
+        }
+
+        function cerrarTicketModal() {
+            document.getElementById('modalTicket').style.display = 'none';
+        }
+
+        function compartirWhatsApp() {
+            if (!pedidoSeleccionadoActual) return;
+
+            const nombreCliente = pedidoSeleccionadoActual.nombre_cliente || "Cliente";
+            let mensaje = `Hola *${nombreCliente}*, tu pedido se ha recibido. En un momento uno de nuestros asesores se pondrá en contacto contigo:\n\n`;
+
+            const itemsAgrupados = agruparDetalles(pedidoSeleccionadoActual.detalle_pedidos || []);
+            let totalMensaje = 0;
+            itemsAgrupados.forEach(item => {
+                totalMensaje += item.subtotal;
+                mensaje += `• ${item.cantidad}x ${item.producto_nombre} (Q. ${item.subtotal.toFixed(2)})\n`;
+            });
+
+            mensaje += `\n*Total productos: Q. ${totalMensaje.toFixed(2)}*`;
+            mensaje += `\n💳 Método de pago: ${pedidoSeleccionadoActual.metodo_pago || 'Efectivo'}`;
+            mensaje += `\n🚚 Forma de entrega: ${pedidoSeleccionadoActual.forma_entrega || 'Entrega'}`;
+            mensaje += `\n📍 Dirección del evento: ${pedidoSeleccionadoActual.direccion_evento || 'N/A'}`;
+            mensaje += `\n📝 Observación: ${pedidoSeleccionadoActual.observacion || 'Ninguna'}`;
+
+            let telefono = pedidoSeleccionadoActual.cliente_telefono ? pedidoSeleccionadoActual.cliente_telefono.replace(/\D/g, '') : '';
+            if (telefono && !telefono.startsWith('502')) {
+                telefono = '502' + telefono;
+            }
+            
+            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${telefono}&text=${encodeURIComponent(mensaje)}`;
+            window.open(urlWhatsApp, '_blank');
+        }
+
+        function enviarCorreoRecibo() {
+            if (!pedidoSeleccionadoActual) return;
+            const nombreCliente = pedidoSeleccionadoActual.nombre_cliente || "Cliente";
+            const itemsAgrupados = agruparDetalles(pedidoSeleccionadoActual.detalle_pedidos || []);
+            const totalCorreo = itemsAgrupados.reduce((acc, curr) => acc + curr.subtotal, 0);
+
+            const subject = encodeURIComponent("Detalle de su pedido - Hebron Casa de Eventos");
+            const body = encodeURIComponent(`Hola ${nombreCliente},\n\nTu pedido en Hebron Casa de Eventos ha sido recibido por un total de Q. ${totalCorreo.toFixed(2)}.\n\nPronto nos pondremos en contacto contigo.\n\n¡Gracias!`);
+
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
         }
     </script>
 </body>
