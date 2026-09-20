@@ -1,30 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-   <!-- Barra de búsqueda superior en Gestión de Clientes -->
-<div style="padding: 15px; background: white; border-bottom: 1px solid #e2e8f0; margin-bottom: 15px;">
-    <input type="text" id="inputBuscarCliente" class="form-input" placeholder="Buscar por nombre o número de teléfono..." onkeyup="filtrarClientesTabla()" style="margin-bottom: 0;">
-</div>
-let listaClientesOriginal = [];
-
-// Dentro de tu función que carga los clientes de Supabase:
-async function cargarClientesAdmin() {
-    const { data, error } = await supabaseClient.from('clientes').select('*').order('nombre', { ascending: true });
-    if (!error && data) {
-        listaClientesOriginal = data;
-        renderizarTablaClientes(data);
-    }
-}
-
-function filtrarClientesTabla() {
-    let texto = document.getElementById('inputBuscarCliente').value.toLowerCase();
-    let filtrados = listaClientesOriginal.filter(c => 
-        (c.nombre && c.nombre.toLowerCase().includes(texto)) || 
-        (c.telefono && c.telefono.toLowerCase().includes(texto))
-    );
-    renderizarTablaClientes(filtrados);
-}
- <meta charset="UTF-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes - Hebron Casa de Eventos</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -36,6 +13,12 @@ function filtrarClientesTabla() {
         .container { padding: 20px; max-width: 1000px; margin: 0 auto; width: 100%; flex-grow: 1; }
         .back-link { display: inline-block; color: #0ea5e9; text-decoration: none; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
         .card { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        
+        /* Estilos de la barra de búsqueda */
+        .search-box { padding: 15px; background: white; border-bottom: 1px solid #e2e8f0; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .form-input { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; }
+        .form-input:focus { border-color: #0ea5e9; }
+
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
         th { font-weight: 600; color: #64748b; background: #f8fafc; }
@@ -64,8 +47,15 @@ function filtrarClientesTabla() {
     </div>
     <div class="container">
         <a href="admin.html" class="back-link">← Volver al panel</a>
+        
         <div class="card">
             <h2>Lista de Clientes Registrados</h2>
+            
+            <!-- Barra de búsqueda superior en Gestión de Clientes -->
+            <div class="search-box" style="margin-top: 15px;">
+                <input type="text" id="inputBuscarCliente" class="form-input" placeholder="Buscar por nombre o número de teléfono..." onkeyup="filtrarClientesTabla()">
+            </div>
+
             <table id="tablaClientes">
                 <thead>
                     <tr>
@@ -107,13 +97,15 @@ function filtrarClientesTabla() {
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        let listaClientesOriginal = [];
+
         document.addEventListener('DOMContentLoaded', cargarClientes);
 
         async function cargarClientes() {
             const { data, error } = await supabaseClient
                 .from('clientes')
                 .select('*')
-                .order('created_at', { ascending: false });
+                .order('nombre', { ascending: true }); // Ordenado por nombre alfabéticamente
 
             const tbody = document.getElementById('cuerpoClientes');
             if (error) {
@@ -126,7 +118,20 @@ function filtrarClientesTabla() {
                 return;
             }
 
+            // Guardamos los datos originales para el buscador
+            listaClientesOriginal = data;
+            renderizarTablaClientes(data);
+        }
+
+        function renderizarTablaClientes(data) {
+            const tbody = document.getElementById('cuerpoClientes');
             tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #64748b;">No se encontraron resultados.</td></tr>`;
+                return;
+            }
+
             data.forEach(c => {
                 let fecha = c.created_at ? new Date(c.created_at).toLocaleDateString() : 'N/D';
                 tbody.innerHTML += `
@@ -142,6 +147,15 @@ function filtrarClientesTabla() {
                     </tr>
                 `;
             });
+        }
+
+        function filtrarClientesTabla() {
+            let texto = document.getElementById('inputBuscarCliente').value.toLowerCase();
+            let filtrados = listaClientesOriginal.filter(c => 
+                (c.nombre && c.nombre.toLowerCase().includes(texto)) || 
+                (c.telefono && c.telefono.toLowerCase().includes(texto))
+            );
+            renderizarTablaClientes(filtrados);
         }
 
         function abrirModalCliente(id, nombre, telefono) {
