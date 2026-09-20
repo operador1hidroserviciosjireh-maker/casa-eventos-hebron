@@ -240,7 +240,6 @@
                 let badgeHtml = enCarrito > 0 ? `<div class="badge-qty-floating">${enCarrito}</div>` : '';
                 let imgHtml = p.foto ? `<img src="${p.foto}" alt="${p.nombre}">` : `<span class="producto-sin-foto">Sin imagen</span>`;
                 
-                // Información de stock incorporada
                 let stockTexto = p.controlar_stock ? `Stock: ${p.stock || 0}` : `Disponible`;
 
                 grid.innerHTML += `
@@ -299,35 +298,6 @@
                     <div class="cart-item">
                         <div class="cart-item-details">
                             <div class="cart-item-title">${item.nombre}</div>
-                            <div class="cart-item-price">Q. ${item.precio.toFixed(2)} c/u</div>
-                        </div>
-                        <div class="cart-item-controls">
-                            <button class="btn-qty" onclick="cambiarCantidadItem('${id}', -1)">-</button>
-                            <input type="text" class="qty-input" value="${item.cantidad}" readonly>
-                            <button class="btn-qty" onclick="cambiarCantidadItem('${id}', 1)">+</button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            document.getElementById('modalTotalPrecio').innerText = `Q. ${precioTotal.toFixed(2)}`;
-            document.getElementById('cartModal').classList.add('active');
-        }
-
-                function abrirModalCarrito() {
-            const container = document.getElementById('cartItemsContainer');
-            container.innerHTML = '';
-            let precioTotal = 0;
-
-            for (let id in carrito) {
-                let item = carrito[id];
-                let subtotal = item.precio * item.cantidad;
-                precioTotal += subtotal;
-
-                container.innerHTML += `
-                    <div class="cart-item">
-                        <div class="cart-item-details">
-                            <div class="cart-item-title">${item.nombre}</div>
                             <div class="cart-item-price">Q. ${item.precio.toFixed(2)} c/u &bull; <strong style="color: #0f172a;">Subtotal: Q. ${subtotal.toFixed(2)}</strong></div>
                         </div>
                         <div class="cart-item-controls">
@@ -343,6 +313,37 @@
             document.getElementById('cartModal').classList.add('active');
         }
 
+        function cambiarCantidadItem(id, delta) {
+            if (carrito[id]) {
+                carrito[id].cantidad += delta;
+                if (carrito[id].cantidad <= 0) delete carrito[id];
+            }
+            renderizarProductos(listaProductosGlobal);
+            actualizarBarraFlotante();
+            abrirModalCarrito();
+        }
+
+        function cerrarModalCarrito() { document.getElementById('cartModal').classList.remove('active'); }
+        function vaciarCarrito() { carrito = {}; renderizarProductos(listaProductosGlobal); actualizarBarraFlotante(); cerrarModalCarrito(); }
+        function limpiarTodo() { vaciarCarrito(); }
+
+        function abrirModalCheckout() {
+            cerrarModalCarrito();
+            let total = 0;
+            for (let id in carrito) total += carrito[id].precio * carrito[id].cantidad;
+            document.getElementById('checkoutTotalPrecio').innerText = `Q. ${total.toFixed(2)}`;
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+        function cerrarModalCheckout() { document.getElementById('checkoutModal').classList.remove('active'); }
+
+        function rellenarClienteSeleccionado() {
+            let tel = document.getElementById('selectCliente').value;
+            let cli = listaClientesGlobal.find(c => c.telefono === tel);
+            if (cli) {
+                document.getElementById('txtNombreCliente').value = cli.nombre || '';
+                document.getElementById('txtTelefonoCliente').value = cli.telefono || '';
+            }
+        }
 
         function abrirModalClienteNuevo() { document.getElementById('clientModal').classList.add('active'); }
         function cerrarModalClienteNuevo() { document.getElementById('clientModal').classList.remove('active'); }
