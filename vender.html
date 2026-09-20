@@ -132,8 +132,8 @@
                 </select>
 
                 <div class="form-section-title">O Datos del Cliente</div>
-                <input type="text" id="txtNombreCliente" class="form-input" placeholder="Nombre completo">
-                <input type="tel" id="txtTelefonoCliente" class="form-input" placeholder="Teléfono / WhatsApp">
+                <input type="text" id="txtNombreCliente" class="form-input" placeholder="Nombre completo" onblur="verificarTelefonoDuplicado(this.value, document.getElementById('txtTelefonoCliente').value)">
+                <input type="tel" id="txtTelefonoCliente" class="form-input" placeholder="Teléfono / WhatsApp" onblur="verificarTelefonoDuplicado(document.getElementById('txtNombreCliente').value, this.value)">
 
                 <div class="form-section-title">Método de Pago</div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
@@ -334,6 +334,14 @@
             }
         }
 
+        function verificarTelefonoDuplicado(nombre, telefono) {
+            if (!telefono) return;
+            let existente = listaClientesGlobal.find(c => c.telefono === telefono && c.nombre.toLowerCase() !== nombre.toLowerCase());
+            if (existente) {
+                alert(`⚠️ Advertencia: El número ${telefono} ya está registrado a nombre de "${existente.nombre}". Puedes guardarlo de todas formas.`);
+            }
+        }
+
         function abrirModalClienteNuevo() { document.getElementById('clientModal').classList.add('active'); }
         function cerrarModalClienteNuevo() { document.getElementById('clientModal').classList.remove('active'); }
 
@@ -342,8 +350,8 @@
             let telefono = document.getElementById('nuevoTelefonoCliente').value.trim();
             if (!nombre || !telefono) { alert('Completa los datos del cliente.'); return; }
 
-            // CORREGIDO: Se utiliza upsert con onConflict para actualizar el nombre si el teléfono ya existe
-            const { error } = await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
+            // INSERT puro para permitir duplicados sin restricciones de llave única
+            const { error } = await supabaseClient.from('clientes').insert([{ nombre, telefono }]);
             if (!error) {
                 alert('Cliente guardado con éxito.');
                 cerrarModalClienteNuevo();
@@ -378,8 +386,8 @@
             }
 
             try {
-                // CORREGIDO: Se utiliza upsert para registrar o actualizar automáticamente al cliente al hacer la venta
-                await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
+                // INSERT puro: Guarda siempre el cliente nuevo sin sobreescribir ni bloquear al anterior con el mismo número
+                await supabaseClient.from('clientes').insert([{ nombre, telefono }]);
 
                 let { data: pedido, err } = await supabaseClient.from('pedidos').insert([{
                     cliente_telefono: telefono,
