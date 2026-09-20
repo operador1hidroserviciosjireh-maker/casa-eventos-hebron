@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas y Reportes - Hebron Casa de Eventos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: #f4f6f8; min-height: 100vh; display: flex; flex-direction: column; }
+        @media (min-width: 768px) { body { flex-direction: row; height: 100vh; overflow: hidden; } }
+
+        /* MENU LATERAL */
+        aside { width: 100%; background-color: #253342; color: #ffffff; display: flex; flex-direction: column; border-bottom: 1px solid #1e293b; }
+        @media (min-width: 768px) { aside { width: 280px; height: 100vh; border-right: 1px solid #1e293b; justify-content: space-between; } }
+        
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #334155; }
+        .sidebar-header h2 { font-size: 15px; font-weight: 600; color: #ffffff; }
+        .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+        .menu-list { list-style: none; padding: 10px 0; display: flex; flex-wrap: wrap; }
+        @media (min-width: 768px) { .menu-list { display: block; overflow-y: auto; flex-grow: 1; padding: 15px 0; } }
+        .menu-item { padding: 12px 15px; display: flex; align-items: center; gap: 10px; color: #cbd5e1; text-decoration: none; font-size: 13px; font-weight: 500; width: 50%; cursor: pointer; }
+        @media (min-width: 768px) { .menu-item { width: 100%; padding: 12px 20px; gap: 15px; font-size: 14px; } }
+        .menu-item:hover, .menu-item.active { background-color: #1e293b; color: #ffffff; border-left: 4px solid #10b981; }
+        .menu-badge { background-color: #10b981; color: white; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; margin-left: auto; flex-shrink: 0; }
+       
+        .sidebar-footer { background-color: #10b981; padding: 15px 20px; color: #ffffff; font-weight: 600; font-size: 14px; display: flex; justify-content: space-between; align-items: center; border: none; width: 100%; cursor: pointer; text-align: left; }
+        .sidebar-footer:hover { background-color: #059669; }
+
+        /* MAIN CONTENT */
+        main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; }
+        @media (min-width: 768px) { main { overflow-y: auto; height: 100vh; } }
+        header.main-header { background-color: #253342; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .dashboard-container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
+        
+        .section-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #e2e8f0; }
+        .section-title { font-size: 16px; font-weight: 600; color: #1e293b; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+
+        .filters-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 15px; }
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-size: 12px; font-weight: 600; color: #64748b; }
+        .filter-input { padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; background: #fff; color: #334155; }
+
+        .btn-accion { background-color: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; align-self: flex-end; }
+        .btn-accion:hover { background-color: #059669; }
+
+        .summary-box { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+        .summary-pill { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; font-size: 13px; color: #334155; }
+        .summary-pill strong { color: #0f172a; font-size: 15px; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; min-width: 600px; }
+        th, td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; }
+        th { background-color: #f8fafc; font-weight: 600; color: #64748b; }
+        .table-responsive { overflow-x: auto; }
+    </style>
+</head>
+<body>
+
+    <!-- MENÚ LATERAL -->
+    <aside>
+        <div>
+            <div class="sidebar-header">
+                <h2>Hebron Casa de Eventos</h2>
+                <p>Panel de Administración</p>
+            </div>
+            <ul class="menu-list">
+                <li><a href="admin.html" class="menu-item">🏠 Inicio</a></li>
+                <li><a href="vender.html" class="menu-item">🛒 Vender</a></li>
+                <li><a href="pedidos.html" class="menu-item">📦 Pedidos <span class="menu-badge" style="display: none;">0</span></a></li>
+                <li><a href="productos.html" class="menu-item">🗂️ Productos</a></li>
+                <li><a href="catalogo-2.html" class="menu-item">📖 Catálogo</a></li>
+                <li><a href="finanzas.html" class="menu-item active">💰 Finanzas</a></li>
+                <li><a href="clientes.html" class="menu-item">👥 Clientes</a></li>
+                <li><a href="transacciones.html" class="menu-item">💳 Transacciones</a></li>
+                <li><a href="usuarios.html" class="menu-item">👤 Usuarios</a></li>
+            </ul>
+        </div>
+        <button onclick="sessionStorage.clear(); window.location.href='index.html';" class="sidebar-footer">
+            <span>Logout</span>
+            <span>&gt;</span>
+        </button>
+    </aside>
+
+    <!-- CONTENIDO FINANZAS -->
+    <main>
+        <header class="main-header">
+            <h1>Finanzas y Reportes de Ventas</h1>
+        </header>
+
+        <div class="dashboard-container">
+            
+            <!-- REPORTE DE FECHA A FECHA -->
+            <div class="section-card">
+                <div class="section-title">📅 Reporte de Ventas por Rango de Fechas</div>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Fecha Desde</label>
+                        <input type="date" id="filtro-desde" class="filter-input">
+                    </div>
+                    <div class="filter-group">
+                        <label>Fecha Hasta</label>
+                        <input type="date" id="filtro-hasta" class="filter-input">
+                    </div>
+                    <div class="filter-group" style="justify-content: flex-end;">
+                        <button class="btn-accion" onclick="generarReporteFechas()">Generar Reporte</button>
+                    </div>
+                </div>
+                <div class="summary-box" id="resumen-fechas" style="display: none;">
+                    <div class="summary-pill">Total Ventas: <strong id="lbl-total-fechas">Q. 0.00</strong></div>
+                    <div class="summary-pill">Cantidad de Pedidos: <strong id="lbl-cant-fechas">0</strong></div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pedido #</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Método Pago</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-fechas">
+                            <tr><td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">Seleccione un rango de fechas y haga clic en Generar Reporte.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REPORTE POR CLIENTE -->
+            <div class="section-card">
+                <div class="section-title">👥 Reporte de Ventas por Cliente</div>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Seleccionar o Buscar Cliente</label>
+                        <select id="select-cliente" class="filter-input" onchange="generarReporteCliente()">
+                            <option value="">-- Todos los clientes --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="summary-box" id="resumen-cliente" style="display: none;">
+                    <div class="summary-pill">Total Comprado: <strong id="lbl-total-cliente">Q. 0.00</strong></div>
+                    <div class="summary-pill">Total Órdenes: <strong id="lbl-cant-cliente">0</strong></div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pedido #</th>
+                                <th>Fecha</th>
+                                <th>Cliente</th>
+                                <th>Teléfono</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-cliente">
+                            <tr><td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">Seleccione un cliente para ver su historial.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REPORTE POR PRODUCTO -->
+            <div class="section-card">
+                <div class="section-title">📦 Reporte de Ventas por Producto</div>
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label>Seleccionar Producto</label>
+                        <select id="select-producto" class="filter-input" onchange="generarReporteProducto()">
+                            <option value="">-- Todos los productos vendidos --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="summary-box" id="resumen-producto" style="display: none;">
+                    <div class="summary-pill">Unidades Vendidas: <strong id="lbl-cant-prod">0</strong></div>
+                    <div class="summary-pill">Ingresos Generados: <strong id="lbl-total-prod">Q. 0.00</strong></div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad Total Vendida</th>
+                                <th>Ingresos Totales</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-producto">
+                            <tr><td colspan="3" style="text-align: center; color: #64748b; padding: 15px;">Cargando datos de productos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const SUPABASE_URL = 'https://uidoqzlzvhjhfzxmkgci.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpZG9xemx6dmhqaGZ6eG1rZ2NpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk1OTg2ODAsImV4cCI6MjEwNTE3NDY4MH0.nunRdJoQcQR3N5K7H1-Rj3eZivWf0Kax_gjoNZSPcrI';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let cachePedidos = [];
+        let cacheDetalles = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!sessionStorage.getItem('admin_hebron')) {
+                window.location.href = 'admin.html';
+                return;
+            }
+            await cargarDatosGlobales();
+        });
+
+        async function cargarDatosGlobales() {
+            // Traemos todos los pedidos y sus detalles con una sola consulta relacionada
+            const { data: pedidos, error: errPedidos } = await supabaseClient
+                .from('pedidos')
+                .select(`
+                    *,
+                    detalle_pedidos (
+                        id,
+                        producto_nombre,
+                        cantidad,
+                        precio_unitario,
+                        subtotal
+                    )
+                `)
+                .order('created_at', { ascending: false });
+
+            if (errPedidos) {
+                console.error('Error al cargar datos financieros:', errPedidos);
+                return;
+            }
+
+            cachePedidos = pedidos || [];
+            
+            // Extraer lista única de clientes para el selector
+            const selectCliente = document.getElementById('select-cliente');
+            const clientesUnicos = [...new Set(cachePedidos.map(p => p.nombre_cliente).filter(Boolean))];
+            clientesUnicos.sort().forEach(nombre => {
+                const opt = document.option ? document.createElement('option') : document.createElement('option');
+                opt.value = nombre;
+                opt.textContent = nombre;
+                selectCliente.appendChild(opt);
+            });
+
+            // Extraer lista única de productos vendidos para el selector
+            let mapProductos = {};
+            cachePedidos.forEach(p => {
+                if (p.detalle_pedidos) {
+                    p.detalle_pedidos.forEach(d => {
+                        if (!mapProductos[d.producto_nombre]) {
+                            mapProductos[d.producto_nombre] = { nombre: d.producto_nombre, cant: 0, total: 0 };
+                        }
+                        mapProductos[d.producto_nombre].cant += d.cantidad;
+                        mapProductos[d.producto_nombre].total += d.subtotal;
+                    });
+                }
+            });
+
+            const selectProducto = document.getElementById('select-producto');
+            Object.keys(mapProductos).sort().forEach(prodNombre => {
+                const opt = document.createElement('option');
+                opt.value = prodNombre;
+                opt.textContent = prodNombre;
+                selectProducto.appendChild(opt);
+            });
+
+            // Renderizar resumen global inicial de productos
+            renderizarReporteProductoGeneral(Object.values(mapProductos));
+        }
+
+        // 1. REPORTE DE FECHA A FECHA
+        function generarReporteFechas() {
+            const desde = document.getElementById('filtro-desde').value;
+            const hasta = document.getElementById('filtro-hasta').value;
+            const tbody = document.getElementById('tabla-fechas');
+            
+            if (!desde || !hasta) {
+                alert('Por favor selecciona ambas fechas.');
+                return;
+            }
+
+            const fechaInicio = new Date(desde + 'T00:00:00');
+            const fechaFin = new Date(hasta + 'T23:59:59');
+
+            const filtrados = cachePedidos.filter(p => {
+                const fechaPed = new Date(p.created_at);
+                return fechaPed >= fechaInicio && fechaPed <= fechaFin;
+            });
+
+            let totalSuma = 0;
+            tbody.innerHTML = '';
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">No se encontraron ventas en este rango de fechas.</td></tr>`;
+                document.getElementById('resumen-fechas').style.display = 'none';
+                return;
+            }
+
+            filtrados.forEach(p => {
+                const total = parseFloat(p.total || 0);
+                totalSuma += total;
+                const numPedido = `Pedido #${String(p.numero_pedido || 0).padStart(3, '0')}`;
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${numPedido}</strong></td>
+                        <td>${new Date(p.created_at).toLocaleString()}</td>
+                        <td>${p.nombre_cliente || 'General'}</td>
+                        <td>${p.metodo || p.metodo_pago || 'Efectivo'}</td>
+                        <td><strong>Q. ${total.toFixed(2)}</strong></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('lbl-total-fechas').innerText = `Q. ${totalSuma.toFixed(2)}`;
+            document.getElementById('lbl-cant-fechas').innerText = filtrados.length;
+            document.getElementById('resumen-fechas').style.display = 'flex';
+        }
+
+        // 2. REPORTE POR CLIENTE
+        function generarReporteCliente() {
+            const clienteSel = document.getElementById('select-cliente').value;
+            const tbody = document.getElementById('tabla-cliente');
+
+            const filtrados = clienteSel ? cachePedidos.filter(p => p.nombre_cliente === clienteSel) : cachePedidos;
+
+            let totalSuma = 0;
+            tbody.innerHTML = '';
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #64748b; padding: 15px;">No hay registros para este cliente.</td></tr>`;
+                document.getElementById('resumen-cliente').style.display = 'none';
+                return;
+            }
+
+            filtrados.forEach(p => {
+                const total = parseFloat(p.total || 0);
+                totalSuma += total;
+                const numPedido = `Pedido #${String(p.numero_pedido || 0).padStart(3, '0')}`;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${numPedido}</strong></td>
+                        <td>${new Date(p.created_at).toLocaleString()}</td>
+                        <td>${p.nombre_cliente || 'General'}</td>
+                        <td>${p.cliente_telefono || 'N/A'}</td>
+                        <td><strong>Q. ${total.toFixed(2)}</strong></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('lbl-total-cliente').innerText = `Q. ${totalSuma.toFixed(2)}`;
+            document.getElementById('lbl-cant-cliente').innerText = filtrados.length;
+            document.getElementById('resumen-cliente').style.display = 'flex';
+        }
+
+        // 3. REPORTE POR PRODUCTO
+        function generarReporteProducto() {
+            const prodSel = document.getElementById('select-producto').value;
+            let mapProductos = {};
+
+            cachePedidos.forEach(p => {
+                if (p.detalle_pedidos) {
+                    p.detalle_pedidos.forEach(d => {
+                        if (!prodSel || d.producto_nombre === prodSel) {
+                            if (!mapProductos[d.producto_nombre]) {
+                                mapProductos[d.producto_nombre] = { nombre: d.producto_nombre, cant: 0, total: 0 };
+                            }
+                            mapProductos[d.producto_nombre].cant += d.cantidad;
+                            mapProductos[d.producto_nombre].total += d.subtotal;
+                        }
+                    });
+                }
+            });
+
+            renderizarReporteProductoGeneral(Object.values(mapProductos));
+        }
+
+        function renderizarReporteProductoGeneral(listaProductos) {
+            const tbody = document.getElementById('tabla-producto');
+            tbody.innerHTML = '';
+
+            let totalGlobalCant = 0;
+            let totalGlobalMonto = 0;
+
+            if (listaProductos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #64748b; padding: 15px;">No hay productos vendidos registrados.</td></tr>`;
+                document.getElementById('resumen-producto').style.display = 'none';
+                return;
+            }
+
+            listaProductos.forEach(item => {
+                totalGlobalCant += item.cant;
+                totalGlobalMonto += item.total;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.nombre}</strong></td>
+                        <td>${item.cant} unidades</td>
+                        <td><strong>Q. ${item.total.toFixed(2)}</strong></td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('lbl-cant-prod').innerText = totalGlobalCant;
+            document.getElementById('lbl-total-prod').innerText = `Q. ${totalGlobalMonto.toFixed(2)}`;
+            document.getElementById('resumen-producto').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
