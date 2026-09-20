@@ -46,7 +46,7 @@
 
         .btn-accion { background-color: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; align-self: flex-end; }
         .btn-accion:hover { background-color: #059669; }
-        .btn-print { background-color: #0ea5e9; }
+        .btn-print { background-color: #0ea5e9; padding: 6px 10px; font-size: 11px; }
         .btn-print:hover { background-color: #0284c7; }
 
         .summary-box { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -58,13 +58,18 @@
         th { background-color: #f8fafc; font-weight: 600; color: #64748b; }
         .table-responsive { overflow-x: auto; }
 
-        /* ESTILOS DE IMPRESIÓN / PDF */
+        /* ESTILOS DE IMPRESIÓN DINÁMICOS */
         @media print {
             aside, header.main-header, .filters-grid, .btn-accion, .btn-print { display: none !important; }
             body { background: white !important; height: auto !important; overflow: visible !important; display: block !important; }
             main { overflow: visible !important; height: auto !important; width: 100% !important; }
             .dashboard-container { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
-            .section-card { box-shadow: none !important; border: none !important; padding: 0 !important; margin-bottom: 30px !important; page-break-inside: avoid; }
+            
+            /* Ocultar todas las tarjetas por defecto al imprimir */
+            .section-card { display: none !important; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; }
+            
+            /* Mostrar únicamente la tarjeta que tenga la clase 'printing-active' */
+            .section-card.printing-active { display: block !important; }
             .reporte-header-print { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e293b; padding-bottom: 10px; }
         }
         .reporte-header-print { display: none; }
@@ -101,20 +106,22 @@
     <main>
         <header class="main-header">
             <h1>Finanzas y Reportes de Ventas</h1>
-            <button class="btn-accion btn-print" onclick="window.print()" style="margin: 0; padding: 8px 14px; font-size: 12px;">🖨️ Imprimir / Guardar PDF</button>
         </header>
 
         <div class="dashboard-container">
             
-            <!-- Encabezado exclusivo para cuando se imprime/exporta PDF -->
+            <!-- Encabezado para PDF -->
             <div class="reporte-header-print">
                 <h2 style="font-size: 20px; font-weight: 700; color: #0f172a;">Hebron Casa de Eventos</h2>
-                <p style="font-size: 12px; color: #64748b;">Reporte Financiero y de Ventas &bull; Generado el ${new Date().toLocaleDateString()}</p>
+                <p style="font-size: 12px; color: #64748b;" id="print-subtitle">Reporte Financiero &bull; Generado el ${new Date().toLocaleDateString()}</p>
             </div>
 
-            <!-- REPORTE DE FECHA A FECHA -->
-            <div class="section-card">
-                <div class="section-title">📅 Reporte de Ventas por Rango de Fechas</div>
+            <!-- 1. REPORTE DE FECHA A FECHA -->
+            <div class="section-card" id="card-fechas">
+                <div class="section-title">
+                    <span>📅 Reporte de Ventas por Rango de Fechas</span>
+                    <button class="btn-accion btn-print" onclick="imprimirSeccion('card-fechas')">🖨️ Imprimir / PDF</button>
+                </div>
                 <div class="filters-grid">
                     <div class="filter-group">
                         <label>Fecha Desde</label>
@@ -150,9 +157,12 @@
                 </div>
             </div>
 
-            <!-- REPORTE POR CLIENTE -->
-            <div class="section-card">
-                <div class="section-title">👥 Reporte de Ventas por Cliente</div>
+            <!-- 2. REPORTE POR CLIENTE -->
+            <div class="section-card" id="card-cliente">
+                <div class="section-title">
+                    <span>👥 Reporte de Ventas por Cliente</span>
+                    <button class="btn-accion btn-print" onclick="imprimirSeccion('card-cliente')">🖨️ Imprimir / PDF</button>
+                </div>
                 <div class="filters-grid">
                     <div class="filter-group">
                         <label>Seleccionar o Buscar Cliente</label>
@@ -183,9 +193,12 @@
                 </div>
             </div>
 
-            <!-- REPORTE POR PRODUCTO -->
-            <div class="section-card">
-                <div class="section-title">📦 Reporte de Ventas por Producto</div>
+            <!-- 3. REPORTE POR PRODUCTO -->
+            <div class="section-card" id="card-producto">
+                <div class="section-title">
+                    <span>📦 Reporte de Ventas por Producto</span>
+                    <button class="btn-accion btn-print" onclick="imprimirSeccion('card-producto')">🖨️ Imprimir / PDF</button>
+                </div>
                 <div class="filters-grid">
                     <div class="filter-group">
                         <label>Seleccionar Producto</label>
@@ -287,6 +300,25 @@
             });
 
             renderizarReporteProductoGeneral(Object.values(mapProductos));
+        }
+
+        // Función para imprimir solo la tarjeta seleccionada
+        function imprimirSeccion(cardId) {
+            // Quitamos la clase de impresión a todas las tarjetas por si acaso
+            document.querySelectorAll('.section-card').forEach(c => c.classList.remove('printing-active'));
+            
+            // Añadimos la clase únicamente a la tarjeta que se quiere imprimir
+            const tarjeta = document.getElementById(cardId);
+            if (tarjeta) {
+                tarjeta.classList.add('printing-active');
+            }
+
+            window.print();
+
+            // Limpiamos la clase al terminar
+            setTimeout(() => {
+                if (tarjeta) tarjeta.classList.remove('printing-active');
+            }, 500);
         }
 
         // 1. REPORTE DE FECHA A FECHA
