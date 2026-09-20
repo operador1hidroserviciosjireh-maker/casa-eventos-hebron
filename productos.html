@@ -195,21 +195,38 @@
         </div>
     </div>
 
-    <!-- MODAL AGREGAR STOCK A PRODUCTO EXISTENTE -->
-    <div id="modal-agregar-stock" class="modal-overlay">
+    <!-- MODAL AJUSTAR STOCK (SUMAR O RESTAR) -->
+    <div id="modal-ajustar-stock" class="modal-overlay">
         <div class="modal-container" style="max-width: 380px;">
             <div style="display: flex; justify-content: space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #fff;">
                 <button onclick="cerrarModalStock()" style="background:none; border:none; font-size: 16px; cursor:pointer; color:#64748b;">✕</button>
-                <h3 style="font-size: 15px; font-weight: 600; color:#1e293b;" id="titulo-modal-stock">Añadir Stock</h3>
+                <h3 style="font-size: 15px; font-weight: 600; color:#1e293b;" id="titulo-modal-stock">Ajustar Stock</h3>
                 <div style="width: 15px;"></div>
             </div>
             <div class="modal-body" style="text-align: center;">
                 <input type="hidden" id="stock-product-id">
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">¿Cuántas unidades deseas agregar al inventario actual?</p>
-                <div class="stock-display-box" style="margin: 0 auto 20px auto; width: fit-content;">
-                    <input type="text" inputmode="numeric" id="cantidad-a-sumar" value="" placeholder="0" class="stock-number-input" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                
+                <!-- Indicador de stock actual -->
+                <div style="background: #f1f5f9; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <span style="font-size: 12px; color: #64748b; display: block;">Inventario actual en bodega:</span>
+                    <strong id="texto-stock-actual" style="font-size: 18px; color: #1e293b;">0</strong>
                 </div>
-                <button onclick="confirmarAgregarStock()" class="btn-nuevo" style="width: 100%; padding: 12px; font-size: 14px;">Guardar stock</button>
+
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 10px;">¿Qué deseas hacer con el stock?</p>
+                
+                <!-- Selector de Acción (Sumar / Restar) -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button type="button" id="btn-modo-sumar" onclick="cambiarModoStock('sumar')" class="btn-nuevo" style="flex: 1; background: #10b981;">➕ Agregar</button>
+                    <button type="button" id="btn-modo-restar" onclick="cambiarModoStock('restar')" class="btn-nuevo" style="flex: 1; background: #64748b;">➖ Restar (Roturas/Bajas)</button>
+                </div>
+                <input type="hidden" id="tipo-operacion" value="sumar">
+
+                <div class="stock-display-box" style="margin: 0 auto 20px auto; width: fit-content;">
+                    <span style="display: block; font-size: 11px; color: #94a3b8; margin-bottom: 2px;" id="label-cantidad-operacion">Cantidad a agregar</span>
+                    <input type="text" inputmode="numeric" id="cantidad-a-ajustar" value="" placeholder="0" class="stock-number-input" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+
+                <button onclick="confirmarAjusteStock()" class="btn-nuevo" style="width: 100%; padding: 12px; font-size: 14px;">Guardar cambios</button>
             </div>
         </div>
     </div>
@@ -293,7 +310,7 @@
                         <td><span style="background: #0ea5e9; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">${p.creado_por || 'Sistema'}</span></td>
                         <td>
                             <div style="display: flex; gap: 6px; align-items: center;">
-                                <button onclick="abrirModalStock('${p.id}', '${p.nombre}', ${p.stock || 0})" class="btn-nuevo" style="padding: 4px 8px; font-size: 11px;">+ Stock</button>
+                                <button onclick="abrirModalStock('${p.id}', '${p.nombre}', ${p.stock || 0})" class="btn-nuevo" style="padding: 4px 8px; font-size: 11px;">± Stock</button>
                                 <button onclick="eliminarProducto('${p.id}')" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size: 11px;">Eliminar</button>
                             </div>
                         </td>
@@ -311,27 +328,54 @@
         function abrirModalStock(id, nombre, stockActual) {
             document.getElementById('stock-product-id').value = id;
             document.getElementById('titulo-modal-stock').innerText = `Stock: ${nombre}`;
-            document.getElementById('cantidad-a-sumar').value = '';
-            document.getElementById('modal-agregar-stock').style.display = 'flex';
+            document.getElementById('texto-stock-actual').innerText = stockActual;
+            document.getElementById('cantidad-a-ajustar').value = '';
+            cambiarModoStock('sumar'); // Por defecto abre en sumar
+            document.getElementById('modal-ajustar-stock').style.display = 'flex';
+        }
+
+        function cambiarModoStock(modo) {
+            document.getElementById('tipo-operacion').value = modo;
+            const btnSumar = document.getElementById('btn-modo-sumar');
+            const btnRestar = document.getElementById('btn-modo-restar');
+            const labelCantidad = document.getElementById('label-cantidad-operacion');
+
+            if (modo === 'sumar') {
+                btnSumar.style.background = '#10b981';
+                btnSumar.style.opacity = '1';
+                btnRestar.style.background = '#cbd5e1';
+                labelCantidad.innerText = 'Cantidad a agregar';
+            } else {
+                btnRestar.style.background = '#ef4444';
+                btnRestar.style.opacity = '1';
+                btnSumar.style.background = '#cbd5e1';
+                labelCantidad.innerText = 'Cantidad a restar (roturas)';
+            }
         }
 
         function cerrarModalStock() {
-            document.getElementById('modal-agregar-stock').style.display = 'none';
+            document.getElementById('modal-ajustar-stock').style.display = 'none';
         }
 
-        async function confirmarAgregarStock() {
+        async function confirmarAjusteStock() {
             const id = document.getElementById('stock-product-id').value;
-            const cantidadAgregar = parseInt(document.getElementById('cantidad-a-sumar').value);
+            const cantidadInput = parseInt(document.getElementById('cantidad-a-ajustar').value);
+            const modo = document.getElementById('tipo-operacion').value;
 
-            if (isNaN(cantidadAgregar) || cantidadAgregar <= 0) {
+            if (isNaN(cantidadInput) || cantidadInput <= 0) {
                 alert('Por favor ingresa una cantidad válida.');
                 return;
             }
 
-            // Buscar stock actual del producto
             const productoActual = listaProductosGlobal.find(p => p.id == id);
             const stockActual = productoActual ? (parseInt(productoActual.stock) || 0) : 0;
-            const nuevoStock = stockActual + cantidadAgregar;
+            
+            let nuevoStock = modo === 'sumar' ? stockActual + cantidadInput : stockActual - cantidadInput;
+
+            if (nuevoStock < 0) {
+                alert('No puedes dejar el stock por debajo de 0 (estás intentando restar más de lo que hay).');
+                return;
+            }
 
             const { error } = await supabaseClient
                 .from('productos')
