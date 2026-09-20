@@ -167,24 +167,26 @@
         document.addEventListener('DOMContentLoaded', cargarTransacciones);
 
         async function cargarTransacciones() {
-            // Traemos las órdenes confirmadas de la tabla pedidos o transacciones
-            const { data, error } = await supabaseClient.from('transacciones').select('*').order('created_at', { ascending: false });
-            if (error) {
-                console.error('Error al cargar transacciones:', error.message);
-                return;
-            }
-            listaTransaccionesGlobal = data || [];
-            renderizarTabla(listaTransaccionesGlobal);
-        }
+    // Traemos todos los pedidos sin filtro estrictos de mayúsculas para evitar que se oculten
+    const { data, error } = await supabaseClient
+        .from('pedidos')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-        function renderizarTabla(transacciones) {
-            const tbody = document.getElementById('tabla-transacciones');
-            tbody.innerHTML = '';
-            
-            if (!transacciones || transacciones.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8;">No hay transacciones registradas.</td></tr>`;
-                return;
-            }
+    if (error) {
+        console.error('Error al cargar pedidos:', error.message);
+        return;
+    }
+
+    // Filtramos en memoria para capturar cualquier variación en el texto ("Confirmado", "confirmado", etc.)
+    listaTransaccionesGlobal = (data || []).filter(p => {
+        const est = (p.estado || '').toLowerCase();
+        return est.includes('confirmado') || est.includes('completado');
+    });
+
+    renderizarTabla(listaTransaccionesGlobal);
+}
+
 
             transacciones.forEach(t => {
                 let badgeEstado = t.estado === 'Completado' ? '<span class="badge-estado badge-completado">Completado</span>' : '<span class="badge-estado badge-pendiente">Pendiente</span>';
