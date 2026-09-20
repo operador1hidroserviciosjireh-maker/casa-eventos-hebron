@@ -167,7 +167,6 @@
         document.addEventListener('DOMContentLoaded', cargarTransacciones);
 
         async function cargarTransacciones() {
-            // Traemos todos los pedidos sin filtros estrictos de mayúsculas
             const { data, error } = await supabaseClient
                 .from('pedidos')
                 .select('*')
@@ -178,9 +177,10 @@
                 return;
             }
 
-            // Mapeamos los campos para asegurarnos de que la interfaz los lea sin errores
+            // Mapeamos incluyendo el numero_pedido de la base de datos
             listaTransaccionesGlobal = (data || []).map(p => ({
                 id: p.id,
+                numero_pedido: p.numero_pedido || 0,
                 cliente: p.cliente || p.nombre_cliente || 'General',
                 total: p.total || p.total_orden || 0,
                 estado: p.estado || 'Pendiente',
@@ -189,7 +189,6 @@
                 foto_boleta: p.foto_boleta || p.comprobante_url || null
             }));
 
-            // Filtramos para mostrar los confirmados o pendientes
             const transaccionesFiltradas = listaTransaccionesGlobal.filter(p => {
                 const est = (p.estado || '').toLowerCase();
                 return est.includes('confirmado') || est.includes('completado') || est.includes('pendiente');
@@ -218,9 +217,12 @@
                     `<button onclick="abrirModalPago('${t.id}', ${t.total})" class="btn-nuevo" style="padding: 4px 8px; font-size: 11px;">Cobrar</button>` : 
                     `<span style="color:#10b981; font-weight:600; font-size:11px;">Pagado</span>`;
 
+                // Formateamos el número de pedido a 3 dígitos (Ej: Pedido #001)
+                let numeroFormateado = `Pedido #${String(t.numero_pedido).padStart(3, '0')}`;
+
                 tbody.innerHTML += `
                     <tr>
-                       <td>Pedido #${t.id}</td> 
+                       <td>${numeroFormateado}</td> 
                         <td>${t.cliente}</td>
                         <td><strong>${totalFormateado}</strong></td>
                         <td>${badgeEstado}</td>
@@ -288,7 +290,6 @@
                 }
             }
 
-            // Actualizamos directamente en la tabla pedidos
             const { error } = await supabaseClient
                 .from('pedidos')
                 .update({ 
@@ -311,7 +312,11 @@
 
         function filtrarTransacciones() {
             const texto = document.getElementById('buscador').value.toLowerCase();
-            const filtrados = listaTransaccionesGlobal.filter(t => (t.cliente && t.cliente.toLowerCase().includes(texto)) || String(t.id).includes(texto));
+            const filtrados = listaTransaccionesGlobal.filter(t => 
+                (t.cliente && t.cliente.toLowerCase().includes(texto)) || 
+                String(t.numero_pedido).includes(texto) ||
+                `pedido #${t.numero_pedido}`.toLowerCase().includes(texto)
+            );
             renderizarTabla(filtrados);
         }
     </script>
