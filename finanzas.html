@@ -46,6 +46,8 @@
 
         .btn-accion { background-color: #10b981; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; align-self: flex-end; }
         .btn-accion:hover { background-color: #059669; }
+        .btn-print { background-color: #0ea5e9; }
+        .btn-print:hover { background-color: #0284c7; }
 
         .summary-box { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
         .summary-pill { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 15px; border-radius: 8px; font-size: 13px; color: #334155; }
@@ -55,6 +57,17 @@
         th, td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; }
         th { background-color: #f8fafc; font-weight: 600; color: #64748b; }
         .table-responsive { overflow-x: auto; }
+
+        /* ESTILOS DE IMPRESIÓN / PDF */
+        @media print {
+            aside, header.main-header, .filters-grid, .btn-accion, .btn-print { display: none !important; }
+            body { background: white !important; height: auto !important; overflow: visible !important; display: block !important; }
+            main { overflow: visible !important; height: auto !important; width: 100% !important; }
+            .dashboard-container { padding: 0 !important; max-width: 100% !important; margin: 0 !important; }
+            .section-card { box-shadow: none !important; border: none !important; padding: 0 !important; margin-bottom: 30px !important; page-break-inside: avoid; }
+            .reporte-header-print { display: block !important; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1e293b; padding-bottom: 10px; }
+        }
+        .reporte-header-print { display: none; }
     </style>
 </head>
 <body>
@@ -88,10 +101,17 @@
     <main>
         <header class="main-header">
             <h1>Finanzas y Reportes de Ventas</h1>
+            <button class="btn-accion btn-print" onclick="window.print()" style="margin: 0; padding: 8px 14px; font-size: 12px;">🖨️ Imprimir / Guardar PDF</button>
         </header>
 
         <div class="dashboard-container">
             
+            <!-- Encabezado exclusivo para cuando se imprime/exporta PDF -->
+            <div class="reporte-header-print">
+                <h2 style="font-size: 20px; font-weight: 700; color: #0f172a;">Hebron Casa de Eventos</h2>
+                <p style="font-size: 12px; color: #64748b;">Reporte Financiero y de Ventas &bull; Generado el ${new Date().toLocaleDateString()}</p>
+            </div>
+
             <!-- REPORTE DE FECHA A FECHA -->
             <div class="section-card">
                 <div class="section-title">📅 Reporte de Ventas por Rango de Fechas</div>
@@ -203,7 +223,6 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let cachePedidos = [];
-        let cacheDetalles = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
             if (!sessionStorage.getItem('admin_hebron')) {
@@ -214,7 +233,6 @@
         });
 
         async function cargarDatosGlobales() {
-            // Traemos todos los pedidos y sus detalles con una sola consulta relacionada
             const { data: pedidos, error: errPedidos } = await supabaseClient
                 .from('pedidos')
                 .select(`
@@ -236,17 +254,17 @@
 
             cachePedidos = pedidos || [];
             
-            // Extraer lista única de clientes para el selector
+            // Llenar select de clientes
             const selectCliente = document.getElementById('select-cliente');
             const clientesUnicos = [...new Set(cachePedidos.map(p => p.nombre_cliente).filter(Boolean))];
             clientesUnicos.sort().forEach(nombre => {
-                const opt = document.option ? document.createElement('option') : document.createElement('option');
+                const opt = document.createElement('option');
                 opt.value = nombre;
                 opt.textContent = nombre;
                 selectCliente.appendChild(opt);
             });
 
-            // Extraer lista única de productos vendidos para el selector
+            // Llenar select de productos
             let mapProductos = {};
             cachePedidos.forEach(p => {
                 if (p.detalle_pedidos) {
@@ -268,7 +286,6 @@
                 selectProducto.appendChild(opt);
             });
 
-            // Renderizar resumen global inicial de productos
             renderizarReporteProductoGeneral(Object.values(mapProductos));
         }
 
