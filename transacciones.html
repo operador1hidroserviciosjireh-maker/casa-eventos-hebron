@@ -167,44 +167,64 @@
         document.addEventListener('DOMContentLoaded', cargarTransacciones);
 
         async function cargarTransacciones() {
-    // Traemos todos los pedidos sin filtro estrictos de mayúsculas para evitar que se oculten
-    const { data, error } = await supabaseClient
-        .from('pedidos')
-        .select('*')
-        .order('created_at', { ascending: false });
+            // Traemos todos los pedidos sin filtros estrictos de mayúsculas
+            const { data, error } = await supabaseClient
+                .from('pedidos')
+                .select('*')
+                .order('created_at', { ascending: false });
 
-    if (error) {
-        console.error('Error al cargar pedidos:', error.message);
-        return;
-    }
+            if (error) {
+                console.error('Error al cargar pedidos:', error.message);
+                return;
+            }
 
-    // Filtramos en memoria para capturar cualquier variación en el texto ("Confirmado", "confirmado", etc.)
-    listaTransaccionesGlobal = (data || []).filter(p => {
-        const est = (p.estado || '').toLowerCase();
-        return est.includes('confirmado') || est.includes('completado');
-    });
+            // Mapeamos los campos para asegurarnos de que la interfaz los lea sin errores
+            listaTransaccionesGlobal = (data || []).map(p => ({
+                id: p.id,
+                cliente: p.cliente || p.nombre_cliente || 'General',
+                total: p.total || p.total_orden || 0,
+                estado: p.estado || 'Pendiente',
+                metodo: p.metodo || p.metodo_pago || 'Pendiente',
+                boleta: p.boleta || p.referencia || '',
+                foto_boleta: p.foto_boleta || p.comprobante_url || null
+            }));
 
-    renderizarTabla(listaTransaccionesGlobal);
-}
+            // Filtramos para mostrar los confirmados o pendientes
+            const transaccionesFiltradas = listaTransaccionesGlobal.filter(p => {
+                const est = (p.estado || '').toLowerCase();
+                return est.includes('confirmado') || est.includes('completado') || est.includes('pendiente');
+            });
 
+            renderizarTabla(transaccionesFiltradas);
+        }
+
+        function renderizarTabla(transacciones) {
+            const tbody = document.getElementById('tabla-transacciones');
+            tbody.innerHTML = '';
+
+            if (transacciones.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #64748b; padding: 20px;">No hay transacciones registradas.</td></tr>`;
+                return;
+            }
 
             transacciones.forEach(t => {
-                let badgeEstado = t.estado === 'Completado' ? '<span class="badge-estado badge-completado">Completado</span>' : '<span class="badge-estado badge-pendiente">Pendiente</span>';
+                let esCompletado = (t.estado || '').toLowerCase().includes('completado');
+                let badgeEstado = esCompletado ? '<span class="badge-estado badge-completado">Completado</span>' : '<span class="badge-estado badge-pendiente">Pendiente</span>';
                 let totalFormateado = `Q. ${parseFloat(t.total || 0).toFixed(2)}`;
                 let detalleInfo = t.metodo === 'Transferencia' ? `Boleta: ${t.boleta || 'N/A'}` : 'Efectivo en caja';
                 let fotoHtml = t.foto_boleta ? `<a href="${t.foto_boleta}" target="_blank" style="color:#0ea5e9; text-decoration:underline; font-size:11px;">Ver foto</a>` : 'Sin foto';
                 
-                let botonAccion = t.estado !== 'Completado' ? 
+                let botonAccion = !esCompletado ? 
                     `<button onclick="abrirModalPago('${t.id}', ${t.total})" class="btn-nuevo" style="padding: 4px 8px; font-size: 11px;">Cobrar</button>` : 
                     `<span style="color:#10b981; font-weight:600; font-size:11px;">Pagado</span>`;
 
                 tbody.innerHTML += `
                     <tr>
                         <td>#${t.id}</td>
-                        <td>${t.cliente || 'General'}</td>
+                        <td>${t.cliente}</td>
                         <td><strong>${totalFormateado}</strong></td>
                         <td>${badgeEstado}</td>
-                        <td>${t.metodo || 'Pendiente'}</td>
+                        <td>${t.metodo}</td>
                         <td>${detalleInfo} <br> ${fotoHtml}</td>
                         <td>${botonAccion}</td>
                     </tr>
@@ -257,7 +277,7 @@
                 const fileName = `boleta_${Date.now()}.${fileExt}`;
 
                 let { error: uploadError } = await supabaseClient.storage
-                    .from('productos') // Puedes usar el bucket existente o uno de comprobantes
+                    .from('productos') 
                     .upload(fileName, file);
 
                 if (!uploadError) {
@@ -268,8 +288,9 @@
                 }
             }
 
+            // Actualizamos directamente en la tabla pedidos
             const { error } = await supabaseClient
-                .from('transacciones')
+                .from('pedidos')
                 .update({ 
                     estado: 'Completado',
                     metodo: metodo,
