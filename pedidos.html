@@ -156,7 +156,7 @@
                         subtotal
                     )
                 `)
-                .order('created_at', { ascending: true }); // Ordenados del más antiguo al más nuevo para asignar Pedido #1, #2...
+                .order('created_at', { ascending: true });
 
             const contenedor = document.getElementById('contenedorPedidos');
             if (error) {
@@ -173,7 +173,6 @@
             listaPedidosGlobal = data;
             contenedor.innerHTML = '';
 
-            // Mostramos ordenados del más reciente al más antiguo para visualización, manteniendo su número correlativo correcto
             data.slice().reverse().forEach((p, indexRev) => {
                 const numeroPedido = data.indexOf(p) + 1;
                 const fecha = new Date(p.created_at).toLocaleString();
@@ -209,6 +208,31 @@
         }
 
         async function confirmarPedidoRapido(pedidoId) {
+            // Buscamos el pedido en la lista global para obtener sus detalles
+            const pedido = listaPedidosGlobal.find(p => p.id === pedidoId);
+            if (!pedido) return;
+
+            const itemsAgrupados = agruparDetalles(pedido.detalle_pedidos || []);
+
+            // Restamos el stock de cada producto en la base de datos automáticamente
+            for (const item of itemsAgrupados) {
+                const { data: prodData, error: prodError } = await supabaseClient
+                    .from('productos')
+                    .select('id, stock')
+                    .eq('nombre', item.producto_nombre)
+                    .single();
+
+                if (!prodError && prodData) {
+                    const nuevoStock = Math.max(0, prodData.stock - item.cantidad);
+                    
+                    await supabaseClient
+                        .from('productos')
+                        .update({ stock: nuevoStock })
+                        .eq('id', prodData.id);
+                }
+            }
+
+            // Cambiamos el estado del pedido a 'Confirmado'
             const { error } = await supabaseClient
                 .from('pedidos')
                 .update({ estado: 'Confirmado' })
@@ -219,7 +243,7 @@
                 return;
             }
 
-            cargarPedidos(); // Recarga la lista para actualizar los estados
+            cargarPedidos(); // Recarga la lista para actualizar los estados y reflejar el cambio
         }
 
         function abrirTicketModalPorId(pedidoId, numPedido, totalCtd) {
