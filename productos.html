@@ -41,7 +41,7 @@
         th, td { padding: 12px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; }
         th { background-color: #f8fafc; font-weight: 600; color: #64748b; }
 
-        /* MODAL NUEVO PRODUCTO */
+        /* MODALES */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none; padding: 15px; }
         .modal-container { background: white; width: 100%; max-width: 450px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); display: flex; flex-direction: column; max-height: 90vh; }
         
@@ -71,7 +71,6 @@
         .stock-number-input { font-size: 28px; font-weight: 700; color: #10b981; border: none; background: transparent; text-align: center; width: 120px; outline: none; border-bottom: 2px solid #10b981; }
 
         .config-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; font-size: 13px; color: #475569; }
-
         .upload-box { border: 2px dashed #cbd5e1; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 15px; cursor: pointer; background: #f8fafc; }
         .upload-box:hover { border-color: #10b981; background: #f0fdf4; }
     </style>
@@ -136,7 +135,7 @@
         </div>
     </main>
 
-    <!-- MODAL NUEVO PRODUCTO CON PESTAÑAS -->
+    <!-- MODAL NUEVO PRODUCTO -->
     <div id="modal-producto" class="modal-overlay">
         <div class="modal-container">
             <div style="display: flex; justify-content: space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #fff;">
@@ -145,7 +144,6 @@
                 <div style="width: 15px;"></div>
             </div>
 
-            <!-- Pestañas -->
             <div class="modal-tabs">
                 <div class="modal-tab active" onclick="cambiarPestana('registro')" id="tab-btn-registro">REGISTRO</div>
                 <div class="modal-tab" onclick="cambiarPestana('stock')" id="tab-btn-stock">STOCK</div>
@@ -153,8 +151,6 @@
 
             <form id="form-producto" onsubmit="guardarProducto(event)" style="display: flex; flex-direction: column; flex-grow: 1; overflow: hidden;">
                 <div class="modal-body">
-                    
-                    <!-- PESTAÑA REGISTRO -->
                     <div id="tab-registro" class="tab-content active">
                         <input type="text" id="p-nombre" placeholder="Nombre del producto" required class="auth-input">
                         
@@ -169,7 +165,6 @@
                         </div>
                     </div>
 
-                    <!-- PESTAÑA STOCK -->
                     <div id="tab-stock" class="tab-content">
                         <div class="switch-container">
                             <span style="font-size: 13px; font-weight: 500; color: #334155;">Controlar stock del producto</span>
@@ -181,13 +176,8 @@
 
                         <div id="seccion-stock-activo">
                             <div class="stock-display-box">
-                                <span style="display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px;">Stock actual</span>
+                                <span style="display: block; font-size: 12px; color: #94a3b8; margin-bottom: 5px;">Stock inicial</span>
                                 <input type="text" inputmode="numeric" id="p-stock" value="" placeholder="0" class="stock-number-input" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-                            </div>
-
-                            <div class="config-row" onclick="alert('Historial de movimientos: Se registrarán las entradas y salidas de este producto automáticamente.')" style="cursor: pointer;">
-                                <span>Historial de movimientos</span>
-                                <span style="color: #cbd5e1;">&gt;</span>
                             </div>
 
                             <div class="config-row">
@@ -196,13 +186,31 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <div style="padding: 15px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; text-align: center;">
                     <button type="submit" id="btn-guardar" class="btn-nuevo" style="width: 100%; padding: 12px; font-size: 14px;">Añadir al producto</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR STOCK A PRODUCTO EXISTENTE -->
+    <div id="modal-agregar-stock" class="modal-overlay">
+        <div class="modal-container" style="max-width: 380px;">
+            <div style="display: flex; justify-content: space-between; align-items:center; padding: 15px 20px; border-bottom: 1px solid #f1f5f9; background: #fff;">
+                <button onclick="cerrarModalStock()" style="background:none; border:none; font-size: 16px; cursor:pointer; color:#64748b;">✕</button>
+                <h3 style="font-size: 15px; font-weight: 600; color:#1e293b;" id="titulo-modal-stock">Añadir Stock</h3>
+                <div style="width: 15px;"></div>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <input type="hidden" id="stock-product-id">
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">¿Cuántas unidades deseas agregar al inventario actual?</p>
+                <div class="stock-display-box" style="margin: 0 auto 20px auto; width: fit-content;">
+                    <input type="text" inputmode="numeric" id="cantidad-a-sumar" value="" placeholder="0" class="stock-number-input" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                </div>
+                <button onclick="confirmarAgregarStock()" class="btn-nuevo" style="width: 100%; padding: 12px; font-size: 14px;">Guardar stock</button>
+            </div>
         </div>
     </div>
 
@@ -283,7 +291,12 @@
                         <td><strong>${precioFormateado}</strong></td>
                         <td>${stockTexto}</td>
                         <td><span style="background: #0ea5e9; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px;">${p.creado_por || 'Sistema'}</span></td>
-                        <td><button onclick="eliminarProducto('${p.id}')" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;">Eliminar</button></td>
+                        <td>
+                            <div style="display: flex; gap: 6px; align-items: center;">
+                                <button onclick="abrirModalStock('${p.id}', '${p.nombre}', ${p.stock || 0})" class="btn-nuevo" style="padding: 4px 8px; font-size: 11px;">+ Stock</button>
+                                <button onclick="eliminarProducto('${p.id}')" style="background:#ef4444; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size: 11px;">Eliminar</button>
+                            </div>
+                        </td>
                     </tr>
                 `;
             });
@@ -293,6 +306,45 @@
             const texto = document.getElementById('buscador').value.toLowerCase();
             const filtrados = listaProductosGlobal.filter(p => p.nombre.toLowerCase().includes(texto));
             renderizarTabla(filtrados);
+        }
+
+        function abrirModalStock(id, nombre, stockActual) {
+            document.getElementById('stock-product-id').value = id;
+            document.getElementById('titulo-modal-stock').innerText = `Stock: ${nombre}`;
+            document.getElementById('cantidad-a-sumar').value = '';
+            document.getElementById('modal-agregar-stock').style.display = 'flex';
+        }
+
+        function cerrarModalStock() {
+            document.getElementById('modal-agregar-stock').style.display = 'none';
+        }
+
+        async function confirmarAgregarStock() {
+            const id = document.getElementById('stock-product-id').value;
+            const cantidadAgregar = parseInt(document.getElementById('cantidad-a-sumar').value);
+
+            if (isNaN(cantidadAgregar) || cantidadAgregar <= 0) {
+                alert('Por favor ingresa una cantidad válida.');
+                return;
+            }
+
+            // Buscar stock actual del producto
+            const productoActual = listaProductosGlobal.find(p => p.id == id);
+            const stockActual = productoActual ? (parseInt(productoActual.stock) || 0) : 0;
+            const nuevoStock = stockActual + cantidadAgregar;
+
+            const { error } = await supabaseClient
+                .from('productos')
+                .update({ stock: nuevoStock })
+                .eq('id', id);
+
+            if (error) {
+                alert('Error al actualizar el stock: ' + error.message);
+            } else {
+                alert('¡Stock actualizado con éxito!');
+                cerrarModalStock();
+                cargarProductos();
+            }
         }
 
         async function guardarProducto(event) {
