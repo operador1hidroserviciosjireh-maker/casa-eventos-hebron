@@ -353,7 +353,8 @@
             let telefono = document.getElementById('nuevoTelefonoCliente').value.trim();
             if (!nombre || !telefono) { alert('Completa los datos del cliente.'); return; }
 
-            const { error } = await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
+            // CORREGIDO: Se usa .insert sin el parámetro onConflict
+            const { error } = await supabaseClient.from('clientes').insert([{ nombre, telefono }]);
             if (!error) {
                 alert('Cliente guardado con éxito.');
                 cerrarModalClienteNuevo();
@@ -388,7 +389,8 @@
             }
 
             try {
-                await supabaseClient.from('clientes').upsert([{ nombre, telefono }], { onConflict: 'telefono' });
+                // CORREGIDO: Se usa .insert sin el parámetro onConflict
+                await supabaseClient.from('clientes').insert([{ nombre, telefono }]);
 
                 let { data: pedido, err } = await supabaseClient.from('pedidos').insert([{
                     cliente_telefono: telefono,
