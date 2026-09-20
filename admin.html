@@ -27,10 +27,7 @@
         aside { width: 100%; background-color: #253342; color: #ffffff; display: flex; flex-direction: column; border-bottom: 1px solid #1e293b; }
         @media (min-width: 768px) { aside { width: 280px; height: 100vh; border-right: 1px solid #1e293b; justify-content: space-between; } }
         
-        .sidebar-header { 
-            padding: 20px; 
-            border-bottom: 1px solid #334155; 
-        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #334155; }
         .sidebar-header h2 { font-size: 15px; font-weight: 600; color: #ffffff; }
         .sidebar-header p { font-size: 12px; color: #94a3b8; margin-top: 4px; }
 
@@ -48,8 +45,15 @@
         main { flex-grow: 1; display: flex; flex-direction: column; width: 100%; }
         @media (min-width: 768px) { main { overflow-y: auto; height: 100vh; } }
         header.main-header { background-color: #253342; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .dashboard-container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; }
-        .sales-card { background-color: #253342; color: white; border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .dashboard-container { padding: 20px; max-width: 1200px; margin: 0 auto; width: 100%; display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 768px) { .dashboard-container { grid-template-columns: repeat(2, 1fr); } }
+
+        .sales-card { background-color: #253342; color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); grid-column: 1 / -1; }
+        .info-card { background-color: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        .info-card h4 { color: #64748b; font-size: 13px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-card .card-value { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+        .info-card .card-sub { font-size: 12px; color: #64748b; }
+
         .btn-nuevo { background-color: #10b981; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
@@ -69,7 +73,7 @@
         </div>
     </div>
 
-    <!-- MENÚ LATERAL -->
+    <!-- MENÚ LATERAL (Sin sección de cupón) -->
     <aside>
         <div>
             <div class="sidebar-header">
@@ -102,11 +106,26 @@
         </header>
 
         <div class="dashboard-container">
+            <!-- Ventas de Hoy -->
             <div class="sales-card">
                 <h3>Hoy</h3>
-                <div style="font-size: 30px; font-weight: 700; margin: 5px 0;">0.00 Q</div>
-                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;">en 0 ventas completadas</div>
+                <div style="font-size: 32px; font-weight: 700; margin: 5px 0;" id="ventas-hoy-monto">Q. 0.00</div>
+                <div style="font-size: 12px; color: #94a3b8; margin-bottom: 15px;" id="ventas-hoy-texto">en 0 ventas completadas</div>
                 <button class="btn-nuevo" onclick="window.location.href='vender.html'">Registrar venta</button>
+            </div>
+
+            <!-- Total de Productos en Stock -->
+            <div class="info-card">
+                <h4>Unidades en Stock</h4>
+                <div class="card-value" id="stock-unidades">0</div>
+                <div class="card-sub">productos disponibles</div>
+            </div>
+
+            <!-- Valor Total en Quetzales del Stock -->
+            <div class="info-card">
+                <h4>Valor del Stock</h4>
+                <div class="card-value" id="stock-valor">Q. 0.00</div>
+                <div class="card-sub">en inventario actual</div>
             </div>
         </div>
     </main>
@@ -121,20 +140,17 @@
                 document.getElementById('auth-overlay').style.display = 'none';
             }
             actualizarContadorPedidosPendientes();
+            cargarDatosDashboard();
         });
 
         async function actualizarContadorPedidosPendientes() {
             try {
-                // Cuenta únicamente los pedidos cuyo estado sea estrictamente 'Pendiente'
                 const { count, error } = await supabaseClient
                     .from('pedidos')
                     .select('*', { count: 'exact', head: true })
                     .ilike('estado', '%pendiente%');
 
-                if (error) {
-                    console.error('Error al contar pedidos pendientes:', error);
-                    return;
-                }
+                if (error) return;
 
                 const badge = document.querySelector('a[href="pedidos.html"] .menu-badge');
                 if (badge) {
@@ -142,11 +158,66 @@
                         badge.style.display = 'inline-flex';
                         badge.innerText = count;
                     } else {
-                        badge.style.display = 'none'; // Se oculta automáticamente si ya no hay pendientes reales
+                        badge.style.display = 'none';
                     }
                 }
             } catch (err) {
-                console.error('Error de conexión al contar pedidos:', err);
+                console.error(err);
+            }
+        }
+
+        async function cargarDatosDashboard() {
+            try {
+                // 1. Calcular Ventas de Hoy (Pedidos Completados o Pagados creados hoy)
+                const { data: pedidosData, error: pedidosError } = await supabaseClient
+                    .from('pedidos')
+                    .select('*');
+
+                if (!pedidosError && pedidosData) {
+                    const hoyStr = new Date().toISOString().split('T')[0]; // Fecha actual YYYY-MM-DD
+                    let totalHoy = 0;
+                    let countHoy = 0;
+
+                    pedidosData.forEach(p => {
+                        const estado = (p.estado || '').toLowerCase();
+                        const esPagado = estado.includes('completado') || estado.includes('pagado');
+                        
+                        if (esPagado && p.created_at) {
+                            const fechaPedido = p.created_at.split('T')[0];
+                            if (fechaPedido === hoyStr) {
+                                totalHoy += parseFloat(p.total || p.total_orden || 0);
+                                countHoy++;
+                            }
+                        }
+                    });
+
+                    document.getElementById('ventas-hoy-monto').innerText = `Q. ${totalHoy.toFixed(2)}`;
+                    document.getElementById('ventas-hoy-texto').innerText = `en ${countHoy} ${countHoy === 1 ? 'venta completada' : 'ventas completadas'}`;
+                }
+
+                // 2. Calcular Stock Total y Valor en Quetzales del Inventario
+                const { data: prodData, error: prodError } = await supabaseClient
+                    .from('productos')
+                    .select('*');
+
+                if (!prodError && prodData) {
+                    let totalUnidades = 0;
+                    let valorTotalInventario = 0;
+
+                    prodData.forEach(prod => {
+                        const stock = parseInt(prod.stock || 0);
+                        const precio = parseFloat(prod.precio || prod.precio_venta || 0);
+                        
+                        totalUnidades += stock;
+                        valorTotalInventario += (stock * precio);
+                    });
+
+                    document.getElementById('stock-unidades').innerText = totalUnidades.toLocaleString();
+                    document.getElementById('stock-valor').innerText = `Q. ${valorTotalInventario.toFixed(2)}`;
+                }
+
+            } catch (err) {
+                console.error('Error cargando métricas del dashboard:', err);
             }
         }
 
@@ -155,15 +226,14 @@
             const emailInput = document.getElementById('login-email').value.trim().toLowerCase();
             const passInput = document.getElementById('login-pass').value;
 
-            // 1. Administrador Maestro
             if (emailInput === 'admin@hebron.com' && passInput === 'Jeremias2#') {
                 sessionStorage.setItem('admin_hebron', 'Samuel Siebenhor');
                 document.getElementById('auth-overlay').style.display = 'none';
                 actualizarContadorPedidosPendientes();
+                cargarDatosDashboard();
                 return;
             }
 
-            // 2. Verificación en Supabase para colaboradores
             try {
                 const { data, error } = await supabaseClient
                     .from('usuarios')
@@ -189,6 +259,7 @@
                 sessionStorage.setItem('admin_hebron', data.nombre || 'Colaborador');
                 document.getElementById('auth-overlay').style.display = 'none';
                 actualizarContadorPedidosPendientes();
+                cargarDatosDashboard();
 
             } catch (err) {
                 console.error(err);
