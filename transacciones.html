@@ -177,7 +177,6 @@
                 return;
             }
 
-            // Mapeamos incluyendo el numero_pedido de la base de datos
             listaTransaccionesGlobal = (data || []).map(p => ({
                 id: p.id,
                 numero_pedido: p.numero_pedido || 0,
@@ -189,12 +188,7 @@
                 foto_boleta: p.foto_boleta || p.comprobante_url || null
             }));
 
-            const transaccionesFiltradas = listaTransaccionesGlobal.filter(p => {
-                const est = (p.estado || '').toLowerCase();
-                return est.includes('confirmado') || est.includes('completado') || est.includes('pendiente');
-            });
-
-            renderizarTabla(transaccionesFiltradas);
+            renderizarTabla(listaTransaccionesGlobal);
         }
 
         function renderizarTabla(transacciones) {
@@ -207,7 +201,8 @@
             }
 
             transacciones.forEach(t => {
-                let esCompletado = (t.estado || '').toLowerCase().includes('completado');
+                let estLower = (t.estado || '').toLowerCase();
+                let esCompletado = estLower.includes('completado') || estLower.includes('pagado');
                 let badgeEstado = esCompletado ? '<span class="badge-estado badge-completado">Completado</span>' : '<span class="badge-estado badge-pendiente">Pendiente</span>';
                 let totalFormateado = `Q. ${parseFloat(t.total || 0).toFixed(2)}`;
                 let detalleInfo = t.metodo === 'Transferencia' ? `Boleta: ${t.boleta || 'N/A'}` : 'Efectivo en caja';
@@ -217,7 +212,6 @@
                     `<button onclick="abrirModalPago('${t.id}', ${t.total})" class="btn-nuevo" style="padding: 4px 8px; font-size: 11px;">Cobrar</button>` : 
                     `<span style="color:#10b981; font-weight:600; font-size:11px;">Pagado</span>`;
 
-                // Formateamos el número de pedido a 3 dígitos (Ej: Pedido #001)
                 let numeroFormateado = `Pedido #${String(t.numero_pedido).padStart(3, '0')}`;
 
                 tbody.innerHTML += `
@@ -290,6 +284,7 @@
                 }
             }
 
+            // Al cobrar, actualizamos método, monto y dejamos estado como 'Completado'
             const { error } = await supabaseClient
                 .from('pedidos')
                 .update({ 
