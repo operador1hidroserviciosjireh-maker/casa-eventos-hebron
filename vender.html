@@ -33,13 +33,14 @@
 
         .badge-qty-floating { position: absolute; top: 10px; right: 10px; background-color: #10b981; color: white; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        .producto-img-container { width: 100%; height: 130px; background: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; }
-        @media (min-width: 768px) { .producto-img-container { height: 160px; } }
+        .producto-img-container { width: 100%; height: 120px; background: #ffffff; display: flex; align-items: center; justify-content: center; padding: 10px; overflow: hidden; position: relative; }
+        @media (min-width: 768px) { .producto-img-container { height: 150px; } }
         .producto-img-container img { max-width: 100%; max-height: 100%; object-fit: contain; }
         .producto-sin-foto { color: #94a3b8; font-size: 12px; }
 
         .producto-info { padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; }
-        .producto-nombre { font-size: 13px; font-weight: 600; color: #ffffff; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .producto-nombre { font-size: 13px; font-weight: 600; color: #ffffff; margin-bottom: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .producto-stock { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
         .producto-precio { font-size: 14px; font-weight: 700; color: #ffffff; }
 
         /* Barra Inferior Flotante de Total */
@@ -100,7 +101,7 @@
 
     <!-- Barra Inferior Flotante Estilo Referencia -->
     <div id="cartBar" class="cart-bar" onclick="abrirModalCarrito()">
-        <div class="cart-bar-text" id="cartBarText">4 items = 105.00 Q</div>
+        <div class="cart-bar-text" id="cartBarText">0 items = 0.00 Q</div>
         <div class="cart-bar-arrow">&gt;</div>
     </div>
 
@@ -238,13 +239,19 @@
                 let enCarrito = carrito[idProd] ? carrito[idProd].cantidad : 0;
                 let badgeHtml = enCarrito > 0 ? `<div class="badge-qty-floating">${enCarrito}</div>` : '';
                 let imgHtml = p.foto ? `<img src="${p.foto}" alt="${p.nombre}">` : `<span class="producto-sin-foto">Sin imagen</span>`;
+                
+                // Información de stock incorporada
+                let stockTexto = p.controlar_stock ? `Stock: ${p.stock || 0}` : `Disponible`;
 
                 grid.innerHTML += `
                     <div class="producto-card" onclick="agregarAlCarritoDirecto('${idProd}', '${p.nombre.replace(/'/g, "\\'")}', ${p.precio})">
                         ${badgeHtml}
                         <div class="producto-img-container">${imgHtml}</div>
                         <div class="producto-info">
-                            <h3 class="producto-nombre">${p.nombre}</h3>
+                            <div>
+                                <h3 class="producto-nombre">${p.nombre}</h3>
+                                <div class="producto-stock">${stockTexto}</div>
+                            </div>
                             <div class="producto-precio">Q. ${parseFloat(p.precio || 0).toFixed(2)}</div>
                         </div>
                     </div>
